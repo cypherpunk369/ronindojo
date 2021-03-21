@@ -56,13 +56,6 @@ for choice in $choices
 do
     case $choice in
         1)
-            # REMOVE ME AFTER V2 IMPLEMENTATION
-            printf "%s\n***\nMempool.space v1 is currently disabled...\nReturning to menu...\n***%s\n" "${red}" "${nc}"
-
-            _pause continue
-            break
-            # REMOVE ME AFTER V2 IMPLEMENTATION
-
             if ! "${is_mempool_installed}" ; then
                 cat <<EOF
 ${red}
@@ -72,7 +65,6 @@ Installing Mempool Space Visualizer...
 ${nc}
 EOF
                 _mempool_conf
-                _mempool_urls_to_local_btc_explorer
             else
                 _mempool_uninstall || exit
             fi
