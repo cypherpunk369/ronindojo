@@ -6,9 +6,9 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-#for pkg in sysstat bc gnu-netcat mpstat lscpu; do
-#    _check_pkg "${pkg}"
-#done
+for pkg in sysstat bc gnu-netcat mpstat lscpu; do
+    _check_pkg "${pkg}"
+done
 
 cat << EOF > "$HOME"/pgp.txt
 -----BEGIN PGP PUBLIC KEY BLOCK-----
@@ -179,84 +179,29 @@ M9esgzvL7erVHKmEsDALzAN59IjawC7SKXmmpUpw4WRbscsVN6kr+5uBHaU=
 EOF
 
 # Import and team pgp keys
-gpg --refresh-keys &>/dev/null && gpg --import /$HOME/pgp.txt &>/dev/null
-rm -rf /$HOME/pgp.txt
+gpg --refresh-keys &>/dev/null && gpg --import "$HOME"/pgp.txt &>/dev/null
+rm -rf "$HOME"/pgp.txt
 
 function ronindebug {
 
 cat <<EOF
-     _____           _____  _____   ______    ____  _____   ______   
- ___|\    \     ____|\    \|\    \ |\     \  |    ||\    \ |\     \  
-|    |\    \   /     /\    \\\    \|  \     \ |    |  \\    \| \     \ 
-|    | |    | /     /  \    \\|    \   \     ||    |  \|    \  \     |
-|    |/____/ |     |    |    ||     \  |    ||    |   |     \  |    |
-|    |\    \ |     |    |    ||      \ |    ||    |   |      \ |    |
-|    | |    ||\     \  /    /||    |\ \|    ||    |   |    |\ \|    |
-|____| |____|| \_____\/____/ ||____||\_____/||____|   |____||\_____/|
-|    | |    | \ |    ||    | /|    |/ \|   |||    |   |    |/ \|   ||
-|____| |____|  \|____||____|/ |____|   |___|/|____|   |____|   |___|/
-  \(     )/       \(    )/      \(       )/    \(       \(       )/  
-   '     '         '    '        '       '      '        '       '                                                                                                                            
-     _____        ______         _____    ____   ____       _____    
- ___|\    \   ___|\     \   ___|\     \  |    | |    |  ___|\    \  .  .  
-|    |\    \ |     \     \ |    |\     \ |    | |    | /    /\    \  \/             ,  
-|    | |    ||     ,_____/||    | |     ||    | |    ||    |  |____|@'"@_.-"':_.-"': 
-|    | |    ||     \--'\_|/|    | /_ _ / |    | |    ||    |    ____ 4'  ',.,'"',.,'
-|    | |    ||     /___/|  |    |\    \  |    | |    ||    |   |    |     |||   |||
-|    | |    ||     \____|\ |    | |    | |    | |    ||    |   |_,  |    "'"'" ""''"
-|____|/____/||____ '     /||____|/____/| |\___\_|____||\ ___\___/  /|
-|    /    | ||    /_____/ ||    /     || | |    |    || |   /____ / |
-|____|____|/ |____|     | /|____|_____|/  \|____|____| \|___|    | / 
-  \(    )/     \( |_____|/   \(    )/        \(   )/     \( |____|/  
-   '    '       '    )/       '    '  .---. \/'   '       '   )/     
- .---. \/                     '      (._.' \()                '                                 
-(._.' \()                             ^"""^"
- ^"""^"
-EOF
-
-printf "\n" # Add new line
-
-# Get general system info
-OSDESCRIP=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
-OSVERSION=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
-KERNELVERSION=$(uname -r)
-SYSTEMUPTIME=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
-BACKENDSTATUS=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null; then echo "Online"; else echo "Offline"; fi)
-TORSTATUS=$(if ! _is_active tor; then echo "Online"; else echo "Offline"; fi)
-DOCKERSTATUS=$(if ! _is_active docker; then echo "Online"; else echo "Offline"; fi)
-
-cat <<EOF
 #####################################################################
-                     General System Information
-#####################################################################
-OS Description   : $OSDESCRIP
-OS Version       : $OSVERSION
-Kernel Version   : $KERNELVERSION
-Uptime           : $SYSTEMUPTIME
-UI Backend       : $BACKENDSTATUS
-External Tor     : $TORSTATUS
-Docker           : $DOCKERSTATUS
-EOF
-
-printf "\n" # Add new line
-
-cat <<EOF
-#####################################################################
-CPU Load:       <1 Normal,  >1 Caution,  >2 Unhealthy 
+CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy 
 #####################################################################
 EOF
 
-MPSTAT=$(which mpstat)
-MPSTAT=$?
-if [ $MPSTAT != 0 ] ; then
+# Get cpu load values and display to user
+mpstat=$(which mpstat)
+mpstat=$?
+if [ $mpstat != 0 ] ; then
 	    printf "\nPlease install mpstat...\n"
 	    printf "\nOn Manjaro based systems:\n"
 	    printf "\nsudo pacman -S sysstat\n"
     else
-        LSCPU=$(which lscpu)
-        LSCPU=$?
-        if [ $LSCPU != 0 ] ; then
-	            RESULT=$RESULT" lscpu required to obtain proper results"
+        lscpu=$(which lscpu)
+        lscpu=$?
+        if [ $lscpu != 0 ] ; then
+	            result=$result" lscpu required to obtain proper results"
             else
                 cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
                 i=0
@@ -271,7 +216,78 @@ Heath Status : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d, | a
 EOF
 fi
 
-printf "\n" # Add new line
+printf "\n"
+
+# Get general system info
+osdescrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
+osversion=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
+kernelversion=$(uname -r)
+systemuptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
+backendstatus=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null; then echo "Online"; else echo "Offline"; fi)
+torstatus=$(if ! _is_active tor; then echo "Online"; else echo "Offline"; fi)
+dockerstatus=$(if ! _is_active docker; then echo "Online"; else echo "Offline"; fi)
+cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
+tempC=$((cpu/1000))
+tempoutput=$(echo $tempC $'\xc2\xb0'C)
+
+cat <<EOF
+#####################################################################
+                     General System Information
+#####################################################################
+OS Description   :  $osdescrip
+OS Version       :  $osversion
+Kernel Version   :  $kernelversion
+CPU Temperature  :  $tempoutput
+Uptime           :  $systemuptime
+UI Backend       :  $backendstatus
+External Tor     :  $torstatus
+Docker           :  $dockerstatus
+EOF
+
+printf "\n"
+
+# Get Total Memory, Used Memory, Free Memory, Used Swap and Free Swap values
+# All variables like this are used to store values as float 
+# Using bc to do all math operations, without bc all values will be integers 
+# Also we use if to add zero before value if value less than 1024, and result of dividing will be less than 1
+totalmem=$(free -m | head -2 | tail -1| awk '{print $2}')
+totalbc=$(echo "scale=2;if("$totalmem"<1024 && "$totalmem" > 0) print 0;"$totalmem"/1024"| bc -l)
+usedmem=$(free -m | head -2 | tail -1| awk '{print $3}')
+usedbc=$(echo "scale=2;if("$usedmem"<1024 && "$usedmem" > 0) print 0;"$usedmem"/1024"|bc -l)
+freemem=$(free -m | head -2 | tail -1| awk '{print $4}')
+freebc=$(echo "scale=2;if("$freemem"<1024 && "$freemem" > 0) print 0;"$freemem"/1024"|bc -l)
+totalswap=$(free -m | tail -1| awk '{print $2}')
+totalsbc=$(echo "scale=2;if("$totalswap"<1024 && "$totalswap" > 0) print 0;"$totalswap"/1024"| bc -l)
+usedswap=$(free -m | tail -1| awk '{print $3}')
+usedsbc=$(echo "scale=2;if("$usedswap"<1024 && "$usedswap" > 0) print 0;"$usedswap"/1024"|bc -l)
+freeswap=$(free -m |  tail -1| awk '{print $4}')
+freesbc=$(echo "scale=2;if("$freeswap"<1024 && "$freeswap" > 0) print 0;"$freeswap"/1024"|bc -l)
+
+cat <<EOF
+#####################################################################
+                         Memory Usage
+#####################################################################
+EOF
+
+# Need to fix output not displaying properly
+#echo -e "
+#=> Physical Memory
+#Total\tUsed\tFree\t%Free
+# as we get values in GB, also we get % of usage dividing Free by Total
+#${totalbc}GB\t${usedbc}GB \t${freebc}GB\t$(($freemem * 100 / $totalmem ))%
+
+#=> Swap Memory
+#Total\tUsed\tFree\t%Free
+#Same as above – values in GB, and in same way we get % of usage
+#${totalsbc}GB\t${usedsbc}GB\t${freesbc}GB\t$(($freeswap * 100 / $totalswap ))%
+#"
+
+# List of processes that are using most RAM
+printf "=> Top memory using processes\n"
+printf "PID %%MEM RSS COMMAND\n"
+ps aux | awk '{print $2, $4, $6, $11}' | sort -k3rn | head -n 10
+
+printf "\n"
 
 cat <<EOF
 #####################################################################
@@ -281,13 +297,13 @@ EOF
 
 # Display drive info
 df -Pkh | grep -v 'Filesystem' > /tmp/df.status
-while read DISK
+while read disk
 do
-	LINE=$(echo $DISK | awk '{print $1,"\t",$6,"\t",$5,"-used","\t",$4,"-freespace"}')
-	echo -e $LINE 
+	line=$(echo $disk | awk '{print $1,"\t",$6,"\t",$5," used","\t",$4," freespace"}')
+	echo -e $line 
 done < /tmp/df.status
 
-printf "\n" # Add new line
+printf "\n"
 
 cat <<EOF
 #####################################################################
@@ -296,13 +312,7 @@ cat <<EOF
 EOF
 
 # Check if SSD storage device is found
-if [ -b "${primary_storage}" ] ; then
-    cat <<EOF
-***
-Primary storage /dev/sda1 found!
-***
-EOF
-elif [ -b "${primary_storage}" ] && [ -b "${secondary_storage}" ] ; then
+if [ -b "${primary_storage}" ] && [ -b "${secondary_storage}" ] ; then
     cat <<EOF
 ***
 Primary storage and secondary storage /dev/sda1 & /dev/sdb1 found...
@@ -310,6 +320,12 @@ Primary storage and secondary storage /dev/sda1 & /dev/sdb1 found...
 
 ***
 Please unmount and unplug your secondary storage device when not in use!
+***
+EOF
+elif [ -b "${primary_storage}" ] ; then
+    cat <<EOF
+***
+Primary storage /dev/sda1 found!
 ***
 EOF
 else
@@ -320,68 +336,108 @@ ERROR: Primary storage /dev/sda1 is NOT FOUND, check dmesg below for I/O errors!
 EOF
 fi
 
-printf "\n" # Add new line
+printf "\n"
 
-while read DISK
+while read disk
 do
-	USAGE=$(echo $DISK | awk '{print $5}' | cut -f1 -d%)
-	if [ $USAGE -ge 95 ] 
+	usage=$(echo "$disk" | awk '{print $5}' | cut -f1 -d%)
+	if [ "$usage" -ge 95 ] 
 	then
-		STATUS='Unhealthy'
-	elif [ $USAGE -ge 90 ]
+		status='Unhealthy'
+	elif [ "$usage" -ge 90 ]
 	then
-		STATUS='Caution'
+		status='Caution'
 	else
-		STATUS='Normal'
+		status='Normal'
 	fi
-        LINE=$(echo $DISK | awk '{print $1,"\t",$6}')
-        echo -ne $LINE "\t\t" $STATUS
-        printf "\n" # Add new line
+        line=$(echo "$disk" | awk '{print $1,"\t",$6}')
+        echo -ne "$line" "\t\t" "$status"
+        printf "\n"
 done < /tmp/df.status
 rm /tmp/df.status
 
-printf "\n" # Add new line
+printf "\n"
 
-# Get Total Memory, Used Memory, Free Memory, Used Swap and Free Swap values
-# All variables like this are used to store values as float 
-# Using bc to do all math operations, without bc all values will be integers 
-# Also we use if to add zero before value, if value less than 1024, and result of dividing will be less than 1.
-TOTALMEM=$(free -m | head -2 | tail -1| awk '{print $2}')
-TOTALBC=$(echo "scale=2;if($TOTALMEM<1024 && $TOTALMEM > 0) print 0;$TOTALMEM/1024"| bc -l)
-USEDMEM=$(free -m | head -2 | tail -1| awk '{print $3}')
-USEDBC=$(echo "scale=2;if($USEDMEM<1024 && $USEDMEM > 0) print 0;$USEDMEM/1024"|bc -l)
-FREEMEM=$(free -m | head -2 | tail -1| awk '{print $4}')
-FREEBC=$(echo "scale=2;if($FREEMEM<1024 && $FREEMEM > 0) print 0;$FREEMEM/1024"|bc -l)
-TOTALSWAP=$(free -m | tail -1| awk '{print $2}')
-TOTALSBC=$(echo "scale=2;if($TOTALSWAP<1024 && $TOTALSWAP > 0) print 0;$TOTALSWAP/1024"| bc -l)
-USEDSWAP=$(free -m | tail -1| awk '{print $3}')
-USEDSBC=$(echo "scale=2;if($USEDSWAP<1024 && $USEDSWAP > 0) print 0;$USEDSWAP/1024"|bc -l)
-FREESWAP=$(free -m |  tail -1| awk '{print $4}')
-FREESBC=$(echo "scale=2;if($FREESWAP<1024 && $FREESWAP > 0) print 0;$FREESWAP/1024"|bc -l)
+# Show dmesg error logs if found when piped into grep search 
+if dmesg | grep "error" ; then
+    cat <<EOF
+***
+WARNING - Dmesg Error Logs Detected:
+***
+EOF
+dmesg | grep "error"
+fi
+
+printf "\n"
 
 cat <<EOF
 #####################################################################
-                         Memory Usage
+                      Docker Container Status
 #####################################################################
 EOF
 
-#echo -e "
-#=> Physical Memory
-#Total\tUsed\tFree\t%Free
-# as we get values in GB, also we get % of usage dividing Free by Total
-#${TOTALBC}GB\t${USEDBC}GB \t${FREEBC}GB\t$(($FREEMEM * 100 / $TOTALMEM ))%
+docker ps
 
-#=> Swap Memory
-#Total\tUsed\tFree\t%Free
-#Same as above – values in GB, and in same way we get % of usage
-#${TOTALSBC}GB\t${USEDSBC}GB\t${FREESBC}GB\t$(($FREESWAP * 100 / $TOTALSWAP ))%
-#"
+printf "\n"
 
-printf "=> Top memory using processes\n"
-printf "PID %%MEM RSS COMMAND\n"
-ps aux | awk '{print $2, $4, $6, $11}' | sort -k3rn | head -n 10
+# checks if dojo is running (check the db container)
+if ! _dojo_check; then
+    break
+else
+    cat <<EOF
+#####################################################################
+                          Bitcoind Logs
+#####################################################################
+EOF
 
-printf "\n" # Add new line
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs bitcoind -n 20
+fi
+
+if ! _dojo_check; then
+    break
+else
+    cat <<EOF
+#####################################################################
+                          Tor Logs
+#####################################################################
+EOF
+    
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs tor -n 20
+fi
+
+printf "\n"
+
+if ! _dojo_check; then
+    break
+else
+    cat <<EOF
+#####################################################################
+                          MariaDB Logs
+#####################################################################
+EOF
+    
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs db -n 20
+fi
+
+printf "\n"
+
+if ! _dojo_check; then
+    break
+else
+    cat <<EOF
+#####################################################################
+                          Indexer Logs
+#####################################################################
+EOF
+
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs indexer -n 20
+fi
+
+printf "\n"
 
 # Upload full copy of pgp encrypted dmesg logs to termbin.com
 # Link to termbin github repository: https://github.com/solusipse/fiche.
@@ -392,25 +448,16 @@ cat <<EOF
 #####################################################################
 EOF
 
-if dmesg | grep "error" ; then
-    cat <<EOF
-***
-Dmesg Error Logs:
-***
-EOF
-dmesg | grep "error"
-fi
-
     cat <<EOF
 ***
 PGP Encrypted Dmesg Logs URL:
 ***
 EOF
-dmesg > /$HOME/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always /$HOME/debug.txt
-cat /$HOME/debug.txt.asc | nc termbin.com 9999
-rm -rf /$HOME/debug*
+dmesg > "$HOME"/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always "$HOME"/debug.txt
+cat "$HOME"/debug.txt.asc | nc termbin.com 9999
+rm -rf "$HOME"/debug*
 
-printf "\n" # Add new line
+printf "\n"
 
 }
 
@@ -418,14 +465,22 @@ printf "\n" # Add new line
     cat <<EOF
 ${red}
 ***
+Please wait while URL is generated...
+***
+${nc}
+EOF
+_sleep 2
+
+    cat <<EOF
+${red}
+***
 Debugging URL:
 ***
 ${nc}
 EOF
-FILENAME="health-`date +%y%m%d`-`date +%H%M`.txt"
-ronindebug  > /$HOME/$FILENAME
-cat /$HOME/health-*.txt | nc termbin.com 9999
-_sleep 3
+filename="health-`date +%y%m%d`-`date +%H%M`.txt"
+ronindebug  > "$HOME/$filename"
+cat "$HOME"/health-*.txt | nc termbin.com 9999
 
     # Ask user to proceed
     cat <<EOF
@@ -457,5 +512,10 @@ EOF
 done
 
 # Display ronindebug function output to user
-printf "\n" # Add new line
-ronindebug | cat
+printf "\n"
+cat "$HOME"/health-*.txt
+
+# Make debug directory if one does not exist and move ronindebug script output there
+test ! -d "$HOME"/.config/RoninDojo/debug && mkdir "$HOME"/.config/RoninDojo/debug
+mv "$HOME"/health-*.txt "$HOME"/.config/RoninDojo/debug
+exit
