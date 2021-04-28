@@ -507,17 +507,17 @@ while true; do
           printf "\n"
           cat "${HOME}"/health-*.txt
           # Make debug directory if one does not exist and move ronindebug script output there
-          test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
-          mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
+          test ! -d "${ronin_debug_dir}" && mkdir "${ronin_debug_dir}"
+          mv "${HOME}"/health-*.txt "${ronin_debug_dir}"
           _pause return
-          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+          bash -c "${ronin_system_monitoring}"
           exit
           ;;
         [nN][oO]|[Nn])
-          test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
-          mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
+          test ! -d "${ronin_debug_dir}" && mkdir "${ronin_debug_dir}"
+          mv "${HOME}"/health-*.txt "${ronin_debug_dir}"
           _pause return
-          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+          bash -c "${ronin_system_monitoring}"
           exit
           ;;
         *)
