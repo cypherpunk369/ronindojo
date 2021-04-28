@@ -180,10 +180,10 @@ EOF
 
 # Import team pgp keys
 if gpg --list-keys | grep -e 'btcxzelko\|s2l1\|Pavel\|likewhoa' &>/dev/null ; then
-gpg --refresh-keys &>/dev/null && rm -rf "${HOME}"/pgp.txt
+gpg --refresh-keys &>/dev/null && rm -f "${HOME}"/pgp.txt
 else 
 gpg --refresh-keys &>/dev/null && gpg --import "${HOME}"/pgp.txt &>/dev/null
-rm -rf "${HOME}"/pgp.txt
+rm -f "${HOME}"/pgp.txt
 fi
 
 function ronindebug {
@@ -195,26 +195,15 @@ CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy
 EOF
 
 # Get cpu load values and display to user
-mpstat=$(which mpstat)
-mpstat=$?
-if [ $mpstat != 0 ] ; then
-	    printf "\nPlease install mpstat...\n"
-	    printf "\nOn Manjaro based systems:\n"
-	    printf "\nsudo pacman -S sysstat\n"
-    else
-        lscpu=$(which lscpu)
-        lscpu=$?
-        if [ $lscpu != 0 ] ; then
-	            result=$result" lscpu required to obtain proper results"
-            else
-                cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
-                i=0
-            while [ $i -lt $cpus ] ; do
-	            echo "CPU$i : `mpstat -P ALL | awk -v var=$i '{ if ($3 == var ) print $4 }' `"
-	            let i=$i+1
-            done
-        fi
-        cat <<EOF
+cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
+i=0
+
+while [ $i -lt $cpus ] ; do
+	echo "CPU$i : `mpstat -P ALL | awk -v var=$i '{ if ($3 == var ) print $4 }' `"
+	let i=$i+1
+done
+
+    cat <<EOF
 Load Average : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d,)
 Heath Status : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d, | awk '{if ($1 > 2) print "Unhealthy"; else if ($1 > 1) print "Caution"; else print "Normal"}')
 EOF
@@ -461,7 +450,7 @@ PGP Encrypted Dmesg Logs URL:
 EOF
 dmesg > "${HOME}"/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always "${HOME}"/debug.txt
 cat "${HOME}"/debug.txt.asc | nc termbin.com 9999
-rm -rf "${HOME}"/debug*
+rm -f "${HOME}"/debug*
 
 printf "\n"
 
@@ -487,9 +476,6 @@ EOF
 filename="health-`date +%y%m%d`-`date +%H%M`.txt"
 ronindebug  > "${HOME}/$filename"
 cat "${HOME}"/health-*.txt | nc termbin.com 9999
-
-# Remove debug script dependencies and exit
-sudo pacman -R --noconfirm sysstat bc gnu-netcat &>/dev/null
 
     # Ask user to proceed
     cat <<EOF
