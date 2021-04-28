@@ -215,9 +215,9 @@ os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g'
 os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
 kernel_version=$(uname -r)
 system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
-backend_status=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null; then echo "Online"; else echo "Offline"; fi)
-tor_status=$(if ! _is_active tor; then echo "Online"; else echo "Offline"; fi)
-docker_status=$(if ! _is_active docker; then echo "Online"; else echo "Offline"; fi)
+backend_status=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
+tor_status=$(if systemctl is-active --quiet tor ; then printf "Online" ; else printf "Offline" ; fi)
+docker_status=$(if systemctl is-active --quiet docker ; then printf "Online" ; else printf "Offline" ; fi)
 cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
 tempC=$((cpu/1000))
 temp_output=$(echo $tempC $'\xc2\xb0'C)
@@ -276,8 +276,8 @@ EOF
 
 # List of processes that are using most RAM
 printf "=> Top memory using processes\n"
-printf "PID %%MEM RSS COMMAND\n"
-ps aux | awk '{print $2, $4, $6, $11}' | sort -k3rn | head -n 10
+printf "PID     %%MEM    RSS     COMMAND\n"
+ps aux | awk '{print $2,"\t"$4,"\t"$6,"\t"$11}' | sort -k3rn | head -n 10
 
 printf "\n"
 
@@ -289,8 +289,7 @@ EOF
 
 # Display drive info
 df -Pkh | grep -v 'Filesystem' > /tmp/df.status
-while read disk
-do
+while read disk ; do
 	line=$(echo $disk | awk '{print $1,"\t",$6,"\t",$5," used","\t",$4," freespace"}')
 	echo -e $line 
 done < /tmp/df.status
@@ -330,8 +329,7 @@ fi
 
 printf "\n"
 
-while read disk
-do
+while read disk ; do
 	usage=$(echo "$disk" | awk '{print $5}' | cut -f1 -d%)
 	if [ "$usage" -ge 95 ] 
 	then
