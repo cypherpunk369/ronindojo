@@ -207,34 +207,33 @@ done
 Load Average : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d,)
 Heath Status : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d, | awk '{if ($1 > 2) print "Unhealthy"; else if ($1 > 1) print "Caution"; else print "Normal"}')
 EOF
-fi
 
 printf "\n"
 
 # Get general system info
-osdescrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
-osversion=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
-kernelversion=$(uname -r)
-systemuptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
-backendstatus=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null; then echo "Online"; else echo "Offline"; fi)
-torstatus=$(if ! _is_active tor; then echo "Online"; else echo "Offline"; fi)
-dockerstatus=$(if ! _is_active docker; then echo "Online"; else echo "Offline"; fi)
+os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
+os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
+kernel_version=$(uname -r)
+system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
+backend_status=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null; then echo "Online"; else echo "Offline"; fi)
+tor_status=$(if ! _is_active tor; then echo "Online"; else echo "Offline"; fi)
+docker_status=$(if ! _is_active docker; then echo "Online"; else echo "Offline"; fi)
 cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
 tempC=$((cpu/1000))
-tempoutput=$(echo $tempC $'\xc2\xb0'C)
+temp_output=$(echo $tempC $'\xc2\xb0'C)
 
 cat <<EOF
 #####################################################################
                      General System Information
 #####################################################################
-OS Description   :  $osdescrip
-OS Version       :  $osversion
-Kernel Version   :  $kernelversion
-CPU Temperature  :  $tempoutput
-Uptime           :  $systemuptime
-UI Backend       :  $backendstatus
-External Tor     :  $torstatus
-Docker           :  $dockerstatus
+OS Description   :  $os_descrip
+OS Version       :  $os_version
+Kernel Version   :  $kernel_version
+CPU Temperature  :  $temp_output
+Uptime           :  $system_uptime
+UI Backend       :  $backend_status
+External Tor     :  $tor_status
+Docker           :  $docker_status
 EOF
 
 printf "\n"
@@ -243,18 +242,18 @@ printf "\n"
 # All variables like this are used to store values as float 
 # Using bc to do all math operations, without bc all values will be integers 
 # Also we use if to add zero before value if value less than 1024, and result of dividing will be less than 1
-totalmem=$(free -m | head -2 | tail -1| awk '{print $2}')
-totalbc=$(echo "scale=2;if("$totalmem"<1024 && "$totalmem" > 0) print 0;"$totalmem"/1024"| bc -l)
-usedmem=$(free -m | head -2 | tail -1| awk '{print $3}')
-usedbc=$(echo "scale=2;if("$usedmem"<1024 && "$usedmem" > 0) print 0;"$usedmem"/1024"|bc -l)
-freemem=$(free -m | head -2 | tail -1| awk '{print $4}')
-freebc=$(echo "scale=2;if("$freemem"<1024 && "$freemem" > 0) print 0;"$freemem"/1024"|bc -l)
-totalswap=$(free -m | tail -1| awk '{print $2}')
-totalsbc=$(echo "scale=2;if("$totalswap"<1024 && "$totalswap" > 0) print 0;"$totalswap"/1024"| bc -l)
-usedswap=$(free -m | tail -1| awk '{print $3}')
-usedsbc=$(echo "scale=2;if("$usedswap"<1024 && "$usedswap" > 0) print 0;"$usedswap"/1024"|bc -l)
-freeswap=$(free -m |  tail -1| awk '{print $4}')
-freesbc=$(echo "scale=2;if("$freeswap"<1024 && "$freeswap" > 0) print 0;"$freeswap"/1024"|bc -l)
+total_mem=$(free -m | head -2 | tail -1| awk '{print $2}')
+total_bc=$(echo "scale=2;if("$total_mem"<1024 && "$total_mem" > 0) print 0;"$total_mem"/1024"| bc -l)
+used_mem=$(free -m | head -2 | tail -1| awk '{print $3}')
+used_bc=$(echo "scale=2;if("$used_mem"<1024 && "$used_mem" > 0) print 0;"$used_mem"/1024"|bc -l)
+free_mem=$(free -m | head -2 | tail -1| awk '{print $4}')
+free_bc=$(echo "scale=2;if("$free_mem"<1024 && "$free_mem" > 0) print 0;"$free_mem"/1024"|bc -l)
+total_swap=$(free -m | tail -1| awk '{print $2}')
+total_sbc=$(echo "scale=2;if("$total_swap"<1024 && "$total_swap" > 0) print 0;"$total_swap"/1024"| bc -l)
+used_swap=$(free -m | tail -1| awk '{print $3}')
+used_sbc=$(echo "scale=2;if("$used_swap"<1024 && "$used_swap" > 0) print 0;"$used_swap"/1024"|bc -l)
+free_swap=$(free -m |  tail -1| awk '{print $4}')
+free_sbc=$(echo "scale=2;if("$free_swap"<1024 && "$free_swap" > 0) print 0;"$free_swap"/1024"|bc -l)
 
 cat <<EOF
 #####################################################################
@@ -267,12 +266,12 @@ EOF
 #=> Physical Memory
 #Total\tUsed\tFree\t%Free
 # as we get values in GB, also we get % of usage dividing Free by Total
-#${totalbc}GB\t${usedbc}GB \t${freebc}GB\t$(($freemem * 100 / $totalmem ))%
+#${total_bc}GB\t${used_bc}GB \t${free_bc}GB\t$(($free_mem * 100 / $total_mem ))%
 
 #=> Swap Memory
 #Total\tUsed\tFree\t%Free
 #Same as above – values in GB, and in same way we get % of usage
-#${totalsbc}GB\t${usedsbc}GB\t${freesbc}GB\t$(($freeswap * 100 / $totalswap ))%
+#${total_sbc}GB\t${used_sbc}GB\t${free_sbc}GB\t$(($free_swap * 100 / $total_swap ))%
 #"
 
 # List of processes that are using most RAM
