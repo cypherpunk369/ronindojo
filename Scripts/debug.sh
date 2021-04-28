@@ -398,6 +398,8 @@ EOF
     ./dojo.sh logs bitcoind -n 25
 fi
 
+printf "\n"
+
 if ! _dojo_check; then
     break
 else
