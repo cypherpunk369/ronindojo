@@ -54,6 +54,11 @@ _main() {
         sudo ln -sf "$HOME"/RoninDojo/ronin /usr/local/bin/ronin
     fi
 
+    # Create symbolic link for ronin debug script
+    if [ ! -h /usr/local/bin/debug.sh ]; then
+        sudo ln -sf "${HOME}"/RoninDojo/Scripts/debug.sh /usr/local/bin/debug.sh
+    fi
+
     if ! grep RoninDojo "$HOME"/.bashrc 1>/dev/null; then
         cat << EOF >> "$HOME"/.bashrc
 if [ -d $HOME/RoninDojo ]; then

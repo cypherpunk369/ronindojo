@@ -508,14 +508,14 @@ while true; do
           test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
           mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
           _pause return
-          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system.sh
+          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
           exit
           ;;
         [nN][oO]|[Nn])
           test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
           mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
           _pause return
-          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system.sh
+          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
           exit
           ;;
         *)
