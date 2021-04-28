@@ -1,16 +1,16 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
-. "$HOME"/RoninDojo/Scripts/defaults.sh
-. "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
-. "$HOME"/RoninDojo/Scripts/functions.sh
+. "${HOME}"/RoninDojo/Scripts/defaults.sh
+. "${HOME}"/RoninDojo/Scripts/dojo-defaults.sh
+. "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-for pkg in sysstat bc gnu-netcat mpstat lscpu; do
+for pkg in sysstat bc gnu-netcat; do
     _check_pkg "${pkg}"
 done
 
-cat << EOF > "$HOME"/pgp.txt
+cat << EOF > "${HOME}"/pgp.txt
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 mQENBF7JSOsBCACfFrpQ3nuw2U2sJm1sXckEhK3JFx8ihWevw6PApMFw57H1JfL8
@@ -178,9 +178,13 @@ M9esgzvL7erVHKmEsDALzAN59IjawC7SKXmmpUpw4WRbscsVN6kr+5uBHaU=
 -----END PGP PUBLIC KEY BLOCK-----
 EOF
 
-# Import and team pgp keys
-gpg --refresh-keys &>/dev/null && gpg --import "$HOME"/pgp.txt &>/dev/null
-rm -rf "$HOME"/pgp.txt
+# Import team pgp keys
+if gpg --list-keys | grep -e 'btcxzelko\|s2l1\|Pavel\|likewhoa' &>/dev/null ; then
+gpg --refresh-keys &>/dev/null && rm -rf "${HOME}"/pgp.txt
+else 
+gpg --refresh-keys &>/dev/null && gpg --import "${HOME}"/pgp.txt &>/dev/null
+rm -rf "${HOME}"/pgp.txt
+fi
 
 function ronindebug {
 
@@ -391,7 +395,7 @@ else
 EOF
 
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs bitcoind -n 20
+    ./dojo.sh logs bitcoind -n 25
 fi
 
 if ! _dojo_check; then
@@ -404,7 +408,7 @@ else
 EOF
     
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs tor -n 20
+    ./dojo.sh logs tor -n 25
 fi
 
 printf "\n"
@@ -419,7 +423,7 @@ else
 EOF
     
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs db -n 20
+    ./dojo.sh logs db -n 25
 fi
 
 printf "\n"
@@ -434,7 +438,7 @@ else
 EOF
 
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs indexer -n 20
+    ./dojo.sh logs indexer -n 25
 fi
 
 printf "\n"
@@ -453,9 +457,9 @@ EOF
 PGP Encrypted Dmesg Logs URL:
 ***
 EOF
-dmesg > "$HOME"/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always "$HOME"/debug.txt
-cat "$HOME"/debug.txt.asc | nc termbin.com 9999
-rm -rf "$HOME"/debug*
+dmesg > "${HOME}"/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always "${HOME}"/debug.txt
+cat "${HOME}"/debug.txt.asc | nc termbin.com 9999
+rm -rf "${HOME}"/debug*
 
 printf "\n"
 
@@ -479,8 +483,11 @@ Debugging URL:
 ${nc}
 EOF
 filename="health-`date +%y%m%d`-`date +%H%M`.txt"
-ronindebug  > "$HOME/$filename"
-cat "$HOME"/health-*.txt | nc termbin.com 9999
+ronindebug  > "${HOME}/$filename"
+cat "${HOME}"/health-*.txt | nc termbin.com 9999
+
+# Remove debug script dependencies and exit
+sudo pacman -R --noconfirm sysstat bc gnu-netcat &>/dev/null
 
     # Ask user to proceed
     cat <<EOF
@@ -493,10 +500,22 @@ EOF
 while true; do
     read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
     case $answer in
-        [yY][eE][sS]|[yY]) break;;
-        [nN][oO]|[Nn])
+        [yY][eE][sS]|[yY])
+          # Display ronindebug function output to user
+          printf "\n"
+          cat "${HOME}"/health-*.txt
+          # Make debug directory if one does not exist and move ronindebug script output there
+          test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
+          mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
           _pause return
-          bash "$HOME"/RoninDojo/Scripts/Menu/menu-system.sh
+          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system.sh
+          exit
+          ;;
+        [nN][oO]|[Nn])
+          test ! -d "${HOME}"/.config/RoninDojo/debug && mkdir "${HOME}"/.config/RoninDojo/debug
+          mv "${HOME}"/health-*.txt "${HOME}"/.config/RoninDojo/debug
+          _pause return
+          bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system.sh
           exit
           ;;
         *)
@@ -511,11 +530,4 @@ EOF
     esac
 done
 
-# Display ronindebug function output to user
-printf "\n"
-cat "$HOME"/health-*.txt
-
-# Make debug directory if one does not exist and move ronindebug script output there
-test ! -d "$HOME"/.config/RoninDojo/debug && mkdir "$HOME"/.config/RoninDojo/debug
-mv "$HOME"/health-*.txt "$HOME"/.config/RoninDojo/debug
 exit
