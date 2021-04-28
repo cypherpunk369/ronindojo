@@ -215,7 +215,7 @@ os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g'
 os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
 kernel_version=$(uname -r)
 system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
-backend_status=$(if [ -d "${ronin_ui_backend_dir}" ] && cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
+backend_status=$(if cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
 tor_status=$(if systemctl is-active --quiet tor ; then printf "Online" ; else printf "Offline" ; fi)
 docker_status=$(if systemctl is-active --quiet docker ; then printf "Online" ; else printf "Offline" ; fi)
 cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
