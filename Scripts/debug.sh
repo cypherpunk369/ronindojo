@@ -445,9 +445,10 @@ EOF
 PGP Encrypted Dmesg Logs URL:
 ***
 EOF
-dmesg > "${HOME}"/debug.txt && gpg --encrypt --armor --recipient s2l1@pm.me --trust-model always "${HOME}"/debug.txt
-cat "${HOME}"/debug.txt.asc | nc termbin.com 9999
-rm -f "${HOME}"/debug*
+dmesg > "${HOME}"/dmesg.txt
+gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com --trust-model always -a "${HOME}"/dmesg.txt
+cat "${HOME}"/dmesg.txt.asc | nc termbin.com 9999
+rm -f "${HOME}"/dmesg*
 
 printf "\n"
 
