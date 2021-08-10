@@ -148,3 +148,5 @@ if $upgrade; then
 else
     bash -c "${ronin_applications_menu}"
 fi
+
+exit
