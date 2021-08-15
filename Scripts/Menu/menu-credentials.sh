@@ -41,7 +41,7 @@ WARNING: Do not share these onion addresses with anyone!
 ${nc}
 
 Maintenance Tool:
-Tor V3 URL              = http://${v3_addr_dojo_api}/admin
+Tor Address             = http://${tor_addr_dojo_api}/admin
 Admin Key               = $NODE_ADMIN_KEY
 API Key                 = $NODE_API_KEY
 EOF
@@ -64,7 +64,7 @@ WARNING: Do not share these onion addresses with anyone!
 ***
 ${nc}
 
-Tor V3 URL              = http://${v3_addr_whirlpool}
+Tor Address             = http://${tor_addr_whirlpool}
 Whirlpool API Key       = ${whirlpool_api_key:-Whirlpool not Initiated yet. Pair wallet with GUI}
 EOF
             _pause return
@@ -81,7 +81,7 @@ Electrs Credentials
 ***
 ${nc}
 
-Electrs Tor URL         = http://${v3_addr_electrs}
+Tor Address             = http://${tor_addr_electrs}
 EOF
                 # displaying electrs tor address to connect to electrum
 
@@ -130,7 +130,7 @@ Mempool Space Visualizer Credentials
 
 ***
 ${nc}
-Mempool Tor URL         =  http://${v3_addr_mempool}
+Tor Address             =  http://${tor_addr_mempool}
 EOF
 
                 _pause return
@@ -151,7 +151,7 @@ ${nc}
 
 Local Access Domain     =   http://ronindojo.local
 Local Access IP         =   http://${ip} # fallback for when ronindojo.local doesn't work for you.
-Ronin Tor URL           =   http://${BACKEND_TOR}
+Tor Address             =   http://${BACKEND_TOR}
 EOF
             _pause return
             bash -c "${ronin_credentials_menu}"
@@ -167,14 +167,14 @@ ${nc}
 
 Bitcoin Daemon:
 
-Tor V3 URL              = http://${v3_addr_bitcoind}
+Tor Address             = http://${tor_addr_bitcoind}
 RPC User                = $BITCOIND_RPC_USER
 RPC Password            = $BITCOIND_RPC_PASSWORD
 RPC IP                  = $BITCOIND_IP
 RPC Port                = $BITCOIND_RPC_PORT
 
 Bitcoin RPC Explorer (No username required):
-Tor V3 URL              = http://${v3_addr_explorer}
+Tor Address             = http://${tor_addr_explorer}
 Password                = $EXPLORER_KEY
 EOF
             _pause return
@@ -212,8 +212,8 @@ Specter Server Credentials
 ***
 ${nc}
 
-Local IP URL            = http://${ip}:25441
-Tor URL                 = http://${v3_addr_specter}
+Local IP                = http://${ip}:25441
+Tor Address             = http://${tor_addr_specter}
 RPC User                = $BITCOIND_RPC_USER
 RPC Password            = $BITCOIND_RPC_PASSWORD
 RPC IP                  = $BITCOIND_IP
@@ -249,7 +249,7 @@ WARNING: Do not share these onion addresses with anyone!
 ${nc}
 
 Maintenance Tool:
-Tor V3 URL              = http://${v3_addr_dojo_api}/admin
+Tor Address             = http://${tor_addr_dojo_api}/admin
 Admin Key               = $NODE_ADMIN_KEY
 API Key                 = $NODE_API_KEY
 
@@ -263,7 +263,7 @@ WARNING: Do not share these onion addresses with anyone!
 ***
 ${nc}
 
-Tor V3 URL              = http://${v3_addr_whirlpool}
+Tor Address             = http://${tor_addr_whirlpool}
 Whirlpool API Key       = ${whirlpool_api_key:-Whirlpool not Initiated yet. Pair wallet with GUI}
 
 ${red}
@@ -274,7 +274,7 @@ ${nc}
 
 Local Access Domain     =   http://ronindojo.local
 Local Access IP         =   http://${ip} # fallback for when ronindojo.local doesn't work for you.
-Ronin Tor URL           =   http://${BACKEND_TOR}
+Tor Address             =   http://${BACKEND_TOR}
 
 ${red}
 ***
@@ -284,14 +284,14 @@ ${nc}
 
 Bitcoin Daemon:
 
-Tor V3 URL              = http://${v3_addr_bitcoind}
+Tor Address             = http://${tor_addr_bitcoind}
 RPC User                = $BITCOIND_RPC_USER
 RPC Password            = $BITCOIND_RPC_PASSWORD
 RPC IP                  = $BITCOIND_IP
 RPC Port                = $BITCOIND_RPC_PORT
 
 Bitcoin RPC Explorer (No username required):
-Tor V3 URL              = http://${v3_addr_explorer}
+Tor Address                 = http://${tor_addr_explorer}
 Password                = $EXPLORER_KEY
 EOF
             if [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
@@ -302,7 +302,7 @@ Electrs Credentials
 ***
 ${nc}
 
-Electrs Tor URL         = http://${v3_addr_electrs}
+Tor Address             = http://${tor_addr_electrs}
 EOF
             fi
 
@@ -313,7 +313,7 @@ ${red}
 Mempool Space Visualizer Credentials
 ***
 ${nc}
-Mempool Tor URL         = http://${v3_addr_mempool}
+Tor Address             = http://${tor_addr_mempool}
 EOF
             fi
 
@@ -324,8 +324,8 @@ ${red}
 Specter Server Credentials
 ***
 ${nc}
-Local IP URL            = http://${ip}:25441
-Tor URL                 = http://${v3_addr_specter}
+Local IP                = http://${ip}:25441
+Tor Address             = http://${tor_addr_specter}
 RPC User                = $BITCOIND_RPC_USER
 RPC Password            = $BITCOIND_RPC_PASSWORD
 RPC IP                  = $BITCOIND_IP

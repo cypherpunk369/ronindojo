@@ -21,32 +21,32 @@ fi
 
 # Bitcoind
 if sudo test -d "${docker_volume_tor}"/_data/hsv3bitcoind; then
-    v3_addr_bitcoind=$(sudo cat "${docker_volume_tor}"/_data/hsv3bitcoind/hostname)
+    tor_addr_bitcoind=$(sudo cat "${docker_volume_tor}"/_data/hsv3bitcoind/hostname)
 fi
 
 # Bitcoin Explorer
 if sudo test -d "${docker_volume_tor}"/_data/hsv3explorer; then
-    v3_addr_explorer=$(sudo cat "${docker_volume_tor}"/_data/hsv3explorer/hostname)
+    tor_addr_explorer=$(sudo cat "${docker_volume_tor}"/_data/hsv3explorer/hostname)
 fi
 
 # Dojo Maintanance Tool
 if sudo test -d "${docker_volume_tor}"/_data/hsv3dojo; then
-    v3_addr_dojo_api=$(sudo cat "${docker_volume_tor}"/_data/hsv3dojo/hostname)
+    tor_addr_dojo_api=$(sudo cat "${docker_volume_tor}"/_data/hsv3dojo/hostname)
 fi
 
 # Electrum Server
 if sudo test -d "${docker_volume_tor}"/_data/hsv3electrs; then
-    v3_addr_electrs=$(sudo cat "${docker_volume_tor}"/_data/hsv3electrs/hostname)
+    tor_addr_electrs=$(sudo cat "${docker_volume_tor}"/_data/hsv3electrs/hostname)
 fi
 
 # Whirlpool
 if sudo test -d "${docker_volume_tor}"/_data/hsv3whirlpool; then
-    v3_addr_whirlpool=$(sudo cat "${docker_volume_tor}"/_data/hsv3whirlpool/hostname)
+    tor_addr_whirlpool=$(sudo cat "${docker_volume_tor}"/_data/hsv3whirlpool/hostname)
 fi
 
 # Mempool Space Visualizer
 if sudo test -d "${docker_volume_tor}"/_data/hsv3mempool; then
-    v3_addr_mempool=$(sudo cat "${docker_volume_tor}"/_data/hsv3mempool/hostname)
+    tor_addr_mempool=$(sudo cat "${docker_volume_tor}"/_data/hsv3mempool/hostname)
 fi
 
 # Specter
@@ -54,6 +54,6 @@ shopt -s nullglob
 
 for dir in "${HOME}"/specter*; do
     if [[ -d "${dir}" ]]; then
-        v3_addr_specter=$(sudo cat "${install_dir_tor}"/specter_server/hostname)
+        tor_addr_specter=$(sudo cat "${install_dir_tor}"/specter_server/hostname)
     fi
 done
