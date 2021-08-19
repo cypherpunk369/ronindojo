@@ -393,7 +393,7 @@ _update_21() {
 
         sudo pacman -Syyu --noconfirm
 
-        printf "%s\n***\nSystem update completed, restarting system...\n***\n%s" "${red}" "${nc}"
+        printf "%s\n***\nSystem update complete, restarting system...\n***\n%s" "${red}" "${nc}"
 
         _pause reboot
 
