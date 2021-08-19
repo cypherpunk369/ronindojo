@@ -115,7 +115,7 @@ _update_05() {
 
 # Modify pacman.conf and add ignore packages
 _update_06() {
-    if ! grep "${pkg_ignore[0]}" /etc/pacman.conf 1>/dev/null; then
+    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
         sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
 
         # Finalize
