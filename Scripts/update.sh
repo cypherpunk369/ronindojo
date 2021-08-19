@@ -382,3 +382,24 @@ _update_20() {
         touch "$HOME"/.config/RoninDojo/data/updates/20-"$(date +%m-%d-%Y)"
     fi
 }
+
+# Perform System Update
+_update_21() {
+    if _is_dojo "${ronin_dojo_menu}"; then
+        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
+
+        _dojo_check && _stop_dojo
+        _pause continue
+
+        sudo pacman -Syyu --noconfirm
+
+        printf "%s\n***\nSystem update completed, restarting system...\n***\n%s" "${red}" "${nc}"
+
+        _pause reboot
+
+        # Finalize
+        touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
+
+        sudo systemctl reboot
+    fi
+}
