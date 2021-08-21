@@ -57,8 +57,9 @@ do
     case $choice in
         1)
             # REMOVE ME AFTER V2 IMPLEMENTATION
-            printf "%s\n***\nMempool.space v1 is currently disabled...\nReturning to menu...***%s\n" "${red}" "${nc}"
-            _sleep
+            printf "%s\n***\nMempool.space v1 is currently disabled...\nReturning to menu...\n***%s\n" "${red}" "${nc}"
+
+            _pause continue
             break
             # REMOVE ME AFTER V2 IMPLEMENTATION
 
