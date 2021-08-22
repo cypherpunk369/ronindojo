@@ -41,6 +41,7 @@ _main() {
     test -f "$HOME"/.config/RoninDojo/data/updates/18-* || _update_18  # Update docker-bitcoind.conf settings for existing users
     test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19  # Uninstall bleeding edge Node.js and install LTS Node.js
     test -f "$HOME"/.config/RoninDojo/data/updates/20-* || _update_20  # Revert some settings in docker-bitcoind.conf
+    test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21  # Perform System Update
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
