@@ -416,3 +416,13 @@ _update_21() {
         sudo systemctl reboot
     fi
 }
+
+# Remove any existing docker-mempool.conf in favor of new tpl for v2
+_update_22() {
+    if [ -f "${dojo_path_my_dojo}"/conf/docker-mempool.conf ]; then
+        rm "${dojo_path_my_dojo}"/conf/docker-mempool.conf
+
+        # Finalize
+        touch "$HOME"/.config/RoninDojo/data/updates/22-"$(date +%m-%d-%Y)"
+    fi
+}

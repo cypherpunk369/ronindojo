@@ -46,6 +46,9 @@ if _is_mempool; then
 fi
 # Check if mempool available or not, then install it if previously installed.
 
+# Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
+test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
+
 if [ -f /etc/systemd/system/whirlpool.service ] ; then
    sudo systemctl stop --quiet whirlpool
 
