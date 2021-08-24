@@ -363,7 +363,7 @@ _update_18() {
 
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 _update_19() {
-    sudo pacman -R --noconfirm --cascade nodejs 2>/dev/null
+    sudo pacman -R --noconfirm --cascade nodejs npm 2>/dev/null
     sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
 
     # Finalize
