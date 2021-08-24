@@ -385,13 +385,26 @@ _update_20() {
 
 # Perform System Update
 _update_21() {
+    local _pacman
+    _pacman=false
+
     if _is_dojo "${ronin_dojo_menu}"; then
         printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
 
         _dojo_check && _stop_dojo
         _pause continue
 
+        # Modify pacman.conf and comment ignore packages line
+        if test -f "$HOME"/.config/RoninDojo/data/updates/06-*; then
+            sudo sed -i "s:^IgnorePkg   =.*$:#IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
+            _pacman=true
+        fi
+
+        # Update system packages
         sudo pacman -Syyu --noconfirm
+
+        # Uncomment IgnorePkg if necessary
+        ${_pacman} && sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
 
         printf "%s\n***\nSystem update complete, restarting system...\n***\n%s" "${red}" "${nc}"
 
