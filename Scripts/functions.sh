@@ -2266,7 +2266,7 @@ _specter_config_tor() {
         sudo sed -i "/################ This section is just for relays/i\
 HiddenServiceDir ${install_dir_tor}/specter_server/\n\
 HiddenServiceVersion 3\n\
-HiddenServicePort 443 127.0.0.1:25441\n\
+HiddenServicePort 443 127.0.0.1:${specter_port}\n\
 " /etc/tor/torrc
         sudo systemctl restart --quiet tor
     fi
@@ -2422,7 +2422,7 @@ EOF
 
     _specter_cert_check
 
-    _ufw_rule_add "${ip_range}" 25441
+    _ufw_rule_add "${ip_range}" "${specter_port}"
 
     sudo systemctl daemon-reload
     sudo systemctl enable --quiet specter
@@ -2502,7 +2502,7 @@ EOF
     _specter_cert_check
 
     # check if udev rules are present if not install them.
-    _ufw_rule_add "${ip_range}" "25441"
+    _ufw_rule_add "${ip_range}" "${specter_port}"
 
     sudo systemctl daemon-reload
     systemctl is-enabled --quiet specter || sudo systemctl enable --quiet specter
