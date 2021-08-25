@@ -1,3 +1,16 @@
+RoninDojo v1.11.0 Change Log
+
+- Update to Dojo v1.11.0
+- Support SSH key authentication
+- Update Specter to 1.5.1
+- Update Electrs to 0.8.10
+- Enable default indexer on install
+- Remove Tor v2 address support
+- Update System OS packages
+- Prep for mempool v2 & Plug&Play Support
+- Fix bug with bitcoind
+- Optimizations & Bug fixes
+
 RoninDojo v1.10.0 Change Log
 
 - Introduce Web Application which replaces desktop application
