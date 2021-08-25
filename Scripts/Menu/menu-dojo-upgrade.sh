@@ -106,11 +106,11 @@ fi
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
-# Source update script
-. "$HOME"/RoninDojo/Scripts/update.sh
-
 # Run _update_08
 test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
+
+# Perform System Update
+test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
 
 _pause return
 
