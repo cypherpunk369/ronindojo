@@ -19,6 +19,9 @@ _update_10
 # Fix any existing specter installs that are missing gcc dependency
 _update_16
 
+# Uninstall bleeding edge Node.js and install LTS Node.js instead
+test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
+
 # Uninstall legacy Ronin UI
 test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17
 
