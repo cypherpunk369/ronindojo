@@ -342,7 +342,7 @@ _is_active() {
 _tor_backup() {
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    if [ -d "${dojo_path}" ] && [ -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo ]; then
+    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
         sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
         return 0
     fi
