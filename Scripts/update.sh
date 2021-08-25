@@ -388,7 +388,7 @@ _update_21() {
     local _pacman
     _pacman=false
 
-    if _is_dojo "${ronin_dojo_menu}"; then
+    if [ -d "${dojo_path}" ]; then
         printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
 
         _dojo_check && _stop_dojo
