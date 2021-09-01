@@ -157,7 +157,7 @@ fi
 specter_sign_key_url="https://stepansnigirev.com/ss-specter-release.asc"
 specter_sign_key="ss-specter-release.asc"
 specter_url="https://github.com/cryptoadvance/specter-desktop.git"
-specter_version="v1.5.1"
+specter_version="v1.6.0"
 specter_port="25441"
 
 # Network info
