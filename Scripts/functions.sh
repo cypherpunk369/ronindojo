@@ -2798,7 +2798,7 @@ _ufw_rule_add(){
     port=$2
 
     if ! sudo ufw status | grep "${port}" &>/dev/null; then
-        sudo ufw allow from "$ip" to any port "$port"
+        sudo ufw allow from "$ip" to any port "$port" &>/dev/null
         sudo ufw reload
     fi
 }
