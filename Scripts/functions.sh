@@ -140,7 +140,7 @@ _rand_passwd() {
     local _length
     _length="${1:-16}"
 
-    tr -dc 'a-zA-Z0-9' </dev/urandom | fold -w "$_length" | head -n 1
+    tr -dc 'a-zA-Z0-9' </dev/urandom | head -c"${_length}"
 }
 
 #
