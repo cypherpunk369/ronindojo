@@ -20,8 +20,8 @@ gui_jwt=$(_rand_passwd 69)
 #
 
 # Bitcoin Daemon
-rpc_pass=$(_rand_passwd 69)
-rpc_user=$(_rand_passwd)
+BITCOIND_RPC_USER=$(_rand_passwd)
+BITCOIND_RPC_PASSWORD=$(_rand_passwd 69)
 
 # Node.js
 NODE_API_KEY=$(_rand_passwd 69)
@@ -38,4 +38,5 @@ EXPLORER_KEY=$(_rand_passwd 69)
 
 # Mempool Space Visualizer
 MEMPOOL_MYSQL_USER=$(_rand_passwd)
-MEMPOOL_MYSQL_PASSWORD=$(_rand_passwd 69)
+MEMPOOL_MYSQL_PASSWORD=$(_rand_passwd)
+MEMPOOL_MYSQL_ROOT_PASSWORD=$(_rand_passwd)

@@ -177,8 +177,8 @@ Configuring the bitcoin daemon server...
 ${nc}
 EOF
     _sleep
-    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER:-$rpc_user}/" \
-      -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD:-$rpc_pass}/" \
+    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
+      -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
       -e "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" \
       -e "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=${BITCOIND_DB_CACHE:-$(_mem_total "${bitcoind_db_cache_total}")}/" \
       -e "s/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-2048}/" \
