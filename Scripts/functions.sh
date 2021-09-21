@@ -592,7 +592,7 @@ Performing pnpm install, please wait...
 ${nc}
 EOF
 
-        pnpm install --prod &>/dev/null || { printf "\n %s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+        pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
         cat <<EOF
 ${red}
