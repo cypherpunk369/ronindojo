@@ -265,13 +265,41 @@ sudo systemctl restart --quiet docker
 cd "$dojo_path_my_dojo" || exit
 
 if ./dojo.sh install --nolog --auto; then
-    cat <<EOF
+
+    # Installing SW Toolkit
+    if [ ! -d "${HOME}"/boltzmann ]; then
+        cat <<EOF
 ${red}
 ***
-All RoninDojo feature installations complete...
+Installing Boltzmann Calculator...
 ***
 ${nc}
 EOF
+        # install Boltzmann
+        _install_boltzmann
+    fi
+
+    if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
+        cat <<EOF
+${red}
+***
+Installing Whirlpool Stat Tool...
+***
+${nc}
+EOF
+        # install Whirlpool Stat Tool
+        _install_wst
+    fi
+
+    cat <<EOF
+${red}
+***
+Any previous node data will now be salvaged if you choose to continue...
+***
+${nc}
+EOF
+_sleep
+
     # Make sure to wait for user interaction before continuing
     _pause continue
 
@@ -290,34 +318,14 @@ EOF
     fi
     # restore tor credentials backup to container
 
-    # Installing SW Toolkit
-
-    if [ ! -d "${HOME}"/boltzmann ]; then
-        cat <<EOF
+    cat <<EOF
 ${red}
 ***
-Installing Boltzmann Calculator...
+All RoninDojo feature installations complete!
 ***
 ${nc}
 EOF
-        _sleep
-
-        # install Boltzmann
-        _install_boltzmann
-    fi
-
-    if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
-        cat <<EOF
-${red}
-***
-Installing Whirlpool Stat Tool...
-***
-${nc}
-EOF
-        _sleep
-
-        _install_wst
-    fi
+_sleep
 
     # Source update script
     . "$HOME"/RoninDojo/Scripts/update.sh
