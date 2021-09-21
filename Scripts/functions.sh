@@ -230,7 +230,7 @@ EOF
             cat <<EOF
 ${red}
 ***
-${pgk_name} failed to install!
+${pkg_name} failed to install!
 ***
 ${nc}
 EOF
