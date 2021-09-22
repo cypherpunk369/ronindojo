@@ -25,7 +25,7 @@ case $CHOICE in
         # Update Mirrors and continue.
 
         _pause return
-        bash -c "${ronin_system_menu}"
+        bash -c "${ronin_system_update}"
         ;;
     2)
         if [ -f "${ronin_data_dir}"/ronin-latest.txt ] ; then
@@ -58,7 +58,7 @@ EOF
         # check for Ronin update from site
 
         _pause return
-        bash -c "${ronin_system_menu}"
+        bash -c "${ronin_system_update}"
         ;;
 
     3)
@@ -75,7 +75,7 @@ EOF
 
                 _pause return
 
-                bash -c "${ronin_system_menu}"
+                bash -c "${ronin_system_update}"
                 exit 1
             fi
         fi
