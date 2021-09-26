@@ -1221,7 +1221,7 @@ EOF
 # Setup mempool docker variables
 #
 _mempool_conf() {
-    local mempool_conf bitcoind_conf MEMPOOL_MYSQL_USER MEMPOOL_MYSQL_PASSWORD MEMPOOL_MYSQL_ROOT_PASSWORD
+    local mempool_conf bitcoind_conf MEMPOOL_MYSQL_USER MEMPOOL_MYSQL_PASS MEMPOOL_MYSQL_ROOT_PASSWORD
 
     bitcoind_conf="conf"
     test -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf || bitcoind_conf="conf.tpl"
@@ -1231,7 +1231,7 @@ _mempool_conf() {
 
     if [ "${mempool_conf}" = "conf" ] && ! grep -q 'MYSQL_USER=mempool' "${dojo_path_my_dojo}"/conf/docker-mempool.conf; then # Existing install
         MEMPOOL_MYSQL_USER=$(grep MYSQL_USER "${dojo_path_my_dojo}"/conf/docker-mempool.conf | cut -d '=' -f2)
-        MEMPOOL_MYSQL_PASSWORD=$(grep MYSQL_PASSWORD "${dojo_path_my_dojo}"/conf/docker-mempool.conf | cut -d '=' -f2)
+        MEMPOOL_MYSQL_PASS=$(grep MYSQL_PASS "${dojo_path_my_dojo}"/conf/docker-mempool.conf | cut -d '=' -f2)
         MEMPOOL_MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD "${dojo_path_my_dojo}"/conf/docker-mempool.conf | cut -d '=' -f2)
     else
         # Generate mempool MySQL credentials for a fresh install
@@ -1246,7 +1246,7 @@ _mempool_conf() {
     # Enable mempool and set MySQL credentials
     sed -i -e 's/MEMPOOL_INSTALL=.*$/MEMPOOL_INSTALL=on/' \
     -e "s/MYSQL_USER=.*$/MYSQL_USER=${MEMPOOL_MYSQL_USER}/" \
-    -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MEMPOOL_MYSQL_PASSWORD}/" \
+    -e "s/MYSQL_PASS=.*$/MYSQL_PASS=${MEMPOOL_MYSQL_PASS}/" \
     -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MEMPOOL_MYSQL_ROOT_PASSWORD}/" "${dojo_path_my_dojo}"/conf/docker-mempool."${mempool_conf}"
 }
 

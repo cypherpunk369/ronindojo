@@ -38,5 +38,5 @@ EXPLORER_KEY=$(_rand_passwd 69)
 
 # Mempool Space Visualizer
 MEMPOOL_MYSQL_USER=$(_rand_passwd)
-MEMPOOL_MYSQL_PASSWORD=$(_rand_passwd)
+MEMPOOL_MYSQL_PASS=$(_rand_passwd)
 MEMPOOL_MYSQL_ROOT_PASSWORD=$(_rand_passwd)
