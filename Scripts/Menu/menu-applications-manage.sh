@@ -2,6 +2,7 @@
 # shellcheck source=/dev/null disable=SC2154
 
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+. "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 upgrade=false
@@ -60,7 +61,7 @@ do
                 cat <<EOF
 ${red}
 ***
-Installing Mempool Space Visualizer...
+Installing Mempool Space Visualizer ${_mempool_version}...
 ***
 ${nc}
 EOF

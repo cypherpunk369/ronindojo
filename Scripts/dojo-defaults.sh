@@ -49,6 +49,10 @@ if sudo test -d "${docker_volume_tor}"/_data/hsv3mempool; then
     tor_addr_mempool=$(sudo cat "${docker_volume_tor}"/_data/hsv3mempool/hostname)
 fi
 
+if [ -d "${dojo_path}" ]; then
+    _mempool_version="v$(grep MEMPOOL_API_VERSION_TAG "${dojo_path_my_dojo}"/.env | cut -d '=' -f2)"
+fi
+
 # Specter
 shopt -s nullglob
 
