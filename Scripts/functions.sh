@@ -1196,10 +1196,12 @@ _is_mempool() {
 # Uninstall Mempool Space Visualizer
 #
 _mempool_uninstall() {
+    . "${HOME}"/RoninDojo/Scripts/dojo-defaults.sh
+
     cat <<EOF
 ${red}
 ***
-Uninstalling Mempool Space Visualizer...
+Uninstalling Mempool Space Visualizer ${_mempool_version}...
 ***
 ${nc}
 EOF
@@ -1209,7 +1211,7 @@ EOF
     cat <<EOF
 ${red}
 ***
-Mempool Space Visualizer Uninstalled...
+Mempool Space Visualizer ${_mempool_version} Uninstalled...
 ***
 ${nc}
 EOF
