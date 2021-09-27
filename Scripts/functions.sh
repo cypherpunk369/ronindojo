@@ -1406,7 +1406,7 @@ EOF
     _dojo_check && _stop_dojo
     cd "${dojo_path_my_dojo}" || exit
 
-    . dojo.sh upgrade --nolog
+    . dojo.sh upgrade --nolog --auto
     _pause return
 
     bash -c "${ronin_applications_menu}"
