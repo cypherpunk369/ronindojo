@@ -6,6 +6,7 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 upgrade=false
+volume_prune=false
 
 # Set mempool install/uninstall status
 if ! _is_mempool; then
@@ -72,6 +73,7 @@ EOF
             # Checks for mempool, then installs
 
             upgrade=true
+            volume_prune=true
             ;;
         2)
             if ! "${is_specter_installed}" ; then # Fresh install
@@ -145,7 +147,11 @@ EOF
 done
 
 if $upgrade; then
-    _dojo_upgrade
+    if $volume_prune; then
+        _dojo_upgrade prune
+    else
+        _dojo_upgrade
+    fi
 else
     bash -c "${ronin_applications_menu}"
 fi

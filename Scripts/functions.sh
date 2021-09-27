@@ -1391,6 +1391,11 @@ EOF
     cd "${dojo_path_my_dojo}" || exit
 
     . dojo.sh upgrade --nolog --auto
+
+    if [ "${1}" = "prune" ]; then
+        docker volume prune -f &>/dev/null
+    fi
+
     _pause return
 
     bash -c "${ronin_applications_menu}"
