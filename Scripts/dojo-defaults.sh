@@ -2,8 +2,15 @@
 # shellcheck disable=SC2034,SC2154 source=/dev/null
 
 #
-# Whirlpool CLI
+# Dojo Configuration Values
 #
+test -f "${dojo_path_my_dojo}"/conf/docker-node.conf && . "${dojo_path_my_dojo}"/conf/docker-node.conf
+
+test -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf && . "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+
+test -f "${dojo_path_my_dojo}"/conf/docker-explorer.conf && . "${dojo_path_my_dojo}"/conf/docker-explorer.conf
+
+# Whirlpool
 if sudo test -f "${docker_volume_wp}"/_data/.whirlpool-cli/whirlpool-cli-config.properties; then
     whirlpool_api_key=$(sudo grep cli.apiKey "${docker_volume_wp}"/_data/.whirlpool-cli/whirlpool-cli-config.properties | cut -d '=' -f2)
 fi
@@ -17,7 +24,7 @@ if sudo test -d "${docker_volume_tor}"/_data/hsv3bitcoind; then
     tor_addr_bitcoind=$(sudo cat "${docker_volume_tor}"/_data/hsv3bitcoind/hostname)
 fi
 
-# Bitcoin RPC Explorer
+# Bitcoin Explorer
 if sudo test -d "${docker_volume_tor}"/_data/hsv3explorer; then
     tor_addr_explorer=$(sudo cat "${docker_volume_tor}"/_data/hsv3explorer/hostname)
 fi
