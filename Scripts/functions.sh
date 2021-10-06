@@ -1253,7 +1253,7 @@ _mempool_conf() {
 
     # Set MYSQL_PASS value in mempool.install.yaml
     # Find out why this is the only workaround, possibly a conflict with MYSQL_PASSWORD in docker-mysql.conf during dojo.sh upgrade process
-    sudo sed -i "s/MYSQL_PASSWORD: .*$/MYSQL_PASSWORD: \"${MEMPOOL_MYSQL_PASS}\"/" "${dojo_path_my_dojo}"/overrides/mempool.install.yaml
+    sudo sed -i "s/MYSQL_PASSWORD:.*$/MYSQL_PASSWORD: \"${MEMPOOL_MYSQL_PASS}\"/" "${dojo_path_my_dojo}"/overrides/mempool.install.yaml
 }
 
 #
