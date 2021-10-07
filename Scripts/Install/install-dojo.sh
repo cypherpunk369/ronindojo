@@ -24,7 +24,7 @@ Exiting RoninDojo...
 ${nc}
 EOF
     _sleep
-    _pause return
+    [ $# -eq 0 ] && _pause return
     exit 1
 fi
 
@@ -37,7 +37,7 @@ RoninDojo is already installed...
 ${nc}
 EOF
     _sleep
-    _pause return
+    [ $# -eq 0 ] && _pause return
     ronin
     exit
 fi
@@ -301,7 +301,7 @@ EOF
 _sleep
 
     # Make sure to wait for user interaction before continuing
-    _pause continue
+    [ $# -eq 0 ] && _pause continue
 
     # Backup dojo credentials
     "${dojo_conf_backup}" && _dojo_backup
@@ -334,7 +334,7 @@ _sleep
     test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
 
     # Press to continue to prevent from snapping back to menu too quickly
-    _pause return
+    [ $# -eq 0 ] && _pause return
 else
         cat <<EOF
 ${red}
@@ -344,6 +344,6 @@ Install failed! Please contact support...
 ${nc}
 EOF
 
-        _pause return
-        ronin
+        [ $# -eq 0 ] && _pause return
+        [ $# -eq 0 ] && ronin
 fi

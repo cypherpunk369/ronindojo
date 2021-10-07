@@ -16,7 +16,7 @@ ${nc}
 EOF
     _sleep
 
-    _pause return
+    [ $# -eq 0 ] && _pause return
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 elif [ -f "${ronin_data_dir}"/system-install ]; then
     cat <<EOF
@@ -26,7 +26,7 @@ Previous system install detected. Exiting script...
 ***
 ${nc}
 EOF
-    _pause return
+    [ $# -eq 0 ] && _pause return
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 else
     cat <<EOF
@@ -375,7 +375,7 @@ ${nc}
 EOF
 
     # Make sure to wait for user interaction before continuing
-    _pause continue
+    [ $# -eq 0 ] && _pause continue
 
     # Make sure we don't run system install twice
     touch "${ronin_data_dir}"/system-install
@@ -511,7 +511,7 @@ ${nc}
 EOF
 
     # Make sure to wait for user interaction before continuing
-    _pause continue
+    [ $# -eq 0 ] && _pause continue
 
     # Make sure we don't run system install twice
     touch "${ronin_data_dir}"/system-install
@@ -644,7 +644,7 @@ ${nc}
 EOF
 
 # Make sure to wait for user interaction before continuing
-_pause continue
+[ $# -eq 0 ] && _pause continue
 
 # Make sure we don't run system install twice
 touch "${ronin_data_dir}"/system-install
