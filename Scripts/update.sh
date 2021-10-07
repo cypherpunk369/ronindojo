@@ -363,11 +363,20 @@ _update_18() {
 
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 _update_19() {
-    sudo pacman -R --noconfirm --cascade nodejs npm 2>/dev/null
-    sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
+    # Remove existing packages
+    for pkg in nodejs npm nodejs-lts-erbium pm2; do
+        if ! _check_pkg "${pkg}"; then
+            # Stop pm2 service
+            [ "${pkg}" = "pm2" ] && pm2 stop "RoninUI"
+            sudo pacman -R --noconfirm --quiet --cascade "${pkg}"
+        fi
+    done
 
-    # Finalize
-    touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
+    if sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm pm2; then
+        pm2 start "RoninUI"
+        # Finalize
+        touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
+    fi
 }
 
 # Revert some settings in docker-bitcoind.conf
