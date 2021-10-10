@@ -368,7 +368,7 @@ _update_19() {
         if ! _check_pkg "${pkg}"; then
             # Stop pm2 service
             [ "${pkg}" = "pm2" ] && pm2 stop "RoninUI"
-            sudo pacman -R --noconfirm --quiet --cascade "${pkg}"
+            sudo pacman -R --noconfirm --cascade "${pkg}"
         fi
     done
 
