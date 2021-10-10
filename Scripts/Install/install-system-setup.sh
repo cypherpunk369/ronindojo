@@ -88,6 +88,12 @@ Checking package dependencies. Please wait...
 ${nc}
 EOF
 
+# Source update script
+. "$HOME"/RoninDojo/Scripts/update.sh
+
+# Run _update_19
+test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
+
 # Install system dependencies
 for pkg in "${!package_dependencies[@]}"; do
     _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
