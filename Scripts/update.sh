@@ -410,20 +410,29 @@ _update_21() {
             _pacman=true
         fi
 
+        # Stopping docker
+        sudo systemctl stop --quiet docker
+
         # Update system packages
         sudo pacman -Syyu --noconfirm
 
         # Uncomment IgnorePkg if necessary
         ${_pacman} && sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
 
-        printf "%s\n***\nSystem update complete, restarting system...\n***\n%s" "${red}" "${nc}"
+        if ! sudo systemctl start --quiet docker; then
+            printf "%s\n***\nRestarting system to finalize update...\n***\n%s" "${red}" "${nc}"
 
-        _pause reboot
+            _pause reboot
 
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
+            # Finalize
+            touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
 
-        sudo systemctl reboot
+            sudo systemctl reboot
+        else
+            printf "%s\n***\nSystem packages update completed...\n***\n%s" "${red}" "${nc}"
+            # Finalize
+            touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
+        fi
     fi
 }
 
