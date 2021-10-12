@@ -4,7 +4,7 @@
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
 _update_01() {
-    if ! _check_pkgver bridge-utils 1.7-1; then
+    if ! _check_pkg_ver bridge-utils 1.7-1; then
         cat <<EOF
 ${red}
 ***

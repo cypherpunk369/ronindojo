@@ -250,7 +250,7 @@ EOF
 #
 # Package version match
 #
-_check_pkgver() {
+_check_pkg_ver() {
     local pkgver pkg
 
     pkgver="${2}"
