@@ -363,14 +363,15 @@ _update_18() {
 
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 _update_19() {
-    # Remove existing packages
-    for pkg in nodejs npm nodejs-lts-erbium pm2; do
-        if ! _check_pkg "${pkg}"; then
-            # Stop pm2 service
-            [ "${pkg}" = "pm2" ] && pm2 stop "RoninUI"
-            sudo pacman -R --noconfirm --cascade "${pkg}"
-        fi
-    done
+    # Remove nodejs-lts-erbium if available
+    if pacman -Q nodejs-lts-erbium &>/dev/null; then
+        sudo pacman -R --noconfirm --cascade nodejs-lts-erbium
+        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
+
+        # Restart Ronin-UI
+        cd "${ronin_ui_path}" || exit
+
+        pm2 restart "RoninUI" 1>/dev/null
 
     if sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm pm2; then
         pm2 start "RoninUI"
