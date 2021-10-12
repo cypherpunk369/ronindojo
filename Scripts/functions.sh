@@ -37,11 +37,12 @@ _main() {
     test -f "$HOME"/.config/RoninDojo/data/updates/14-* || _update_14 # Remove user.config file if it exist
     test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
     test -f "$HOME"/.config/RoninDojo/data/updates/16-* || _update_16 # Fix any existing specter installs that are missing gcc dependency
-    test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17  # Uninstall legacy Ronin UI
-    test -f "$HOME"/.config/RoninDojo/data/updates/18-* || _update_18  # Update docker-bitcoind.conf settings for existing users
-    test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19  # Uninstall bleeding edge Node.js and install LTS Node.js
-    test -f "$HOME"/.config/RoninDojo/data/updates/20-* || _update_20  # Revert some settings in docker-bitcoind.conf
-    test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21  # Perform System Update
+    test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/18-* || _update_18 # Update docker-bitcoind.conf settings for existing users
+    test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
+    test -f "$HOME"/.config/RoninDojo/data/updates/20-* || _update_20 # Revert some settings in docker-bitcoind.conf
+    test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
+    test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Update reference from old development branch to develop branch in user.conf
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then

@@ -435,3 +435,13 @@ _update_22() {
         touch "$HOME"/.config/RoninDojo/data/updates/22-"$(date +%m-%d-%Y)"
     fi
 }
+
+# Update reference from old development branch to develop branch in user.conf
+_update_23() {
+    if grep -q "^ronin_dojo_branch=\"origin/development"\" "$HOME"/.config/RoninDojo/user.conf; then
+        sed -i 's:origin/development:origin/develop:' "$HOME"/.config/RoninDojo/user.conf
+
+        # Finalize
+        touch "$HOME"/.config/RoninDojo/data/updates/23-"$(date +%m-%d-%Y)"
+    fi
+}
