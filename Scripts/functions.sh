@@ -15,7 +15,7 @@ _main() {
     if [ ! -f "$HOME/.config/RoninDojo/.run" ]; then
         _sleep 5 --msg "Welcome to RoninDojo. Loading in"
         touch "$HOME/.config/RoninDojo/.run"
-        cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.config
+        cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
     fi
 
     # Source update script
