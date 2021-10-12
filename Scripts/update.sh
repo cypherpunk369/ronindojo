@@ -373,8 +373,6 @@ _update_19() {
 
         pm2 restart "RoninUI" 1>/dev/null
 
-    if sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm pm2; then
-        pm2 start "RoninUI"
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
     fi
