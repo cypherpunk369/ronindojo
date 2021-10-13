@@ -33,10 +33,6 @@ fi\n\
 # using the backslash \ along with sed insert command so that the spaces are not ignored
 # we append everything above the EXPLORER if statement
 
-#sed -i '/docker-tor.conf/i\      - ./conf/docker-indexer.conf' "${dojo_path_my_dojo}"/docker-compose.yaml
-# add indexer to tor section of docker-compose.yaml
-# using the backslash \ along with sed insert command so that the spaces are not ignored
-
 sed -i "/onion() {/a\
 if [ \"\$INDEXER_INSTALL\" == \"on\" ]; then\n\
   tor_addr_electrs=\$( docker exec -it tor cat /var/lib/tor/hsv3electrs/hostname )\n\
@@ -47,11 +43,15 @@ fi\n\
 # using the backslash \ along with sed insert command so that the spaces are not ignored
 
 sed -i \
--e 's/--indexer-rpc-addr=.*$/--electrum-rpc-addr="172.28.1.6:50001"/' \
--e '/--cookie=.*$/d' \
--e '/--indexer-http-addr*/d' \
--e 's/^addrindexrs/electrs/' "${dojo_path_my_dojo}"/indexer/restart.sh
+  -e 's/--indexer-rpc-addr/--electrum-rpc-addr/' \
+  -e 's/--daemon-p2p-addr/a\  --daemon-rpc-addr="$BITCOIND_IP:$BITCOIND_RPC_PORT"' \
+  -e 's/--jsonrpc-import/d' \
+  -e '/--indexer-http-addr*/d' \
+  -e '/--cookie=.*$/d' \
+  -e '/--txid-limit=.*$/d' \
+  -e 's/--blocktxids-cache-size-mb=.*$/--index-lookup-limit="$INDEXER_TXID_LIMIT"/' \
+  -e 's/^addrindexrs/electrs/' "${dojo_path_my_dojo}"/indexer/restart.sh
 # modify indexer/restart.sh for electrs
 
-wget -qO "${dojo_path_my_dojo}"/indexer/Dockerfile https://code.samourai.io/Ronin/samourai-dojo/raw/feat_mydojo_local_indexer/docker/my-dojo/indexer/Dockerfile
-# replace indexer dockerfile for electrs usagedocker/my-dojo/indexer/Dockerfile
+cp "${dojo_path_my_dojo}"/indexer/electrs.Dockerfile.tpl Dockerfile
+# replace indexer Dockerfile for electrs support
