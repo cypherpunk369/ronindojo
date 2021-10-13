@@ -223,12 +223,18 @@ _check_indexer
 
 if (($?==2)); then
     # No indexer found, fresh install
-    # Enable default samourai indexer unless dojo_indexer="electrs-indexer" set in user.conf
+    # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
     _set_indexer
 
-    # Enable Electrs indexer
-    if [ "${dojo_indexer}" = "electrs-indexer" ]; then
+    # Enable Samourai indexer
+    if [ "${dojo_indexer}" = "samourai-indexer" ]; then
+        _uninstall_electrs_indexer
+
+        _set_indexer
+    else
         bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+
+        touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
 fi
 

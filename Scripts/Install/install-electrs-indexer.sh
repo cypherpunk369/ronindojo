@@ -43,15 +43,15 @@ fi\n\
 # using the backslash \ along with sed insert command so that the spaces are not ignored
 
 sed -i \
-  -e 's/--indexer-rpc-addr/--electrum-rpc-addr/' \
-  -e 's/--daemon-p2p-addr/a\  --daemon-rpc-addr="$BITCOIND_IP:$BITCOIND_RPC_PORT"' \
-  -e 's/--jsonrpc-import/d' \
+  -e 's/--indexer-rpc-addr=.*$/--electrum-rpc-addr="$INDEXER_IP:$INDEXER_RPC_PORT"/' \
+  -e '/--daemon-p2p-addr/a\  --daemon-rpc-addr="$BITCOIND_IP:$BITCOIND_RPC_PORT"' \
+  -e '/--jsonrpc-import/d' \
   -e '/--indexer-http-addr*/d' \
   -e '/--cookie=.*$/d' \
-  -e '/--txid-limit=.*$/d' \
-  -e 's/--blocktxids-cache-size-mb=.*$/--index-lookup-limit="$INDEXER_TXID_LIMIT"/' \
+  -e 's/txid-limit/index-lookup-limit/' \
+  -e '/blocktxids-cache-size-mb/d' \
   -e 's/^addrindexrs/electrs/' "${dojo_path_my_dojo}"/indexer/restart.sh
 # modify indexer/restart.sh for electrs
 
-cp "${dojo_path_my_dojo}"/indexer/electrs.Dockerfile.tpl Dockerfile
+cp "${dojo_path_my_dojo}"/indexer/electrs.Dockerfile.tpl "${dojo_path_my_dojo}"/indexer/Dockerfile
 # replace indexer Dockerfile for electrs support
