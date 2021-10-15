@@ -43,6 +43,7 @@ fi\n\
 # using the backslash \ along with sed insert command so that the spaces are not ignored
 
 sed -i \
+  -e 's/-vvvv/-vv/' \
   -e 's/--indexer-rpc-addr=.*$/--electrum-rpc-addr="$INDEXER_IP:$INDEXER_RPC_PORT"/' \
   -e '/--daemon-p2p-addr/a\  --daemon-rpc-addr="$BITCOIND_IP:$BITCOIND_RPC_PORT"' \
   -e '/--jsonrpc-import/d' \
