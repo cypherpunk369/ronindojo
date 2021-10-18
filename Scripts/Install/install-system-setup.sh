@@ -29,6 +29,9 @@ EOF
     [ $# -eq 0 ] && _pause return
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 else
+    # Automatically set primary_storage for nvme capable hardware
+    _nvme_check
+
     cat <<EOF
 ${red}
 ***
