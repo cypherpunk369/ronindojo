@@ -368,10 +368,12 @@ _update_19() {
         sudo pacman -R --noconfirm --cascade nodejs-lts-erbium
         sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
 
-        # Restart Ronin-UI
-        cd "${ronin_ui_path}" || exit
+        if _is_ronin_ui; then
+            # Restart Ronin-UI
+            cd "${ronin_ui_path}" || exit
 
-        pm2 restart "RoninUI" 1>/dev/null
+            pm2 restart "RoninUI" 1>/dev/null
+        fi
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
