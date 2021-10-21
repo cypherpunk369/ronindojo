@@ -2,6 +2,7 @@
 # shellcheck disable=SC2221,SC2222,1004,SC2154 source=/dev/null
 
 . "${HOME}"/RoninDojo/Scripts/defaults.sh
+
 #
 # Main function runs at beginning of script execution
 #
@@ -15,7 +16,9 @@ _main() {
     if [ ! -f "$HOME/.config/RoninDojo/.run" ]; then
         _sleep 5 --msg "Welcome to RoninDojo. Loading in"
         touch "$HOME/.config/RoninDojo/.run"
-        cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
+
+        # Copy user.conf
+        test -f "$HOME"/.config/RoninDojo/user.conf || cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
     fi
 
     # Source update script
