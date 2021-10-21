@@ -45,7 +45,7 @@ _main() {
     test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
     test -f "$HOME"/.config/RoninDojo/data/updates/20-* || _update_20 # Revert some settings in docker-bitcoind.conf
     test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
-    test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Update reference from old development branch to develop branch in user.conf
+    test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
@@ -1224,7 +1224,7 @@ EOF
 }
 
 #
-# Setup mempool docker variables
+# Setup mempool docker variables and initialize docker-mempool.conf if not available
 #
 _mempool_conf() {
     local mempool_conf bitcoind_conf MEMPOOL_MYSQL_USER MEMPOOL_MYSQL_PASS MEMPOOL_MYSQL_ROOT_PASSWORD

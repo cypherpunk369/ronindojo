@@ -3,27 +3,39 @@
 
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
-
-# Source update script
 . "$HOME"/RoninDojo/Scripts/update.sh
 
 # Create Updates history directory
 test ! -d "$HOME"/.config/RoninDojo/data/updates && mkdir -p "$HOME"/.config/RoninDojo/data/updates
 
+## Perform update checks ##
+
 # Remove update file from a previous upgrade
 test -f "$HOME"/.config/RoninDojo/data/updates/10-* && rm "$HOME"/.config/RoninDojo/data/updates/10-* &>/dev/null
 
 # Migrate user.conf variables to lowercase
-_update_10
+test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10
 
 # Fix any existing specter installs that are missing gcc dependency
-_update_16
+test -f "$HOME"/.config/RoninDojo/data/updates/16-* || _update_16
 
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 
 # Uninstall legacy Ronin UI
 test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17
+
+# Create mnt-usb.mount if missing and system is already mounted.
+test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08
+
+# Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
+test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
+
+# Update reference from old development branch to develop branch in user.conf
+test -f "$HOME"/.config/RoninDojo/data/updates/23-* || _update_23
+
+
+## End update checks ##
 
 _load_user_conf
 
@@ -45,9 +57,6 @@ if _is_mempool; then
     _mempool_conf || exit
 fi
 # Check if mempool available or not, then install it if previously installed.
-
-# Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
-test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
 
 if [ -f /etc/systemd/system/whirlpool.service ] ; then
    sudo systemctl stop --quiet whirlpool
@@ -108,9 +117,6 @@ fi
 
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
-
-# Run _update_08
-test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
 
 # Perform System Update
 test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
