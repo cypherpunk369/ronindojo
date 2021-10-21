@@ -1224,7 +1224,7 @@ EOF
 }
 
 #
-# Setup mempool docker variables and initialize docker-mempool.conf if not available
+# Setup mempool docker variables
 #
 _mempool_conf() {
     local mempool_conf bitcoind_conf MEMPOOL_MYSQL_USER MEMPOOL_MYSQL_PASS MEMPOOL_MYSQL_ROOT_PASSWORD
