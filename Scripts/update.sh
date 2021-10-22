@@ -438,6 +438,8 @@ _update_21() {
         else
             printf "%s\n***\nSystem packages update completed...\n***\n%s" "${red}" "${nc}"
 
+            _pause continue
+
             # Finalize
             touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
         fi
