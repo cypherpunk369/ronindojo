@@ -2398,6 +2398,14 @@ EOF
 
     cd "$HOME"/specter-"$specter_version" || exit
 
+    cat <<EOF
+${red}
+***
+Installing Specter dependencies, please wait...
+***
+${nc}
+EOF
+
     # Install dependencies through pip3
     "$HOME"/.venv_specter/bin/pip3 install -r requirements.txt &>/dev/null || return 1
 
