@@ -1486,7 +1486,7 @@ _source_dojo_conf() {
         test -f "${conf}" && . "${conf}"
     done
 
-    export BITCOIND_RPC_EXTERNAL_IP
+    export BITCOIND_RPC_EXTERNAL_IP INDEXER_RPC_PORT BITCOIND_RPC_USER BITCOIND_RPC_PASSWORD BITCOIND_RPC_PORT
 }
 
 #
