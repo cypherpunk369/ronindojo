@@ -365,7 +365,14 @@ _update_18() {
 _update_19() {
     # Remove nodejs-lts-erbium if available
     if pacman -Q nodejs-lts-erbium &>/dev/null; then
-        sudo pacman -R --noconfirm --cascade nodejs-lts-erbium
+        cat <<EOF
+${red}
+***
+Migrating to nodejs-lts-fermium, please wait...
+***
+${nc}
+EOF
+        sudo pacman -R --noconfirm --cascade nodejs-lts-erbium &>/dev/null
         sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
 
         if _is_ronin_ui; then
