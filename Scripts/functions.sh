@@ -566,7 +566,7 @@ EOF
     cd "${ronin_ui_path}" || exit
 
     # wget version.json
-    wget -q https://ronindojo.io/downloads/RoninUI/version.json -O /tmp/version.json
+    wget -q https://ronindojo.io/downloads/RoninUI/version.json -O /tmp/version.json 2>/dev/null
 
     # get file
     _file=$(jq -r .file /tmp/version.json)
@@ -574,7 +574,7 @@ EOF
     # get sha256sum value
     _shasum=$(jq -r .sha256 /tmp/version.json)
 
-    wget -q https://ronindojo.io/downloads/RoninUI/"$_file"
+    wget -q https://ronindojo.io/downloads/RoninUI/"$_file" 2>/dev/null
 
     # Check integrity of archive download
     if echo "${_shasum} ${_file}" | sha256sum --check --status; then

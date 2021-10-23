@@ -32,7 +32,7 @@ case $CHOICE in
             rm "${ronin_data_dir}"/ronin-latest.txt
         fi
 
-        wget --quiet https://ronindojo.io/downloads/ronindojo-version.txt -O "${ronin_data_dir}"/ronindojo-latest.txt
+        wget -q https://ronindojo.io/downloads/ronindojo-version.txt -O "${ronin_data_dir}"/ronindojo-latest.txt 2>/dev/null
 
         version=$(<"${ronin_data_dir}"/ronindojo-latest.txt)
 
