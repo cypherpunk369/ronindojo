@@ -406,9 +406,10 @@ _update_21() {
     _pacman=false
 
     if [ -d "${dojo_path}" ]; then
+        _dojo_check && _stop_dojo
+
         printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
 
-        _dojo_check && _stop_dojo
         _pause continue
 
         # Modify pacman.conf and comment ignore packages line
