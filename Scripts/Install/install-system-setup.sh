@@ -30,7 +30,7 @@ EOF
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 else
     # Automatically set primary_storage for nvme capable hardware
-    _nvme_check
+    _nvme_check && _load_user_conf
 
     cat <<EOF
 ${red}
