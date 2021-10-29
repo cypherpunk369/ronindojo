@@ -583,6 +583,17 @@ df -h "${primary_storage}"
 _sleep 5
 # checks disk info
 
+# Install Ronin UI
+cat <<EOF
+${red}
+***
+Installing Ronin UI...
+***
+${nc}
+EOF
+
+_ronin_ui_install
+
 # Calculate swapfile size
 _swap_size
 
@@ -626,17 +637,6 @@ EOF
 _sleep
 
 _install_wst
-
-# Install Ronin UI
-cat <<EOF
-${red}
-***
-Installing Ronin UI...
-***
-${nc}
-EOF
-
-_ronin_ui_install
 
 cat <<EOF
 ${red}
