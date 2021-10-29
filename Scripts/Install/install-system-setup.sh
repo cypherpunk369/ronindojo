@@ -583,6 +583,12 @@ df -h "${primary_storage}"
 _sleep 5
 # checks disk info
 
+# tor configuration setup, see functions.sh
+_setup_tor
+
+# docker data directory setup, see functions.sh
+_docker_datadir_setup
+
 # Install Ronin UI
 cat <<EOF
 ${red}
@@ -597,14 +603,8 @@ _ronin_ui_install
 # Calculate swapfile size
 _swap_size
 
-create_swap --file "${install_dir_swap}" --count "${_size}"
 # created a 2GB swapfile on the external drive instead of sd card to preserve sd card life
-
-_setup_tor
-# tor configuration setup, see functions.sh
-
-_docker_datadir_setup
-# docker data directory setup, see functions.sh
+create_swap --file "${install_dir_swap}" --count "${_size}"
 
 cat <<EOF
 ${red}
