@@ -408,7 +408,7 @@ _update_21() {
     if [ -d "${dojo_path}" ]; then
         _dojo_check && _stop_dojo
 
-        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
+        printf "%s\n***\nPerforming a full system update...\n***\n%s" "${red}" "${nc}"
 
         _pause continue
 
