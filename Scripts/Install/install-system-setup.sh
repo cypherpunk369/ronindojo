@@ -16,7 +16,7 @@ ${nc}
 EOF
     _sleep
 
-    _pause return
+    [ $# -eq 0 ] && _pause return
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 elif [ -f "${ronin_data_dir}"/system-install ]; then
     cat <<EOF
@@ -26,9 +26,12 @@ Previous system install detected. Exiting script...
 ***
 ${nc}
 EOF
-    _pause return
+    [ $# -eq 0 ] && _pause return
     bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
 else
+    # Automatically set primary_storage for nvme capable hardware
+    _nvme_check && _load_user_conf
+
     cat <<EOF
 ${red}
 ***
@@ -375,7 +378,7 @@ ${nc}
 EOF
 
     # Make sure to wait for user interaction before continuing
-    _pause continue
+    [ $# -eq 0 ] && _pause continue
 
     # Make sure we don't run system install twice
     touch "${ronin_data_dir}"/system-install
@@ -511,7 +514,7 @@ ${nc}
 EOF
 
     # Make sure to wait for user interaction before continuing
-    _pause continue
+    [ $# -eq 0 ] && _pause continue
 
     # Make sure we don't run system install twice
     touch "${ronin_data_dir}"/system-install
@@ -580,17 +583,28 @@ df -h "${primary_storage}"
 _sleep 5
 # checks disk info
 
+# tor configuration setup, see functions.sh
+_setup_tor
+
+# docker data directory setup, see functions.sh
+_docker_datadir_setup
+
+# Install Ronin UI
+cat <<EOF
+${red}
+***
+Installing Ronin UI...
+***
+${nc}
+EOF
+
+_ronin_ui_install
+
 # Calculate swapfile size
 _swap_size
 
-create_swap --file "${install_dir_swap}" --count "${_size}"
 # created a 2GB swapfile on the external drive instead of sd card to preserve sd card life
-
-_setup_tor
-# tor configuration setup, see functions.sh
-
-_docker_datadir_setup
-# docker data directory setup, see functions.sh
+create_swap --file "${install_dir_swap}" --count "${_size}"
 
 cat <<EOF
 ${red}
@@ -624,17 +638,6 @@ _sleep
 
 _install_wst
 
-# Install Ronin UI
-cat <<EOF
-${red}
-***
-Installing Ronin UI...
-***
-${nc}
-EOF
-
-_ronin_ui_install
-
 cat <<EOF
 ${red}
 ***
@@ -644,7 +647,7 @@ ${nc}
 EOF
 
 # Make sure to wait for user interaction before continuing
-_pause continue
+[ $# -eq 0 ] && _pause continue
 
 # Make sure we don't run system install twice
 touch "${ronin_data_dir}"/system-install

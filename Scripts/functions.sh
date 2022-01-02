@@ -250,7 +250,7 @@ EOF
 #
 # Package version match
 #
-_check_pkgver() {
+_check_pkg_ver() {
     local pkgver pkg
 
     pkgver="${2}"
@@ -2964,4 +2964,16 @@ EOF
 
         return 1
     fi
+}
+
+#
+# Check if nvme drive available
+#
+_nvme_check() {
+    if test -b /dev/nvme0n1; then
+        sudo sed -i 's:#primary_storage="":primary_storage="/dev/nvme0n1p1":' "$HOME"/.config/RoninDojo/user.conf
+        return 0
+    fi
+
+    return 1
 }

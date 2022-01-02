@@ -3,8 +3,10 @@
 
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
+_load_user_conf
+
 _update_01() {
-    if ! _check_pkgver bridge-utils 1.7-1; then
+    if ! _check_pkg_ver bridge-utils 1.7-1; then
         cat <<EOF
 ${red}
 ***
@@ -135,8 +137,6 @@ _update_07() {
 
 # Create mnt-usb.mount if missing and system is already mounted.
 _update_08() {
-    _load_user_conf
-
     local uuid tmp systemd_mountpoint fstype
 
     if findmnt /mnt/usb 1>/dev/null && [ ! -f /etc/systemd/system/mnt-usb.mount ]; then
@@ -224,8 +224,6 @@ _update_11() {
 
 # Set BITCOIND_DB_CACHE to use bitcoind_db_cache_total value if not set
 _update_12() {
-    _load_user_conf
-
     if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ] && [ -z "${BITCOIND_DB_CACHE}" ]; then
         if findmnt /mnt/usb 1>/dev/null && ! _dojo_check && ! grep BITCOIND_DB_CACHE="$(_mem_total "${bitcoind_db_cache_total}")" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 1>/dev/null; then
             sed -i "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=$(_mem_total "${bitcoind_db_cache_total}")/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
@@ -347,8 +345,6 @@ EOF
 
 # Update docker-bitcoind.conf settings for existing users
 _update_18() {
-    _load_user_conf
-
     if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
         if grep -q "BITCOIND_RPC_THREADS=12" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
             sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
@@ -389,8 +385,6 @@ EOF
 
 # Revert some settings in docker-bitcoind.conf
 _update_20() {
-    _load_user_conf
-
     if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
         sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-10}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
         sed -i "s/BITCOIND_MAX_MEMPOOL.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-1024}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
@@ -406,11 +400,11 @@ _update_21() {
     _pacman=false
 
     if [ -d "${dojo_path}" ]; then
+        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
+
+         _pause continue
+
         _dojo_check && _stop_dojo
-
-        printf "%s\n***\nPerforming a full system update...\n***\n%s" "${red}" "${nc}"
-
-        _pause continue
 
         # Modify pacman.conf and comment ignore packages line
         if test -f "$HOME"/.config/RoninDojo/data/updates/06-*; then
