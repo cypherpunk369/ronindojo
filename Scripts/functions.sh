@@ -1579,67 +1579,13 @@ EOF
     cat <<EOF
 ${red}
 ***
-Preparing shutdown of Dojo...
+Shutting down Dojo...
 ***
 ${nc}
 EOF
 _sleep
 
-    # Source conf files
-    _source_dojo_conf
-
-    # Shutdown the bitcoin daemon
-    if [ "$BITCOIND_INSTALL" == "on" ]; then
-        # Renewal of bitcoind onion address
-        if [ "$BITCOIND_LISTEN_MODE" == "on" ]; then
-            if [ "$BITCOIND_EPHEMERAL_HS" = "on" ]; then
-                docker exec -it tor rm -rf /var/lib/tor/hsv*bitcoind &> /dev/null
-            fi
-        fi
-
-        # Stop the bitcoin daemon
-        docker exec -it bitcoind bitcoin-cli -rpcconnect=bitcoind --rpcport=28256 \
---rpcuser="$BITCOIND_RPC_USER" --rpcpassword="$BITCOIND_RPC_PASSWORD" stop &>/dev/null
-
-        cat <<EOF
-${red}
-***
-Waiting for shutdown of Bitcoin Daemon...
-***
-${nc}
-EOF
-        # Check for bitcoind process
-        i=0
-        nbIters=$((BITCOIND_SHUTDOWN_DELAY/10))
-
-        while ((i<nbIters)); do
-            if timeout -k 12 10 docker container top bitcoind | grep bitcoind &>/dev/null; then
-                sleep 1
-                ((i++))
-            else
-                cat <<EOF
-${red}
-***
-Bitcoin Server Daemon stopped...
-***
-${nc}
-EOF
-                break
-            fi
-        done
-
-        cat <<EOF
-${red}
-***
-Stopping all Docker containers...
-***
-${nc}
-EOF
-    fi
-
-    # Stop docker containers
-    yamlFiles=$(_select_yaml_files)
-    docker-compose $yamlFiles stop || exit
+    ./dojo.sh stop
 
     return 0
 }
