@@ -1079,7 +1079,7 @@ EOF
     cat <<EOF
 ${red}
 ***
-Samourai Indexer is recommended for most users as it helps with querying balances...
+Samourai Indexer is recommended for Samourai only users as it helps with querying balances...
 ***
 ${nc}
 EOF
@@ -1105,7 +1105,7 @@ EOF
 
     # indexer names here are used as data source
     while true; do
-        select indexer in "Samourai Indexer (recommended)" "Electrum Rust Server"; do
+        select indexer in "Samourai Indexer" "Electrum Rust Server"; do
             case $indexer in
                 "Samourai Indexer"*)
                     cat <<EOF
