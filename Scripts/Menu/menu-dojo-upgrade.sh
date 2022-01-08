@@ -109,7 +109,7 @@ ret=$?
 
 if ((ret==0)); then
     bash -c "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
+    test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
 elif ((ret==1)); then
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
 

@@ -1030,6 +1030,7 @@ _set_indexer() {
 #
 _uninstall_electrs_indexer() {
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
+    test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db
 
     cd "${dojo_path_my_dojo}" || exit
 
@@ -1136,6 +1137,8 @@ EOF
                     _set_indexer
 
                     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+                    test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
+                    test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
                     return 0
                     ;;
                     # triggers electrs install script

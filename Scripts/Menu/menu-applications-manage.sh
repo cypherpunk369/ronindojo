@@ -114,7 +114,6 @@ EOF
                     _sleep
 
                     _uninstall_electrs_indexer
-                    sudo rm -rf "${docker_volume_indexer}"/_data/db
 
                     _set_indexer
                     ;;
@@ -130,6 +129,7 @@ EOF
 
                     bash -c "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
                     sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
+                    sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
                     ;;
                 "Install Indexer")
                     cat <<EOF
