@@ -51,8 +51,7 @@ EOF
                 _source_dojo_conf
 
                 # Start docker containers
-                yamlFiles=$(_select_yaml_files)
-                docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                ./dojo.sh start
             fi
             # checks if dojo is running (check the db container), if running, tells user to dojo has already started
 
@@ -101,8 +100,7 @@ ${nc}
 DOJO
 
                 # Start docker containers
-                yamlFiles=$(_select_yaml_files)
-                docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                ./dojo.sh start
                 # restart dojo
 
                 _pause return
