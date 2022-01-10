@@ -2639,8 +2639,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
                 # check for indexer db data directory, if not found continue
@@ -2650,8 +2649,7 @@ EOF
                     _source_dojo_conf
 
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
 
@@ -2736,8 +2734,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                         # Start docker containers
-                        yamlFiles=$(_select_yaml_files)
-                        docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                        ./dojo.sh start
                         # start dojo
                     fi
                     # Only start dojo if no indexer restore is enabled

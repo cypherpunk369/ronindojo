@@ -224,8 +224,7 @@ cd "${dojo_path_my_dojo}" || exit
 _source_dojo_conf
 
 # Start docker containers
-yamlFiles=$(_select_yaml_files)
-docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+./dojo.sh start
 
 _pause return
 
