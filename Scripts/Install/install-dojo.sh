@@ -89,7 +89,7 @@ fi
 
 # Check if RoninUI needs installing
 if ! _is_ronin_ui; then
-    printf "%s\n***\nInstalling Ronin UI\n***\n%s\n" "${red}" "${nc}"
+    printf "%s\n***\nInstalling Ronin UI...\n***\n%s\n" "${red}" "${nc}"
 
     _ronin_ui_install
 fi
