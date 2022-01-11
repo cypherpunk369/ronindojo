@@ -1030,7 +1030,7 @@ _set_indexer() {
 #
 _uninstall_electrs_indexer() {
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
-    test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db/*
+    sudo test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db/*
 
     cd "${dojo_path_my_dojo}" || exit
 
@@ -1137,8 +1137,8 @@ EOF
                     _set_indexer
 
                     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-                    test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
-                    test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
+                    sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
+                    sudo test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
                     return 0
                     ;;
                     # triggers electrs install script
@@ -2639,8 +2639,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
                 # check for indexer db data directory, if not found continue
@@ -2650,8 +2649,7 @@ EOF
                     _source_dojo_conf
 
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
 
@@ -2736,8 +2734,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                         # Start docker containers
-                        yamlFiles=$(_select_yaml_files)
-                        docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                        ./dojo.sh start
                         # start dojo
                     fi
                     # Only start dojo if no indexer restore is enabled
