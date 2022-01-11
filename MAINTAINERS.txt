@@ -12,6 +12,7 @@ RoninDojo:
     - @likewhoa             - https://code.samourai.io/likewhoa
     - @BTCxZelko            - https://code.samourai.io/BTCxZelko
     - @s2l1  (GuerraMoneta) - https://code.samourai.io/s2l1
+    - @dammkewl             - https://code.samourai.io/dammkewl
 
 Website:
     - @s2l1
@@ -32,6 +33,8 @@ Quality Assurance:
     - @likewhoa
     - @BTCxZelko
     - @s2l1
+    - @dammkewl
+    - @kycfree
 
 Translation:
     - @likewhoa

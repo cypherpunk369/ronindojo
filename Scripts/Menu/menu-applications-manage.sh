@@ -128,6 +128,8 @@ EOF
                     _sleep
 
                     bash -c "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+                    sudo test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
+                    sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
                     ;;
                 "Install Indexer")
                     cat <<EOF

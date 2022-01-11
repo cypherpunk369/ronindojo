@@ -12,7 +12,8 @@ OPTIONS=(1 "Start"
          4 "Status"
          5 "Logs"
          6 "Reset"
-         7 "Go Back")
+         7 "Re-install"
+         8 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -160,6 +161,22 @@ EOF
         bash -c "${ronin_ui_menu}"
         ;;
     7)
+        cat <<EOF
+${red}
+***
+Re-installing Ronin UI...
+***
+${nc}
+EOF
+        _ronin_ui_uninstall
+        _ronin_ui_install
+        
+        pm2 status
+
+        _pause return
+        bash -c "${ronin_ui_menu}"
+        ;;
+    8)
         ronin
         # returns to main menu
         ;;

@@ -250,7 +250,7 @@ EOF
 #
 # Package version match
 #
-_check_pkgver() {
+_check_pkg_ver() {
     local pkgver pkg
 
     pkgver="${2}"
@@ -1030,6 +1030,7 @@ _set_indexer() {
 #
 _uninstall_electrs_indexer() {
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
+    sudo test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db/*
 
     cd "${dojo_path_my_dojo}" || exit
 
@@ -1079,7 +1080,7 @@ EOF
     cat <<EOF
 ${red}
 ***
-Samourai Indexer is recommended for most users as it helps with querying balances...
+Samourai Indexer is recommended for Samourai only users as it helps with querying balances...
 ***
 ${nc}
 EOF
@@ -1105,7 +1106,7 @@ EOF
 
     # indexer names here are used as data source
     while true; do
-        select indexer in "Samourai Indexer (recommended)" "Electrum Rust Server"; do
+        select indexer in "Samourai Indexer" "Electrum Rust Server"; do
             case $indexer in
                 "Samourai Indexer"*)
                     cat <<EOF
@@ -1136,6 +1137,8 @@ EOF
                     _set_indexer
 
                     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+                    sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
+                    sudo test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
                     return 0
                     ;;
                     # triggers electrs install script
@@ -1398,8 +1401,25 @@ EOF
     _dojo_check && _stop_dojo
     cd "${dojo_path_my_dojo}" || exit
 
+    # Delete existing electrs mainnet directory if upgrading
+    if [ ! -f "$HOME"/.config/RoninDojo/data/electrs.install ]; then
+        # Show Indexer Install State
+        _check_indexer
+        ret=$?
+
+        if ((ret==0)); then # Electrs enabled
+            if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
+                sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
+            fi
+        fi
+
+        # Mark as fresh install
+        touch "$HOME"/.config/RoninDojo/data/electrs.install
+    fi
+
     . dojo.sh upgrade --nolog --auto
 
+    # Used with mempool uninstall to get rid of orphan volumes
     if [ "${1}" = "prune" ]; then
         docker volume prune -f &>/dev/null
     fi
@@ -1562,67 +1582,13 @@ EOF
     cat <<EOF
 ${red}
 ***
-Preparing shutdown of Dojo...
+Shutting down Dojo...
 ***
 ${nc}
 EOF
 _sleep
 
-    # Source conf files
-    _source_dojo_conf
-
-    # Shutdown the bitcoin daemon
-    if [ "$BITCOIND_INSTALL" == "on" ]; then
-        # Renewal of bitcoind onion address
-        if [ "$BITCOIND_LISTEN_MODE" == "on" ]; then
-            if [ "$BITCOIND_EPHEMERAL_HS" = "on" ]; then
-                docker exec -it tor rm -rf /var/lib/tor/hsv*bitcoind &> /dev/null
-            fi
-        fi
-
-        # Stop the bitcoin daemon
-        docker exec -it bitcoind bitcoin-cli -rpcconnect=bitcoind --rpcport=28256 \
---rpcuser="$BITCOIND_RPC_USER" --rpcpassword="$BITCOIND_RPC_PASSWORD" stop &>/dev/null
-
-        cat <<EOF
-${red}
-***
-Waiting for shutdown of Bitcoin Daemon...
-***
-${nc}
-EOF
-        # Check for bitcoind process
-        i=0
-        nbIters=$((BITCOIND_SHUTDOWN_DELAY/10))
-
-        while ((i<nbIters)); do
-            if timeout -k 12 10 docker container top bitcoind | grep bitcoind &>/dev/null; then
-                sleep 1
-                ((i++))
-            else
-                cat <<EOF
-${red}
-***
-Bitcoin Server Daemon stopped...
-***
-${nc}
-EOF
-                break
-            fi
-        done
-
-        cat <<EOF
-${red}
-***
-Stopping all Docker containers...
-***
-${nc}
-EOF
-    fi
-
-    # Stop docker containers
-    yamlFiles=$(_select_yaml_files)
-    docker-compose $yamlFiles stop || exit
+    ./dojo.sh stop
 
     return 0
 }
@@ -2673,8 +2639,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
                 # check for indexer db data directory, if not found continue
@@ -2684,8 +2649,7 @@ EOF
                     _source_dojo_conf
 
                     # Start docker containers
-                    yamlFiles=$(_select_yaml_files)
-                    docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                    ./dojo.sh start
                     # start dojo
                 fi
 
@@ -2770,8 +2734,7 @@ Starting all Docker containers...
 ${nc}
 EOF
                         # Start docker containers
-                        yamlFiles=$(_select_yaml_files)
-                        docker-compose $yamlFiles up --remove-orphans -d || exit # failed to start dojo
+                        ./dojo.sh start
                         # start dojo
                     fi
                     # Only start dojo if no indexer restore is enabled
@@ -2947,4 +2910,16 @@ EOF
 
         return 1
     fi
+}
+
+#
+# Check if nvme drive available
+#
+_nvme_check() {
+    if test -b /dev/nvme0n1; then
+        sudo sed -i 's:#primary_storage="":primary_storage="/dev/nvme0n1p1":' "$HOME"/.config/RoninDojo/user.conf
+        return 0
+    fi
+
+    return 1
 }

@@ -71,7 +71,7 @@ ronin_mempool_menu="$HOME/RoninDojo/Scripts/Menu/menu-mempool.sh"
 ronin_specter_menu="$HOME/RoninDojo/Scripts/Menu/menu-specter.sh"
 ronin_system_menu="$HOME/RoninDojo/Scripts/Menu/menu-system.sh"
 ronin_system_menu2="$HOME/RoninDojo/Scripts/Menu/menu-system2.sh"
-ronin_system_update="$HOME/RoninDojo/Scripts/Menu/menu-updates.sh"
+ronin_system_update="$HOME/RoninDojo/Scripts/Menu/menu-system-updates.sh"
 ronin_system_storage="$HOME/RoninDojo/Scripts/Menu/menu-system-storage.sh"
 ronin_ui_menu="$HOME/RoninDojo/Scripts/Menu/menu-ronin-ui.sh"
 ronin_updates_menu="$HOME/RoninDojo/Scripts/Menu/menu-system-updates.sh"
@@ -110,7 +110,7 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.12.1" # Tag release
+samourai_commitish="v1.13.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
@@ -158,7 +158,7 @@ fi
 specter_sign_key_url="https://stepansnigirev.com/ss-specter-release.asc"
 specter_sign_key="ss-specter-release.asc"
 specter_url="https://github.com/cryptoadvance/specter-desktop.git"
-specter_version="v1.7.0"
+specter_version="v1.7.2"
 specter_port="25441"
 
 # Network info
