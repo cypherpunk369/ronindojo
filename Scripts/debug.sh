@@ -14,7 +14,7 @@ done
 if gpg --list-keys | grep -e 'btcxzelko\|s2l1\|Pavel\|likewhoa' &>/dev/null ; then
 gpg --refresh-keys &>/dev/null
 else 
-gpg --refresh-keys &>/dev/null && gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null
+gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
 fi
 
 function ronindebug {
