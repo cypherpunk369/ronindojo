@@ -366,7 +366,7 @@ EOF
     _docker_datadir_setup
     # docker data directory setup, see functions.sh
 
-    _create_ronin_data_dir
+    _create_dir "${ronin_data_dir}"
     # create directory to store user info, see functions.sh
 
     cat <<EOF

@@ -137,10 +137,10 @@ _pacman_update_mirrors() {
     return 0
 }
 
-# Add ronin_data_dir to store user info
-_create_ronin_data_dir() {
-    if test ! -d "${ronin_data_dir}"; then
-        mkdir -p "${ronin_data_dir}"
+#create a directory at the given path argument
+_create_dir() {
+    if test ! -d "${1}"; then
+        mkdir -p "${1}"
     fi
 }
 
@@ -2227,7 +2227,7 @@ EOF
 
     . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
-    _create_ronin_data_dir
+    _create_dir "${ronin_data_dir}"
 
     sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
         -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
