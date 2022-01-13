@@ -288,10 +288,12 @@ upload_logs() {
 PGP Encrypted Dmesg Logs URL:
 ***
 EOF
-	dmesg > "${HOME}"/dmesg.txt
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com --trust-model always -a "${HOME}"/dmesg.txt
-	cat "${HOME}"/dmesg.txt.asc | nc termbin.com 9999
-	rm -f "${HOME}"/dmesg*
+	_create_dir "${ronin_debug_dir}"
+	dmesg > "${ronin_debug_dir}"/dmesg.txt
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com \
+	  --trust-model always -a "${ronin_debug_dir}"/dmesg.txt
+	cat "${ronin_debug_dir}"/dmesg.txt.asc | nc termbin.com 9999
+	rm -f "${ronin_debug_dir}"/dmesg*
 
 }
 
@@ -330,8 +332,9 @@ Debugging URL:
 ${nc}
 EOF
 filename="health-`date +%y%m%d`-`date +%H%M`.txt"
-ronindebug  > "${HOME}/$filename"
-cat "${HOME}"/health-*.txt | nc termbin.com 9999
+_create_dir "${ronin_debug_dir}"
+ronindebug  > "${ronin_debug_dir}/$filename"
+cat "${ronin_debug_dir}"/health-*.txt | nc termbin.com 9999
 
     # Ask user to proceed
     cat <<EOF
@@ -347,17 +350,12 @@ while true; do
         [yY][eE][sS]|[yY])
           # Display ronindebug function output to user
           printf "\n"
-          cat "${HOME}"/health-*.txt
-          # Make debug directory if one does not exist and move ronindebug script output there
-          test ! -d "${ronin_debug_dir}" && mkdir "${ronin_debug_dir}"
-          mv "${HOME}"/health-*.txt "${ronin_debug_dir}"
+          cat "${ronin_debug_dir}"/health-*.txt
           _pause return
           bash -c "${ronin_system_monitoring}"
           exit
           ;;
         [nN][oO]|[Nn])
-          test ! -d "${ronin_debug_dir}" && mkdir "${ronin_debug_dir}"
-          mv "${HOME}"/health-*.txt "${ronin_debug_dir}"
           _pause return
           bash -c "${ronin_system_monitoring}"
           exit
