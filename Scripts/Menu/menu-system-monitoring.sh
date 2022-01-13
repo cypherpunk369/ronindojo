@@ -31,12 +31,12 @@ EOF
         _sleep 3
 
         htop
-        bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # returns to menu
         ;;
     2)
         bash "${HOME}"/RoninDojo/Scripts/debug.sh
-        bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         ;;
     3)
         cat <<EOF
@@ -53,7 +53,7 @@ EOF
         # cpu temp info
 
         _pause return
-        bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # press any key to return to menu
         ;;
     4)
@@ -73,7 +73,7 @@ EOF
         # network info, use wlan0 for wireless
 
         _pause return
-        bash "${HOME}"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # press any key to return to menu
         ;;
     5)
