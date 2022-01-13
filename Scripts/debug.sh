@@ -351,13 +351,9 @@ while true; do
           # Display ronindebug function output to user
           printf "\n"
           cat "${ronin_debug_dir}"/health-*.txt
-          _pause return
-          bash -c "${ronin_system_monitoring}"
           exit
           ;;
         [nN][oO]|[Nn])
-          _pause return
-          bash -c "${ronin_system_monitoring}"
           exit
           ;;
         *)
@@ -371,5 +367,9 @@ EOF
           ;;
     esac
 done
+
+
+_pause return
+bash -c "${ronin_system_monitoring}"
 
 exit
