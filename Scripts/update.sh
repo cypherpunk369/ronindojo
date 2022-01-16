@@ -468,9 +468,9 @@ _update_24() {
     hostsfile="/etc/hosts"
 
     #test if there's a hostsfile, create if there isn't
-    if sudo test ! -f "${hostsfile}"; then
-        if sudo test -e  "${hostsfile}"; then
-            >&2 echo  "${hostsfile}" "is present but not a regular file"
+    if test ! -f "${hostsfile}"; then
+        if test -e  "${hostsfile}"; then
+            >&2 echo "${hostsfile}" "is present but not a regular file"
             exit 1
         fi
         sudo touch "${hostsfile}"
@@ -480,10 +480,10 @@ _update_24() {
     if grep -q -E "^\s*127\.0\.0\.1(\s+\w+)+$" "${hostsfile}"; then
         if ! grep -q -E "^\s*127\.0\.0\.1(\s+\w+)*(\s+localhost)(\s+\w+)*$" "${hostsfile}"; then
             #edit existing entry, appending the "localhost" alias
-            sed -i -E 's/(\s*127\.0\.0\.1\s.*$)/\1 localhost/g' "${hostsfile}"
+            sudo sed -i -E 's/(\s*127\.0\.0\.1\s.*$)/\1 localhost/g' "${hostsfile}"
         fi
     else
         #append the missing entry
-        echo $'\n127.0.0.1 localhost' >> "${hostsfile}"
+        sudo echo $'\n127.0.0.1 localhost' >> "${hostsfile}"
     fi
 }
