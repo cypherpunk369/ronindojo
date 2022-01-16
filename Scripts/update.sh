@@ -484,6 +484,6 @@ _update_24() {
         fi
     else
         #append the missing entry
-        sudo echo $'\n127.0.0.1 localhost' >> "${hostsfile}"
+        echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}"
     fi
 }
