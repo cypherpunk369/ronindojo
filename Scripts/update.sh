@@ -469,8 +469,8 @@ _update_24() {
 
     #test if there's a hostsfile, create if there isn't
     if test ! -f "${hostsfile}"; then
-        if test -e  "${hostsfile}"; then
-            >&2 echo "${hostsfile}" "is present but not a regular file"
+        if test -e "${hostsfile}"; then
+            >&2 echo "${hostsfile} is present but not a regular file"
             exit 1
         fi
         sudo touch "${hostsfile}"
