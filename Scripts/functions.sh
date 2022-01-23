@@ -567,7 +567,7 @@ EOF
     cd "${ronin_ui_path}" || exit
 
     # wget version.json
-    wget -q https://ronindojo.io/downloads/RoninUI/version-staging.json -O /tmp/version.json 2>/dev/null
+    wget -q ${roninui_version_file} -O /tmp/version.json 2>/dev/null
 
     # get file
     _file=$(jq -r .file /tmp/version.json)
@@ -584,12 +584,13 @@ EOF
         rm "$_file" /tmp/version.json
 
         # Generate .env file
-        cat << EOF >.env
+        cat << EOF > .env
 JWT_SECRET=$gui_jwt
 NEXT_TELEMETRY_DISABLED=1
-VERSION_CHECK=staging
 EOF
-
+        if [ roninui_version_staging = true ]  then 
+            echo -e "VERSION_CHECK=staging\n" >> .env
+        fi
         cat <<EOF
 ${red}
 ***
