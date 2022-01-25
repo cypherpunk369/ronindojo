@@ -1434,10 +1434,10 @@ EOF
 # Dojo Credentials Backup
 #
 _dojo_backup() {
-    test -d "${dojo_backup_dir}" || sudo mkdir -p "${dojo_backup_dir}"
+    test -d "${dojo_backup_dir}"/conf || sudo mkdir -p "${dojo_backup_dir}"
 
-    if [ -d "${dojo_path}" ]; then
-        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf "${dojo_backup_dir}"
+    if [ -d "${dojo_path}"/conf ]; then
+        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_dir}"/conf
         return 0
     fi
 
@@ -1449,7 +1449,7 @@ _dojo_backup() {
 #
 _dojo_restore() {
     if "${dojo_conf_backup}"; then
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf "${dojo_path_my_dojo}"
+        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf
 
         # Apply bitcoind_db_cache_total tweak if needed
         . "$HOME"/RoninDojo/Scripts/update.sh
