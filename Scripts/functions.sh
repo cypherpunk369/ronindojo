@@ -588,7 +588,7 @@ EOF
 JWT_SECRET=$gui_jwt
 NEXT_TELEMETRY_DISABLED=1
 EOF
-        if [ roninui_version_staging = true ] ; then 
+        if [ roninui_version_staging="true" ] ; then 
             echo -e "VERSION_CHECK=staging\n" >> .env
         fi
         cat <<EOF
