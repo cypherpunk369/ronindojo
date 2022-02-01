@@ -600,6 +600,8 @@ EOF
 
 _ronin_ui_install
 
+_install_gpio
+
 # Calculate swapfile size
 _swap_size
 
