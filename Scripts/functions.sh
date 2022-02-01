@@ -2956,13 +2956,13 @@ _prepare_GPIO_DIR() {
 _install_gpio_service() {
     _load_user_conf
 
-    if[ -f /etc/systemd/system/ronin.gpio.service ]; then
+    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
         exit;
     fi
 
     sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
 [Unit]
-Description=Specter Desktop Service
+Description=GPIO
 After=multi-user.target
 
 [Service]
