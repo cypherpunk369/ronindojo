@@ -2924,3 +2924,72 @@ _nvme_check() {
 
     return 1
 }
+
+
+#
+# returns true/false on whether the host has a gpio system
+#
+_is_gpio_sytem() {
+    if [ -d /sys/class/gpio ]; then
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+#
+# deletes and repopulates the GPIO dir
+#
+_prepare_GPIO_DIR() {
+    if [ -d "${ronin_gpio_data_dir}" ]; then
+        rm -rf "${ronin_gpio_data_dir}"
+    fi
+
+    git clone https://github.com/Angoosh/RockPro64-RP64.GPIO.git "${ronin_gpio_data_dir}"
+    cp "${ronin_gpio_dir}/turn.LED.off.py" "${ronin_gpio_data_dir}"
+    cp "${ronin_gpio_dir}/turn.LED.on.py" "${ronin_gpio_data_dir}"
+}
+
+#
+# installs the gpio service file for systemd
+#
+_install_gpio_service() {
+    _load_user_conf
+
+    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
+        exit;
+    fi
+
+    sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
+[Unit]
+Description=GPIO
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
+WorkingDirectory=${ronin_gpio_data_dir}
+Restart=always
+RestartSec=60
+
+[Install]
+WantedBy=multi-user.target
+EOF
+"
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now --quiet ronin.gpio
+}
+
+#
+# installs the whole gpio setup
+#
+_install_gpio() {
+    if [ ! _is_gpio_sytem ]; then
+        exit
+    fi
+
+    _prepare_GPIO_DIR
+    _install_gpio_service
+}
