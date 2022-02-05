@@ -2972,8 +2972,8 @@ User=root
 Type=simple
 ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
 WorkingDirectory=${ronin_gpio_data_dir}
-Restart=always
-RestartSec=60
+Restart=on-failure
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
