@@ -567,7 +567,7 @@ EOF
     cd "${ronin_ui_path}" || exit
 
     # wget version.json
-    wget -q https://ronindojo.io/downloads/RoninUI/version.json -O /tmp/version.json 2>/dev/null
+    wget -q "${roninui_version_file}" -O /tmp/version.json 2>/dev/null
 
     # get file
     _file=$(jq -r .file /tmp/version.json)
@@ -584,11 +584,13 @@ EOF
         rm "$_file" /tmp/version.json
 
         # Generate .env file
-        cat << EOF >.env
+        cat << EOF > .env
 JWT_SECRET=$gui_jwt
 NEXT_TELEMETRY_DISABLED=1
 EOF
-
+        if [ "${roninui_version_staging}" = true ] ; then 
+            echo -e "VERSION_CHECK=staging\n" >> .env
+        fi
         cat <<EOF
 ${red}
 ***
@@ -2970,8 +2972,8 @@ User=root
 Type=simple
 ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
 WorkingDirectory=${ronin_gpio_data_dir}
-Restart=always
-RestartSec=60
+Restart=on-failure
+RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
