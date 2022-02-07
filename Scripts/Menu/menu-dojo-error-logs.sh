@@ -20,134 +20,70 @@ CHOICE=$(dialog --clear \
 
 clear
 case $CHOICE in
-        1)
-            # checks if dojo is running (check the db container), if not running tells user to start dojo first
+        1|2|3|4|5)
             if ! _dojo_check; then
-              cat <<DOJO
-${red}
-***
-Please start Dojo first!
-***
-${nc}
-DOJO
-              _sleep 5
-              bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            else
-              cd "$dojo_path_my_dojo" || exit
-              ./dojo.sh logs bitcoind -n 200 | grep -i 'error'
-              # shows bitcoind error logs
-
-              _pause return
-              bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-              # press any key to return to menu
-            fi
-            ;;
-        2)
-            if ! _dojo_check; then
-              cat <<DOJO
-${red}
-***
-Please start Dojo first!
-***
-${nc}
-DOJO
-              _sleep 5
-              bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            else
-                if grep "INDEXER_INSTALL=on" "${dojo_path_my_dojo}"/conf/docker-indexer.conf 1>/dev/null && [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ] ; then
-                    cat <<EOF
-${red}
-***
-Electrum Rust Server is your current Indexer...
-***
-${nc}
-EOF
-                    _sleep
-                    cat <<EOF
-${red}
-***
-Please check Electrum Rust Server logs instead...
-***
-${nc}
-EOF
-                    _sleep
-                    _pause return
-                    bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
-              fi
-              cd "$dojo_path_my_dojo" || exit
-              ./dojo.sh logs db -n 500 | grep -i 'error'
-              # shows db error logs
-            fi
-
-            _pause return
-            bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            # press any key to return to menu
-	          ;;
-        3)
-            if ! _dojo_check; then
-              cat <<DOJO
-${red}
-***
-Please start Dojo first!
-***
-${nc}
-DOJO
-              _sleep 5
-              bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            else
-              cd "$dojo_path_my_dojo" || exit
-              ./dojo.sh logs indexer -n 500 | grep -i 'error'
-              # shows indexer error logs
-            fi
-
-            _pause return
-            bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            # press any key to return to menu
-            ;;
-        4)
-            if ! _dojo_check; then
-              cat <<DOJO
-${red}
-***
-Please start Dojo first!
-***
-${nc}
-DOJO
-              _sleep 5
-              bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            else
-              cd "$dojo_path_my_dojo" || exit
-              ./dojo.sh logs node -n 500 | grep -i 'error'
-              # shows nodejs error logs
-            fi
-
-            _pause return
-            bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            # press any key to return to menu
-            ;;
-        5)
-            if ! _dojo_check; then
-                cat <<DOJO
-${red}
-***
-Please start Dojo first!
-***
-${nc}
-DOJO
+                _print_message "Please start Dojo first!"
                 _sleep 5
                 bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            else
-              cd "$dojo_path_my_dojo" || exit
-              ./dojo.sh logs tor -n 500 | grep -i 'error'
-              # shows tor error logs
+                exit
             fi
+            cd "$dojo_path_my_dojo" || exit
+            _print_message "Press Ctrl + C to exit at any time..."
+            _sleep
+            ;;
+esac
+case $CHOICE in
+        1)
+            ./dojo.sh logs bitcoind -n 200 | grep -i 'error'
+            ;;
+        2)
+            ./dojo.sh logs db -n 500 | grep -i 'error'
+            ;;
+        3)
+            _fetch_configured_indexer_type
+            indexer=$?
 
-            _pause return
-            bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
-            # press any key to return to menu
+            if ((indexer==3)); then
+                _print_message "No indexer installed..."
+                _sleep
+                _print_message "Install using the applications install menu..."
+                _sleep
+            
+            elif ((indexer==2)); then
+                _print_message "Fulcrum Server is your current Indexer..."
+                _sleep
+
+                ./dojo.sh logs fulcrum -n 500 | grep -i 'error'
+
+            elif ((indexer==1)); then
+                _print_message "SW Addrindexrs is your current Indexer..."
+                _sleep
+
+                ./dojo.sh logs indexer -n 500 | grep -i 'error'
+
+            elif ((indexer==0)); then
+                _print_message "Electrs server is no longer supported"
+                _sleep
+                _print_message "Upgrade dojo first"
+                _sleep
+
+            else
+                _print_message "Something went wrong! Contact support..."
+                _sleep
+            fi
+            ;;
+        4)
+            ./dojo.sh logs node -n 500 | grep -i 'error'
+            ;;
+        5)
+            ./dojo.sh logs tor -n 500 | grep -i 'error'
             ;;
         6)
             bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
-            # goes back to logs menu
+            exit
             ;;
 esac
+
+_pause return
+bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-error-logs.sh
+exit

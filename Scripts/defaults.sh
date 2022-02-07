@@ -144,17 +144,22 @@ docker_volume_tor="${docker_volumes}/my-dojo_data-tor"
 docker_volume_wp="${docker_volumes}/my-dojo_data-whirlpool"
 docker_volume_bitcoind="${docker_volumes}/my-dojo_data-bitcoind"
 docker_volume_indexer="${docker_volumes}/my-dojo_data-indexer"
+docker_volume_fulcrum="${docker_volumes}/my-dojo_data-fulcrum"
+docker_volume_electrs="${docker_volumes}/my-dojo_data-electrs"
 
 # Dojo Related Backup Paths
 dojo_backup_bitcoind="${install_dir}/backup/bitcoin"
 dojo_backup_indexer="${install_dir}/backup/indexer"
+dojo_backup_fulcrum="${install_dir}/backup/fulcrum"
 dojo_backup_dir="${install_dir}/backup/dojo"
 dojo_backup_conf="${install_dir}/backup/dojo/conf"
 dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
-indexer_data_dir="docker/volumes/my-dojo_data-indexer"
+indexer_data_dir="docker/volumes/my-dojo_data_indexer"
+fulcrum_data_dir="docker/volumes/my-dojo_data_fulcrum"
+electrs_data_dir="docker/volumes/my-dojo_data_electrs"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 

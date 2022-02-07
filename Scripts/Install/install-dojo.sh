@@ -88,7 +88,6 @@ _print_message "Please see Wiki for FAQ, help, and so much more..."
 _print_message "https://wiki.ronindojo.io"
 _print_message "Installing Samourai Wallet's Dojo..."
 
-# Restart docker here for good measure
 sudo systemctl restart --quiet docker
 
 cd "$dojo_path_my_dojo" || exit

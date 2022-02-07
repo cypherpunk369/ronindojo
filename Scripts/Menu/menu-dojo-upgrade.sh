@@ -22,64 +22,38 @@ test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
 # Update reference from old development branch to develop branch in user.conf
 test -f "$HOME"/.config/RoninDojo/data/updates/23-* || _update_23
 
+# Migrate the legacy indexer data location to the new indexer data location
+test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
 
 ## End update checks ##
 
 _load_user_conf
 
 _check_dojo_perms "${dojo_path_my_dojo}"
-# make sure permissions are properly set for ${dojo_path_my_dojo}
 
 if grep BITCOIND_RPC_EXTERNAL=off "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 1>/dev/null; then
     sed -i 's/BITCOIND_RPC_EXTERNAL=.*$/BITCOIND_RPC_EXTERNAL=on/' "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
 fi
-# enable BITCOIND_RPC_EXTERNAL
 
-# Update Samourai Dojo repo
 _dojo_update
 
 cd "${HOME}" || exit
-# return to previous working path
 
 if _is_mempool; then
     _mempool_conf || exit
 fi
-# Check if mempool available or not, then install it if previously installed.
 
 if [ -f /etc/systemd/system/whirlpool.service ] ; then
    sudo systemctl stop --quiet whirlpool
 
-   cat <<EOF
-${red}
-***
-Whirlpool will be installed via Docker...
-***
-${nc}
-
-${red}
-***
-You will need to re-pair with GUI, see Wiki for more information...
-***
-${nc}
-EOF
+   _print_message "Whirlpool will be installed via Docker..."
+   _print_message "You will need to re-pair with GUI, see Wiki for more information..."
    _sleep 5
 else
-   cat <<EOF
-${red}
-***
-Whirlpool will be installed via Docker...
-***
-${nc}
-
-${red}
-***
-For pairing information see the wiki...
-***
-${nc}
-EOF
+   _print_message "Whirlpool will be installed via Docker..."
+   _print_message "For pairing information see the wiki..."
    _sleep
 fi
-# stop whirlpool for existing whirlpool users
 
 if _is_bisq ; then
     _bisq_install
@@ -88,16 +62,21 @@ fi
 cd "${dojo_path_my_dojo}" || exit
 
 # Re-enable the indexer
-_check_indexer
+_fetch_configured_indexer_type
 ret=$?
 
 if ((ret==0)); then
-    bash -c "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
+    _set_electrs
+    # keep electrs
 elif ((ret==1)); then
-    test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
-
-    _set_indexer
+    _set_addrindexrs
+    # keep addrindexrs
+elif ((ret==2)); then
+    _set_fulcrum
+    # keep fulcrum
+else
+    _set_electrs
+    # sets default to electrs
 fi
 
 # Check if Network check is implemented. If not install and run it.
@@ -107,8 +86,11 @@ else
     sudo systemctl restart ronin.network
 fi
 
-./dojo.sh upgrade --nolog --auto
 # run upgrade
+./dojo.sh upgrade --nolog --auto
+
+# Restore legacy indexer data to new db location
+test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
 
 _pause return
 

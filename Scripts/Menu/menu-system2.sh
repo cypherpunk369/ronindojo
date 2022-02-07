@@ -139,7 +139,7 @@ EOF
             # Check if applications need to be uninstalled
             _is_ronin_ui && _ronin_ui_uninstall
 
-            _is_fan_control && _fan_control_uninstall
+            _is_fan_control_installed && _fan_control_uninstall
 
             if [ -d "${HOME}"/Whirlpool-Stats-Tool ]; then
                 cd "${HOME}"/Whirlpool-Stats-Tool || exit

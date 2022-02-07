@@ -37,7 +37,7 @@ EOF
 
         cd "$dojo_path_my_dojo" || exit
 
-        ./dojo.sh logs indexer
+        ./dojo.sh logs electrs
 
         bash -c "${ronin_electrs_menu}"
         # start electrs, return to menu
