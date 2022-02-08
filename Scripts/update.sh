@@ -491,10 +491,58 @@ _update_24() {
 # Remove specter
 _update_25() {
 
-    if ! _is_active specter; then
-        sudo systemctl stop --quiet specter
+    if [ ! -d "$HOME"/.venv_specter ]; then
+        exit
     fi
-    
-    # uninstall specter desktop
-    _is_specter && _specter_uninstall
+
+    local _specter_version
+    _specter_version="$1"
+
+    _load_user_conf
+
+    cat <<EOF
+${red}
+***
+Uninstalling Specter ${_specter_version:-$specter_version}...
+***
+${nc}
+EOF
+
+    if systemctl is-active --quiet specter; then
+        sudo systemctl stop --quiet specter
+        sudo systemctl --quiet disable specter
+        sudo rm /etc/systemd/system/specter.service
+        sudo systemctl daemon-reload
+    fi
+    # Remove systemd unit
+
+    cd "${dojo_path_my_dojo}"/bitcoin || exit
+    git checkout restart.sh &>/dev/null && cd - 1>/dev/null || exit
+    # Resets to defaults
+
+    if [ -f /etc/udev/rules.d/51-coinkite.rules ]; then
+        cd "$HOME"/specter-"${_specter_version:-$specter_version}"/udev || exit
+
+        for file in *.rules; do
+            test -f /etc/udev/rules.d/"${file}" && sudo rm /etc/udev/rules.d/"${file}"
+        done
+
+        sudo udevadm trigger
+        sudo udevadm control --reload-rules
+    fi
+    # Delete udev rules
+
+    rm -rf "$HOME"/.specter "$HOME"/specter-* "$HOME"/.venv_specter &>/dev/null
+    rm "$HOME"/.config/RoninDojo/specter* &>/dev/null
+    # Deletes the .specter dir, source dir, venv directory, certificate files and specter.service file
+
+    sudo sed -i -e "s:^ControlPort .*$:#ControlPort 9051:" -e "/specter/,+3d" /etc/tor/torrc
+    sudo systemctl restart --quiet tor
+    # Remove torrc changes
+
+    if getent group plugdev | grep -q "${ronindojo_user}" &>/dev/null; then
+        sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
+    fi
+    # Remove user from plugdev group
+
 }
