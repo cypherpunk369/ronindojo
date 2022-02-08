@@ -46,6 +46,7 @@ _main() {
     test -f "$HOME"/.config/RoninDojo/data/updates/20-* || _update_20 # Revert some settings in docker-bitcoind.conf
     test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
+    _update_24 # Fix hosts file, rerun always in case OS update reverts it
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
@@ -566,7 +567,7 @@ EOF
     cd "${ronin_ui_path}" || exit
 
     # wget version.json
-    wget -q https://ronindojo.io/downloads/RoninUI/version.json -O /tmp/version.json 2>/dev/null
+    wget -q "${roninui_version_file}" -O /tmp/version.json 2>/dev/null
 
     # get file
     _file=$(jq -r .file /tmp/version.json)
@@ -583,11 +584,13 @@ EOF
         rm "$_file" /tmp/version.json
 
         # Generate .env file
-        cat << EOF >.env
+        cat << EOF > .env
 JWT_SECRET=$gui_jwt
 NEXT_TELEMETRY_DISABLED=1
 EOF
-
+        if [ "${roninui_version_staging}" = true ] ; then 
+            echo -e "VERSION_CHECK=staging\n" >> .env
+        fi
         cat <<EOF
 ${red}
 ***
@@ -1433,10 +1436,10 @@ EOF
 # Dojo Credentials Backup
 #
 _dojo_backup() {
-    test -d "${dojo_backup_dir}" || sudo mkdir -p "${dojo_backup_dir}"
+    test -d "${dojo_backup_dir}"/conf || sudo mkdir -p "${dojo_backup_dir}"
 
-    if [ -d "${dojo_path}" ]; then
-        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf "${dojo_backup_dir}"
+    if [ -d "${dojo_path}"/conf ]; then
+        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_dir}"/conf
         return 0
     fi
 
@@ -1448,7 +1451,7 @@ _dojo_backup() {
 #
 _dojo_restore() {
     if "${dojo_conf_backup}"; then
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf "${dojo_path_my_dojo}"
+        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf
 
         # Apply bitcoind_db_cache_total tweak if needed
         . "$HOME"/RoninDojo/Scripts/update.sh
@@ -2922,4 +2925,73 @@ _nvme_check() {
     fi
 
     return 1
+}
+
+
+#
+# returns true/false on whether the host has a gpio system
+#
+_is_gpio_sytem() {
+    if [ -d /sys/class/gpio ]; then
+        return 0;
+    else
+        return 1;
+    fi
+}
+
+#
+# deletes and repopulates the GPIO dir
+#
+_prepare_GPIO_DIR() {
+    if [ -d "${ronin_gpio_data_dir}" ]; then
+        rm -rf "${ronin_gpio_data_dir}"
+    fi
+
+    git clone https://github.com/Angoosh/RockPro64-RP64.GPIO.git "${ronin_gpio_data_dir}"
+    cp "${ronin_gpio_dir}/turn.LED.off.py" "${ronin_gpio_data_dir}"
+    cp "${ronin_gpio_dir}/turn.LED.on.py" "${ronin_gpio_data_dir}"
+}
+
+#
+# installs the gpio service file for systemd
+#
+_install_gpio_service() {
+    _load_user_conf
+
+    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
+        exit;
+    fi
+
+    sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
+[Unit]
+Description=GPIO
+After=multi-user.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
+WorkingDirectory=${ronin_gpio_data_dir}
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+EOF
+"
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now --quiet ronin.gpio
+}
+
+#
+# installs the whole gpio setup
+#
+_install_gpio() {
+    if [ ! _is_gpio_sytem ]; then
+        exit
+    fi
+
+    _prepare_GPIO_DIR
+    _install_gpio_service
 }

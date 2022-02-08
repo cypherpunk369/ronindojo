@@ -55,29 +55,35 @@ CHOICE_HEIGHT=16
 TITLE="RoninDojo ${ronindojo_version}"
 MENU="Choose one of the following menu options:"
 
-# RoninDojo Menu Paths
-ronin_applications_menu="$HOME/RoninDojo/Scripts/Menu/menu-applications.sh"
-ronin_applications_manage_menu="$HOME/RoninDojo/Scripts/Menu/menu-applications-manage.sh"
-ronin_credentials_menu="$HOME/RoninDojo/Scripts/Menu/menu-credentials.sh"
-ronin_boltzmann_menu="$HOME/RoninDojo/Scripts/Menu/menu-boltzmann.sh"
-ronin_dojo_menu="$HOME/RoninDojo/Scripts/Menu/menu-dojo.sh"
-ronin_dojo_menu2="$HOME/RoninDojo/Scripts/Menu/menu-dojo2.sh"
-ronin_electrs_menu="$HOME/RoninDojo/Scripts/Menu/menu-electrs.sh"
-ronin_networking_menu="$HOME/RoninDojo/Scripts/Menu/menu-networking.sh"
-ronin_ssh_menu="$HOME/RoninDojo/Scripts/Menu/menu-ssh.sh"
-ronin_firewall_menu="$HOME/RoninDojo/Scripts/Menu/menu-firewall.sh"
-ronin_firewall_menu2="$HOME/RoninDojo/Scripts/Menu/menu-firewall2.sh"
-ronin_mempool_menu="$HOME/RoninDojo/Scripts/Menu/menu-mempool.sh"
-ronin_specter_menu="$HOME/RoninDojo/Scripts/Menu/menu-specter.sh"
-ronin_system_menu="$HOME/RoninDojo/Scripts/Menu/menu-system.sh"
-ronin_system_menu2="$HOME/RoninDojo/Scripts/Menu/menu-system2.sh"
-ronin_system_update="$HOME/RoninDojo/Scripts/Menu/menu-system-updates.sh"
-ronin_system_storage="$HOME/RoninDojo/Scripts/Menu/menu-system-storage.sh"
-ronin_ui_menu="$HOME/RoninDojo/Scripts/Menu/menu-ronin-ui.sh"
-ronin_updates_menu="$HOME/RoninDojo/Scripts/Menu/menu-system-updates.sh"
-ronin_whirlpool_menu="$HOME/RoninDojo/Scripts/Menu/menu-whirlpool.sh"
-ronin_whirlpool_stat_menu="$HOME/RoninDojo/Scripts/Menu/menu-whirlpool-wst.sh"
-ronin_samourai_toolkit_menu="$HOME/RoninDojo/Scripts/Menu/menu-samourai-toolkit.sh"
+# RoninDojo Paths
+ronin_dir="$HOME/RoninDojo"
+ronin_gpio_dir="$ronin_dir/GPIO"
+ronin_scripts_dir="$ronin_dir/Scripts"
+ronin_menu_dir="$ronin_scripts_dir/Menu"
+
+# RoninDojo menu Paths
+ronin_applications_menu="$ronin_menu_dir/menu-applications.sh"
+ronin_applications_manage_menu="$ronin_menu_dir/menu-applications-manage.sh"
+ronin_credentials_menu="$ronin_menu_dir/menu-credentials.sh"
+ronin_boltzmann_menu="$ronin_menu_dir/menu-boltzmann.sh"
+ronin_dojo_menu="$ronin_menu_dir/menu-dojo.sh"
+ronin_dojo_menu2="$ronin_menu_dir/menu-dojo2.sh"
+ronin_electrs_menu="$ronin_menu_dir/menu-electrs.sh"
+ronin_networking_menu="$ronin_menu_dir/menu-networking.sh"
+ronin_ssh_menu="$ronin_menu_dir/menu-ssh.sh"
+ronin_firewall_menu="$ronin_menu_dir/menu-firewall.sh"
+ronin_firewall_menu2="$ronin_menu_dir/menu-firewall2.sh"
+ronin_mempool_menu="$ronin_menu_dir/menu-mempool.sh"
+ronin_specter_menu="$ronin_menu_dir/menu-specter.sh"
+ronin_system_menu="$ronin_menu_dir/menu-system.sh"
+ronin_system_menu2="$ronin_menu_dir/menu-system2.sh"
+ronin_system_update="$ronin_menu_dir/menu-system-updates.sh"
+ronin_system_storage="$ronin_menu_dir/menu-system-storage.sh"
+ronin_ui_menu="$ronin_menu_dir/menu-ronin-ui.sh"
+ronin_updates_menu="$ronin_menu_dir/menu-system-updates.sh"
+ronin_whirlpool_menu="$ronin_menu_dir/menu-whirlpool.sh"
+ronin_whirlpool_stat_menu="$ronin_menu_dir/menu-whirlpool-wst.sh"
+ronin_samourai_toolkit_menu="$ronin_menu_dir/menu-samourai-toolkit.sh"
 
 #
 # Terminal Colors
@@ -92,6 +98,7 @@ nc=$(tput sgr0) # No Color
 dojo_path="$HOME/dojo"
 dojo_path_my_dojo="${dojo_path}/docker/my-dojo"
 ronin_data_dir="$HOME/.config/RoninDojo/data"
+ronin_gpio_data_dir="$HOME/.config/RoninDojo/GPIO"
 boltzmann_path="$HOME/boltzmann"
 ronin_ui_path="$HOME/Ronin-UI"
 
@@ -173,3 +180,10 @@ declare -a backup_dojo_data=(
     indexer
     bitcoind
 )
+
+# RoninUI defaults
+roninui_version_staging=false
+roninui_version_file="https://ronindojo.io/downloads/RoninUI/version.json"
+if [ "$roninui_version_staging" = true ]; then
+    roninui_version_file="https://ronindojo.io/downloads/RoninUI/version-staging.json"
+fi
