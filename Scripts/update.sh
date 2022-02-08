@@ -487,3 +487,14 @@ _update_24() {
         echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}"
     fi
 }
+
+# Remove specter
+_update_25() {
+
+    if ! _is_active specter; then
+        sudo systemctl stop --quiet specter
+    fi
+    
+    # uninstall specter desktop
+    _is_specter && _specter_uninstall
+}

@@ -47,6 +47,7 @@ _main() {
     test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
+    test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
