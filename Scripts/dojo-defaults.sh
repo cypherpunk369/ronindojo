@@ -52,12 +52,3 @@ fi
 if [ -d "${dojo_path}" ]; then
     _mempool_version="v$(grep MEMPOOL_API_VERSION_TAG "${dojo_path_my_dojo}"/.env | cut -d '=' -f2)"
 fi
-
-# Specter
-shopt -s nullglob
-
-for dir in "${HOME}"/specter*; do
-    if [[ -d "${dir}" ]]; then
-        tor_addr_specter=$(sudo cat "${install_dir_tor}"/specter_server/hostname)
-    fi
-done

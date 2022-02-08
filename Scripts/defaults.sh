@@ -161,13 +161,6 @@ else
     ronindojo_user=$(getent group 1000 | cut -d ':' -f1)
 fi
 
-# Specter defaults
-specter_sign_key_url="https://stepansnigirev.com/ss-specter-release.asc"
-specter_sign_key="ss-specter-release.asc"
-specter_url="https://github.com/cryptoadvance/specter-desktop.git"
-specter_version="v1.7.2"
-specter_port="25441"
-
 # Network info
 ip=$(ip route get 1 | awk '{print $7}')
 ip_range="$(echo "${ip}" | cut -d. -f1-3).0/24"

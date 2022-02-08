@@ -17,15 +17,6 @@ else
     mempool_text="Uninstall"
 fi
 
-# Set Specter install/uninstall status
-if ! _is_specter; then
-    is_specter_installed=false
-    specter_text="Install"
-else
-    is_specter_installed=true
-    specter_text="Uninstall"
-fi
-
 # Set Bisq install/uninstall status
 if ! _is_bisq; then
     is_bisq_installed=false
@@ -49,9 +40,8 @@ fi
 
 cmd=(dialog --title "RoninDojo" --separate-output --checklist "Use Mouse Click or Spacebar to select:" 22 76 16)
 options=(1 "${mempool_text} Mempool Space Visualizer" off    # any option can be set to default to "on"
-         2 "${specter_text} Specter" off
-         3 "${bisq_text} Bisq Connection" off
-         4 "${indexer_name}" off)
+         2 "${bisq_text} Bisq Connection" off
+         3 "${indexer_name}" off)
 choices=$("${cmd[@]}" "${options[@]}" 2>&1 >/dev/tty)
 clear
 for choice in $choices
@@ -76,23 +66,6 @@ EOF
             volume_prune=true
             ;;
         2)
-            if ! "${is_specter_installed}" ; then # Fresh install
-                _specter_install
-            else
-                _specter_uninstall
-
-                cat <<EOF
-${red}
-***
-Specter Server Uninstalled...
-***
-${nc}
-EOF
-            fi
-
-            upgrade=true
-            ;;
-        3)
             if ! "${is_bisq_installed}" ; then
                 _bisq_install
             else
@@ -101,7 +74,7 @@ EOF
 
             upgrade=true
             ;;
-        4)
+        3)
             case "${indexer_name}" in
                 "Install Samourai Indexer")
                     cat <<EOF

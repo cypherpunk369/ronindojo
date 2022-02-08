@@ -120,9 +120,6 @@ EOF
         # uninstall mempool.space
         _is_mempool && _mempool_uninstall
 
-        # uninstall specter desktop
-        _is_specter && _specter_uninstall
-
         # uninstall bisq support
         _is_bisq && _bisq_uninstall
 

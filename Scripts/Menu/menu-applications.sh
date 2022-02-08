@@ -5,12 +5,11 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Mempool Space Visualizer"
-         2 "Specter Server"
-         3 "Electrum Server"
-         4 "Bisq Connection Status"
-         5 "Fan Control"
-         6 "Manage Applications"
-         7 "Go Back")
+         2 "Electrum Server"
+         3 "Bisq Connection Status"
+         4 "Fan Control"
+         5 "Manage Applications"
+         6 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -48,31 +47,6 @@ EOF
         fi
         ;;
     2)
-        if ! _is_specter ; then
-            cat <<EOF
-${red}
-***
-Specter server not installed!
-***
-${nc}
-EOF
-            _sleep
-            cat <<EOF
-${red}
-***
-Install Specter Server using the manage applications menu...
-***
-${nc}
-EOF
-            _sleep
-            _pause return
-            bash -c "${ronin_applications_menu}"
-        else
-            bash -c "${ronin_specter_menu}"
-        fi
-        # Specter menu
-        ;;
-    3)
         if ! _is_electrs; then
             bash -c "${ronin_applications_menu}"
             exit 1
@@ -82,7 +56,7 @@ EOF
         bash -c "${ronin_electrs_menu}"
         # runs electrs menu script
         ;;
-    4)
+    3)
         cat <<EOF
 ${red}
 ***
@@ -132,7 +106,7 @@ EOF
         fi
         # Bisq check
         ;;
-    5)
+    4)
         if ! which_sbc rockpro64; then
             cat <<EOF
 ${red}
@@ -212,11 +186,11 @@ EOF
 
         bash -c "${ronin_applications_menu}"
         ;;
-    6)
+    5)
         bash -c "${ronin_applications_manage_menu}"
         # Manage applications menu
         ;;
-    7)
+    6)
         ronin
         # returns to main menu
         ;;
