@@ -6,9 +6,7 @@
 . "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-for pkg in sysstat bc gnu-netcat; do
-    _check_pkg "${pkg}"
-done
+_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat 
 
 # Import team pgp keys
 if gpg --list-keys | grep -e 'btcxzelko\|s2l1\|Pavel\|likewhoa' &>/dev/null ; then

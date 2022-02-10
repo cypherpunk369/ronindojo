@@ -199,6 +199,7 @@ SUDO'
 }
 
 #
+# DEPRECATED, USE _install_pkg_if_missing
 # Check if package is installed or not
 #
 _check_pkg() {
@@ -248,6 +249,77 @@ EOF
 
     return 1
 }
+
+#
+# Installs a package if not yet installed, return false if an install failed.
+# Usage: _install_pkg_if_missing [--update-mirrors] package1 [pacakge2[..]]
+#
+_install_pkg_if_missing() {
+    local update_keyring
+
+    if [ $# -eq 0 ]; then
+        echo "No arguments supplied"
+    fi
+
+    if [ "$1" = "--update-mirrors" ]; then
+        if [ $# -eq 1 ]; then
+            echo "No packages supplied as arguments"
+        fi
+        shift
+        _pacman_update_mirrors
+    fi
+
+    update_keyring=true
+
+    for pkg in "${@}"; do
+        if ! pacman -Q "${pkg}" 2>/dev/null; then
+
+            if [ $update_keyring = true ]; then
+                update_keyring=false
+                cat <<EOF
+${red}
+***
+Updating keyring...
+***
+${nc}
+EOF
+                if ! sudo pacman --quiet -S --noconfirm archlinux-keyring &>/dev/null; then
+                    cat <<EOF
+${red}
+***
+Keyring failed to update!
+***
+${nc}
+EOF
+                    return 1
+                fi
+            fi
+
+            cat <<EOF
+${red}
+***
+Installing ${pkg}...
+***
+${nc}
+EOF
+            if ! sudo pacman --quiet -S --noconfirm "${pkg}" &>/dev/null; then
+                cat <<EOF
+${red}
+***
+${pkg} failed to install!
+***
+${nc}
+EOF
+                return 1
+            else
+                return 0
+            fi
+        fi
+    done
+
+    return 0
+}
+
 
 #
 # Package version match
