@@ -1288,12 +1288,6 @@ _git_ref_type() {
     if git show-ref -q --verify "refs/remotes/origin/${_ref#*/}" 2>/dev/null; then
         # Valid branch
         return 3
-    elif git show-ref -q --verify "refs/remotes/origin/feature/${_ref#*/}" 2>/dev/null; then
-        # Valid feature branch
-        return 3
-    elif git show-ref -q --verify "refs/remotes/origin/release/${_ref#*/}" 2>/dev/null; then
-        # Valid release branch
-        return 3
     elif git show-ref -q --verify "refs/tags/${_ref#*/}" 2>/dev/null; then
         # Valid tag
         return 2
