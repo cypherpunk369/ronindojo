@@ -1640,7 +1640,7 @@ _ronindojo_update() {
         git fetch -q --all --tags --force
 
         # Validate current branch from user.conf
-        _git_ref_type "${ronin_dojo_branch#*/}"
+        _git_ref_type "${ronin_dojo_branch#*}"
         _ret=$?
 
         # Validate branch/tag reference
