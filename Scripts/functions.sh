@@ -2954,11 +2954,8 @@ _prepare_GPIO_DIR() {
 _install_gpio_service() {
     _load_user_conf
 
-    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
-        exit;
-    fi
-
-    sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
+    if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
+        sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
 [Unit]
 Description=GPIO
 After=multi-user.target
@@ -2976,8 +2973,13 @@ WantedBy=multi-user.target
 EOF
 "
 
-    sudo systemctl daemon-reload
-    sudo systemctl enable --now --quiet ronin.gpio
+        sudo systemctl daemon-reload
+        sudo systemctl enable --now --quiet ronin.gpio
+    elif [ systemctl is-active ronin.gpio == true ]; then
+        sudo systemctl restart ronin.gpio #restart it to ensure LEDs are on
+    else
+        sudo systemctl start ronin.gpio
+    fi  
 }
 
 #
