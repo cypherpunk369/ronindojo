@@ -2938,10 +2938,10 @@ _is_gpio_sytem() {
 #
 # deletes and repopulates the GPIO dir
 #
-_prepare_GPIO_DIR() {
-    if [ -d "${ronin_gpio_data_dir}" ]; then
-        rm -rf "${ronin_gpio_data_dir}"
-    fi
+_prepare_GPIO_datadir() {
+    _load_user_conf
+
+    _remove_GPIO_datadir
 
     git clone https://github.com/Angoosh/RockPro64-RP64.GPIO.git "${ronin_gpio_data_dir}"
     cp "${ronin_gpio_dir}/turn.LED.off.py" "${ronin_gpio_data_dir}"
@@ -2954,16 +2954,19 @@ _prepare_GPIO_DIR() {
 _install_gpio_service() {
     _load_user_conf
 
-    if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
-        sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
+    _uninstall_gpio_service
+
+    sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
 [Unit]
 Description=GPIO
 After=multi-user.target
 
 [Service]
 User=root
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
+ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py 
 WorkingDirectory=${ronin_gpio_data_dir}
 Restart=on-failure
 RestartSec=30
@@ -2973,13 +2976,8 @@ WantedBy=multi-user.target
 EOF
 "
 
-        sudo systemctl daemon-reload
-        sudo systemctl enable --now --quiet ronin.gpio
-    elif [ systemctl is-active ronin.gpio == true ]; then
-        sudo systemctl restart ronin.gpio #restart it to ensure LEDs are on
-    else
-        sudo systemctl start ronin.gpio
-    fi  
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now --quiet ronin.gpio
 }
 
 #
@@ -2990,6 +2988,51 @@ _install_gpio() {
         exit
     fi
 
-    _prepare_GPIO_DIR
+    _prepare_GPIO_datadir
     _install_gpio_service
+}
+
+_remove_GPIO_datadir() {
+    _load_user_conf
+    
+    if [ -d "${ronin_gpio_data_dir}" ]; then
+        rm -rf "${ronin_gpio_data_dir}"
+    fi
+}
+
+#
+# uninstalls the gpio service file for systemd
+#
+_uninstall_gpio_service() {
+
+    if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
+        exit;
+    fi
+
+    sudo systemctl stop ronin.gpio
+
+    sudo rm -f /etc/systemd/system/ronin.gpio.service
+
+    sudo systemctl daemon-reload
+}
+
+#
+# uninstalls the whole gpio setup
+#
+_uninstall_gpio() {
+    _remove_GPIO_datadir
+    _uninstall_gpio_service
+}
+
+#
+# repairs the gpio service
+#
+_repair_gpio() {
+
+    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
+        sudo systemctl stop ronin.gpio
+    fi
+
+    _uninstall_gpio
+    _install_gpio
 }
