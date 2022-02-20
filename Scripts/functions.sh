@@ -2985,11 +2985,11 @@ EOF
 #
 _install_gpio() {
     if [ ! _is_gpio_sytem ]; then
-        exit
+        return 0
+    else
+        _prepare_GPIO_datadir
+        _install_gpio_service
     fi
-
-    _prepare_GPIO_datadir
-    _install_gpio_service
 }
 
 _remove_GPIO_datadir() {
@@ -3006,14 +3006,12 @@ _remove_GPIO_datadir() {
 _uninstall_gpio_service() {
 
     if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
-        exit;
+        return 0
+    else
+        sudo systemctl stop ronin.gpio
+        sudo rm -f /etc/systemd/system/ronin.gpio.service
+        sudo systemctl daemon-reload
     fi
-
-    sudo systemctl stop ronin.gpio
-
-    sudo rm -f /etc/systemd/system/ronin.gpio.service
-
-    sudo systemctl daemon-reload
 }
 
 #
