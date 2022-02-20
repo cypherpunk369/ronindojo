@@ -121,7 +121,7 @@ samourai_commitish="v1.13.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
-
+specter_version="v1.7.2"
 #
 # Filesystem Defaults
 #
@@ -160,13 +160,6 @@ if [ "$(getent group 1000 | cut -d ':' -f1)" = "autologin" ]; then
 else
     ronindojo_user=$(getent group 1000 | cut -d ':' -f1)
 fi
-
-# Specter defaults
-specter_sign_key_url="https://stepansnigirev.com/ss-specter-release.asc"
-specter_sign_key="ss-specter-release.asc"
-specter_url="https://github.com/cryptoadvance/specter-desktop.git"
-specter_version="v1.7.2"
-specter_port="25441"
 
 # Network info
 ip=$(ip route get 1 | awk '{print $7}')
