@@ -3007,11 +3007,11 @@ _uninstall_gpio_service() {
 
     if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
         return 0
-    else
-        sudo systemctl stop ronin.gpio
-        sudo rm -f /etc/systemd/system/ronin.gpio.service
-        sudo systemctl daemon-reload
     fi
+    
+    sudo systemctl stop ronin.gpio
+    sudo rm -f /etc/systemd/system/ronin.gpio.service
+    sudo systemctl daemon-reload
 }
 
 #
