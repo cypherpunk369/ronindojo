@@ -492,7 +492,7 @@ _update_24() {
 _update_25() {
 
     if [ ! -d "$HOME"/.venv_specter ]; then
-        exit
+        return 0
     fi
 
     local _specter_version

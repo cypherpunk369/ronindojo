@@ -121,7 +121,7 @@ samourai_commitish="v1.13.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
-
+specter_version="v1.7.2"
 #
 # Filesystem Defaults
 #
