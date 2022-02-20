@@ -2984,12 +2984,13 @@ EOF
 # installs the whole gpio setup
 #
 _install_gpio() {
+
     if [ ! _is_gpio_sytem ]; then
         return 0
-    else
-        _prepare_GPIO_datadir
-        _install_gpio_service
     fi
+
+    _prepare_GPIO_datadir
+    _install_gpio_service
 }
 
 _remove_GPIO_datadir() {
@@ -3005,7 +3006,7 @@ _remove_GPIO_datadir() {
 #
 _uninstall_gpio_service() {
 
-    if [ ! -f /etc/systemd/system/ronin.gpio.service ]; then
+    if [ ! -f /etc/systemd/system/ronin.gpio.service && ! sudo systemctl is-active ronin.gpio ]; then
         return 0
     fi
     
@@ -3020,17 +3021,4 @@ _uninstall_gpio_service() {
 _uninstall_gpio() {
     _remove_GPIO_datadir
     _uninstall_gpio_service
-}
-
-#
-# repairs the gpio service
-#
-_repair_gpio() {
-
-    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
-        sudo systemctl stop ronin.gpio
-    fi
-
-    _uninstall_gpio
-    _install_gpio
 }
