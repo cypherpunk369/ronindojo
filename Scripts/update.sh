@@ -544,5 +544,7 @@ EOF
         sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
     fi
     # Remove user from plugdev group
-
+    
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/25-"$(date +%m-%d-%Y)"
 }
