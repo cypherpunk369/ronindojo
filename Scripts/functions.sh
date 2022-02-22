@@ -2605,10 +2605,10 @@ _is_gpio_sytem() {
 #
 # deletes and repopulates the GPIO dir
 #
-_prepare_GPIO_DIR() {
-    if [ -d "${ronin_gpio_data_dir}" ]; then
-        rm -rf "${ronin_gpio_data_dir}"
-    fi
+_prepare_GPIO_datadir() {
+    _load_user_conf
+
+    _remove_GPIO_datadir
 
     git clone https://github.com/Angoosh/RockPro64-RP64.GPIO.git "${ronin_gpio_data_dir}"
     cp "${ronin_gpio_dir}/turn.LED.off.py" "${ronin_gpio_data_dir}"
@@ -2621,9 +2621,7 @@ _prepare_GPIO_DIR() {
 _install_gpio_service() {
     _load_user_conf
 
-    if [ -f /etc/systemd/system/ronin.gpio.service ]; then
-        exit;
-    fi
+    _uninstall_gpio_service
 
     sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.gpio.service
 [Unit]
@@ -2632,8 +2630,10 @@ After=multi-user.target
 
 [Service]
 User=root
-Type=simple
+Type=oneshot
+RemainAfterExit=yes
 ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
+ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py 
 WorkingDirectory=${ronin_gpio_data_dir}
 Restart=on-failure
 RestartSec=30
@@ -2651,10 +2651,41 @@ EOF
 # installs the whole gpio setup
 #
 _install_gpio() {
+
     if [ ! _is_gpio_sytem ]; then
-        exit
+        return 0
     fi
 
-    _prepare_GPIO_DIR
+    _prepare_GPIO_datadir
     _install_gpio_service
+}
+
+_remove_GPIO_datadir() {
+    _load_user_conf
+    
+    if [ -d "${ronin_gpio_data_dir}" ]; then
+        rm -rf "${ronin_gpio_data_dir}"
+    fi
+}
+
+#
+# uninstalls the gpio service file for systemd
+#
+_uninstall_gpio_service() {
+
+    if [ ! -f /etc/systemd/system/ronin.gpio.service && ! sudo systemctl is-active ronin.gpio ]; then
+        return 0
+    fi
+    
+    sudo systemctl stop ronin.gpio
+    sudo rm -f /etc/systemd/system/ronin.gpio.service
+    sudo systemctl daemon-reload
+}
+
+#
+# uninstalls the whole gpio setup
+#
+_uninstall_gpio() {
+    _remove_GPIO_datadir
+    _uninstall_gpio_service
 }

@@ -94,6 +94,8 @@ if ! _is_ronin_ui; then
     _ronin_ui_install
 fi
 
+_install_gpio
+
 cat <<EOF
 ${red}
 ***
