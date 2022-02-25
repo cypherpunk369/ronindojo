@@ -2664,7 +2664,7 @@ _remove_GPIO_datadir() {
     _load_user_conf
     
     if [ -d "${ronin_gpio_data_dir}" ]; then
-        rm -rf "${ronin_gpio_data_dir}"
+        sudo rm -rf "${ronin_gpio_data_dir}"
     fi
 }
 
@@ -2673,7 +2673,7 @@ _remove_GPIO_datadir() {
 #
 _uninstall_gpio_service() {
 
-    if [ ! -f /etc/systemd/system/ronin.gpio.service && ! sudo systemctl is-active ronin.gpio ]; then
+    if [ ! -f /etc/systemd/system/ronin.gpio.service ] && ! sudo systemctl is-active ronin.gpio; then
         return 0
     fi
     
