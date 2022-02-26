@@ -470,6 +470,9 @@ _update_25() {
     local _specter_version
     _specter_version="$1"
 
+    local specter_version
+    specter_version="v1.7.2"
+    
     _load_user_conf
 
     cat <<EOF
