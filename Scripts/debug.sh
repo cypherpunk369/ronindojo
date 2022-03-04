@@ -349,7 +349,7 @@ while true; do
           # Display ronindebug function output to user
           printf "\n"
           cat "${ronin_debug_dir}"/${filename}
-          exit
+          break
           ;;
         [nN][oO]|[Nn])
           exit
@@ -368,6 +368,5 @@ done
 
 
 _pause return
-bash -c "${ronin_system_monitoring}"
 
 exit
