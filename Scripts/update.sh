@@ -271,34 +271,6 @@ _update_15() {
     fi
 }
 
-# Fix any existing specter installs that are missing gcc dependency
-_update_16() {
-    local _specter_version
-
-    if findmnt /mnt/usb 1>/dev/null && ! hash gcc 2>/dev/null && _is_specter; then
-        cat <<EOF
-${red}
-***
-Detected an incomplete Specter install, please wait while it's fixed...
-***
-${nc}
-EOF
-        shopt -s nullglob
-
-        cd "${HOME}" || exit
-
-        for dir in specter*; do
-            if [ -d "$dir" ]; then
-                _specter_version="${dir#*-}"
-                _specter_uninstall "${_specter_version}" && _specter_install
-            fi
-        done
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/16-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Uninstall legacy Ronin UI
 _update_17() {
     if [ -d "$HOME"/Ronin-UI-Backend ]; then
@@ -498,6 +470,9 @@ _update_25() {
     local _specter_version
     _specter_version="$1"
 
+    local specter_version
+    specter_version="v1.7.2"
+    
     _load_user_conf
 
     cat <<EOF

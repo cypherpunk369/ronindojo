@@ -74,7 +74,6 @@ ronin_ssh_menu="$ronin_menu_dir/menu-ssh.sh"
 ronin_firewall_menu="$ronin_menu_dir/menu-firewall.sh"
 ronin_firewall_menu2="$ronin_menu_dir/menu-firewall2.sh"
 ronin_mempool_menu="$ronin_menu_dir/menu-mempool.sh"
-ronin_specter_menu="$ronin_menu_dir/menu-specter.sh"
 ronin_system_menu="$ronin_menu_dir/menu-system.sh"
 ronin_system_menu2="$ronin_menu_dir/menu-system2.sh"
 ronin_system_update="$ronin_menu_dir/menu-system-updates.sh"
@@ -121,7 +120,7 @@ samourai_commitish="v1.13.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
-specter_version="v1.7.2"
+
 #
 # Filesystem Defaults
 #
