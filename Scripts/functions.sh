@@ -271,7 +271,7 @@ _install_pkg_if_missing() {
 
     update_keyring=true
 
-    for pkg in "${@}"; do
+    for pkg in $@; do
         if ! pacman -Q "${pkg}" 1>/dev/null 2>/dev/null; then
 
             if [ $update_keyring = true ]; then
@@ -311,8 +311,6 @@ ${pkg} failed to install!
 ${nc}
 EOF
                 return 1
-            else
-                return 0
             fi
         fi
     done
