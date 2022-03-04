@@ -331,8 +331,8 @@ ${nc}
 EOF
 filename="health-`date +%y%m%d`-`date +%H%M`.txt"
 _create_dir "${ronin_debug_dir}"
-ronindebug  > "${ronin_debug_dir}/$filename"
-cat "${ronin_debug_dir}"/health-*.txt | nc termbin.com 9999
+ronindebug  > "${ronin_debug_dir}/${filename}"
+cat "${ronin_debug_dir}"/${filename} | nc termbin.com 9999
 
     # Ask user to proceed
     cat <<EOF
@@ -348,7 +348,7 @@ while true; do
         [yY][eE][sS]|[yY])
           # Display ronindebug function output to user
           printf "\n"
-          cat "${ronin_debug_dir}"/health-*.txt
+          cat "${ronin_debug_dir}"/${filename}
           exit
           ;;
         [nN][oO]|[Nn])
