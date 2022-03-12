@@ -287,7 +287,7 @@ _update_32() {
     fi
 
     # Finalize
-    touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
+    touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
 }
 
 # Set the addrindexrs option explicitly, otherwise migration ends up with defaults meaning electrs
@@ -299,4 +299,13 @@ _update_33() {
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
+}
+
+# Call _setup_storage_config to set the files
+_update_34() {
+
+    _setup_storage_config
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
 }
