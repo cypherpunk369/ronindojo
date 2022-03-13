@@ -53,6 +53,7 @@ print_general_info() {
 	cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
 	tempC=$((cpu/1000))
 	temp_output=$(echo $tempC $'\xc2\xb0'C)
+	ronindojo_commit=$(git -C "${ronin_dir}" rev-parse HEAD)
 
 	cat <<EOF
 #####################################################################
@@ -67,6 +68,7 @@ UI Backend       :  $backend_status
 External Tor     :  $tor_status
 Docker version   :  $docker_version
 Docker           :  $docker_status
+RoninDojo commit :  $ronindojo_commit
 EOF
 
 }
