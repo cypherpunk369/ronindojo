@@ -116,6 +116,14 @@ EOF
 
 }
 
+prepare_disk_readout() {
+    df -Pkh | grep -v 'Filesystem' > /tmp/df.status
+}
+
+cleanup_disk_readout() {
+	rm /tmp/df.status
+}
+
 print_disk_load() {
 
 	cat <<EOF
@@ -125,7 +133,6 @@ Disk Usage:      Normal <90%, Caution >90%, Unhealthy >95%
 EOF
 
 	# Display drive info
-	df -Pkh | grep -v 'Filesystem' > /tmp/df.status
 	while read disk ; do
 		line=$(echo $disk | awk '{print $1,"\t",$6,"\t",$5," used","\t",$4," freespace"}')
 		echo -e $line 
@@ -156,7 +163,6 @@ EOF
 	        echo -ne "$line" "\t\t" "$status"
 	        printf "\n"
 	done < /tmp/df.status
-	rm /tmp/df.status
 
 	printf "\n"
 
@@ -271,6 +277,8 @@ EOF
 }
 
 ronindebug() {
+	prepare_disk_readout
+
 	print_cpu_load
 	printf "\n"
 	print_general_info
@@ -285,6 +293,8 @@ ronindebug() {
 	printf "\n"
 	upload_logs
 	printf "\n"
+
+	cleanup_disk_readout
 }
 
     # Upload to termbin
