@@ -48,6 +48,7 @@ print_general_info() {
 	system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
 	backend_status=$(if cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
 	tor_status=$(if systemctl is-active --quiet tor ; then printf "Online" ; else printf "Offline" ; fi)
+	docker_version=$(docker --version; docker-compose --version)
 	docker_status=$(if systemctl is-active --quiet docker ; then printf "Online" ; else printf "Offline" ; fi)
 	cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
 	tempC=$((cpu/1000))
@@ -64,6 +65,7 @@ CPU Temperature  :  $temp_output
 Uptime           :  $system_uptime
 UI Backend       :  $backend_status
 External Tor     :  $tor_status
+Docker version   :  $docker_version
 Docker           :  $docker_status
 EOF
 
