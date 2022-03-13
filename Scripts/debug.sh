@@ -141,33 +141,6 @@ cat <<EOF
 #####################################################################
 EOF
 
-	# Check if SSD storage device is found
-	if [ -b "${primary_storage}" ] && [ -b "${secondary_storage}" ] ; then
-	    cat <<EOF
-***
-Primary storage and secondary storage /dev/sda1 & /dev/sdb1 found...
-***
-
-***
-Please unmount and unplug your secondary storage device when not in use!
-***
-EOF
-	elif [ -b "${primary_storage}" ] ; then
-	    cat <<EOF
-***
-Primary storage /dev/sda1 found!
-***
-EOF
-	else
-	    cat <<EOF
-***
-ERROR: Primary storage /dev/sda1 is NOT FOUND, check dmesg below for I/O errors!
-***
-EOF
-	fi
-
-	printf "\n"
-
 	while read disk ; do
 		usage=$(echo "$disk" | awk '{print $5}' | cut -f1 -d%)
 		if [ "$usage" -ge 95 ] 
