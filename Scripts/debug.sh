@@ -160,7 +160,7 @@ EOF
 			status='Normal'
 		fi
 	        line=$(echo "$disk" | awk '{print $1,"\t",$6}')
-	        echo -ne "$line" "\t\t" "$status"
+	        echo -ne "$status" ":" "\t" "$line"
 	        printf "\n"
 	done < /tmp/df.status
 
