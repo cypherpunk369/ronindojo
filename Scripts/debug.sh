@@ -196,7 +196,7 @@ EOF
 
 	# checks if dojo is running (check the db container)
 	if ! _dojo_check; then
-	    break
+	    return
 	else
 	    cat <<EOF
 #####################################################################
@@ -211,7 +211,7 @@ EOF
 	printf "\n"
 
 	if ! _dojo_check; then
-	    break
+	    return
 	else
 	    cat <<EOF
 #####################################################################
@@ -226,7 +226,7 @@ EOF
 	printf "\n"
 
 	if ! _dojo_check; then
-	    break
+	    return
 	else
 	    cat <<EOF
 #####################################################################
@@ -241,7 +241,7 @@ EOF
 	printf "\n"
 
 	if ! _dojo_check; then
-	    break
+	    return
 	else
 	    cat <<EOF
 #####################################################################
