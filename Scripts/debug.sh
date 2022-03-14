@@ -255,31 +255,6 @@ EOF
 
 }
 
-upload_logs() {
-
-	# Upload full copy of pgp encrypted dmesg logs to termbin.com
-	# Link to termbin github repository: https://github.com/solusipse/fiche.
-	# Life span of single paste is one month. Older pastes are deleted.
-	cat <<EOF
-#####################################################################
-                    PGP Encrypted Dmesg Logs
-#####################################################################
-EOF
-
-	    cat <<EOF
-***
-PGP Encrypted Dmesg Logs URL:
-***
-EOF
-	_create_dir "${ronin_debug_dir}"
-	dmesg > "${ronin_debug_dir}"/dmesg.txt
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com \
-	  --trust-model always -a "${ronin_debug_dir}"/dmesg.txt
-	cat "${ronin_debug_dir}"/dmesg.txt.asc | nc termbin.com 9999
-	rm -f "${ronin_debug_dir}"/dmesg*
-
-}
-
 ronindebug() {
 	prepare_disk_readout
 
@@ -295,39 +270,71 @@ ronindebug() {
 	printf "\n"
 	print_docker_status
 	printf "\n"
-	upload_logs
-	printf "\n"
 
 	cleanup_disk_readout
 }
+
+create_output_logs() {
+
+	_create_dir "${ronin_debug_dir}"
+
+	ronindebug  > "${ronin_debug_dir}/health.txt"
+	dmesg > "${ronin_debug_dir}/dmesg.txt"
+
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com \
+	  --trust-model always -a "${ronin_debug_dir}/health.txt"
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com \
+	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
+}
+
+cleanup_output_logs() {
+	rm -rf "${ronin_debug_dir}"
+}
+
+upload_logs() {
+
+	# Upload full copy of pgp encrypted logs to termbin.com
+	# Link to termbin github repository: https://github.com/solusipse/fiche.
+	# Life span of single paste is one month. Older pastes are deleted.
+	cat <<EOF
+#####################################################################
+                    PGP Encrypted Logs
+#####################################################################
+EOF
+
 
     # Upload to termbin
     cat <<EOF
 ${red}
 ***
-Please wait while URL is generated...
+Please wait while URLs are generated...
 ***
 ${nc}
 EOF
 _sleep 2
 
-    cat <<EOF
-${red}
+	    cat <<EOF
 ***
-Debugging URL:
+PGP Encrypted Logs URLs:
 ***
-${nc}
 EOF
-filename="health-`date +%y%m%d`-`date +%H%M`.txt"
-_create_dir "${ronin_debug_dir}"
-ronindebug  > "${ronin_debug_dir}/${filename}"
-cat "${ronin_debug_dir}"/${filename} | nc termbin.com 9999
+	printf "health file: "
+	cat "${ronin_debug_dir}"/health.txt.asc | nc termbin.com 9999
+	printf "\n"
+	printf "dmesg file: "
+	cat "${ronin_debug_dir}"/dmesg.txt.asc | nc termbin.com 9999
+}
 
-    # Ask user to proceed
+# execute the scripts
+create_output_logs
+upload_logs
+
+
+# Ask user to print the output
     cat <<EOF
 ${red}
 ***
-Do you want to see the debugging script output?
+Do you want to see the debugging health script output?
 ***
 ${nc}
 EOF
@@ -337,7 +344,7 @@ while true; do
         [yY][eE][sS]|[yY])
           # Display ronindebug function output to user
           printf "\n"
-          cat "${ronin_debug_dir}"/${filename}
+          cat "${ronin_debug_dir}"/health.txt
           break
           ;;
         [nN][oO]|[Nn])
@@ -355,6 +362,7 @@ EOF
     esac
 done
 
+cleanup_output_logs
 
 _pause return
 
