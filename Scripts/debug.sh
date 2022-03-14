@@ -9,11 +9,7 @@
 _install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat 
 
 # Import team pgp keys
-if gpg --list-keys | grep -e 'btcxzelko\|s2l1\|Pavel\|likewhoa' &>/dev/null ; then
-gpg --refresh-keys &>/dev/null
-else 
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
-fi
 
 print_cpu_load() {
 
