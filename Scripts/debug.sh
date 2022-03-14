@@ -42,6 +42,7 @@ EOF
 print_general_info() {
 
 	# Get general system info
+	current_time=$(date)
 	os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
 	os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
 	kernel_version=$(uname -r)
@@ -59,6 +60,7 @@ print_general_info() {
 #####################################################################
                      General System Information
 #####################################################################
+Current time     :  $current_time
 OS Description   :  $os_descrip
 OS Version       :  $os_version
 Kernel Version   :  $kernel_version
