@@ -11,6 +11,17 @@ _install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat
 # Import team pgp keys
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
 
+prepare_cpu_readout() {
+	cleanup_cpu_readout
+	echo 'ENABLED="true"' | sudo tee -a "/etc/default/sysstat" > /dev/null
+	sudo systemctl restart sysstat
+}
+
+cleanup_cpu_readout() {
+	sudo rm -f "/etc/default/sysstat"
+	sudo systemctl restart sysstat
+}
+
 print_cpu_load() {
 
 	cat <<EOF
@@ -21,12 +32,8 @@ EOF
 
 	# Get cpu load values and display to user
 	cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
-	i=0
 
-	while [ $i -lt $cpus ] ; do
-		echo "CPU$i : `mpstat -P ALL | awk -v var=$i '{ if ($3 == var ) print $4 }' `"
-		let i=$i+1
-	done
+	sar -P ALL -u ALL 1 1 | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
 
     cat <<EOF
 Load Average : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d,)
@@ -253,6 +260,7 @@ EOF
 
 ronindebug() {
 	prepare_disk_readout
+	prepare_cpu_readout
 
 	print_cpu_load
 	printf "\n"
@@ -268,6 +276,7 @@ ronindebug() {
 	printf "\n"
 
 	cleanup_disk_readout
+	cleanup_cpu_readout
 }
 
 create_output_logs() {
