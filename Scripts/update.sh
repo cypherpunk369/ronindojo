@@ -222,18 +222,6 @@ _update_11() {
     fi
 }
 
-# Set BITCOIND_DB_CACHE to use bitcoind_db_cache_total value if not set
-_update_12() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ] && [ -z "${BITCOIND_DB_CACHE}" ]; then
-        if findmnt /mnt/usb 1>/dev/null && ! _dojo_check && ! grep BITCOIND_DB_CACHE="$(_mem_total "${bitcoind_db_cache_total}")" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 1>/dev/null; then
-            sed -i "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=$(_mem_total "${bitcoind_db_cache_total}")/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-
-            # Finalize
-            touch "$HOME"/.config/RoninDojo/data/updates/12-"$(date +%m-%d-%Y)"
-        fi
-    fi
-}
-
 # tag that system install has been installed already
 _update_13() {
     if [ -d "${install_dir_tor}" ] && [ ! -f "${ronin_data_dir}"/system-install ]; then
@@ -315,20 +303,6 @@ EOF
     fi
 }
 
-# Update docker-bitcoind.conf settings for existing users
-_update_18() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
-        if grep -q "BITCOIND_RPC_THREADS=12" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
-            sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        elif grep -q "BITCOIND_MAX_MEMPOOL=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
-            sed -i "s/BITCOIND_MAX_MEMPOOL.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-2048}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/18-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 _update_19() {
     # Remove nodejs-lts-erbium if available
@@ -352,17 +326,6 @@ EOF
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Revert some settings in docker-bitcoind.conf
-_update_20() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
-        sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-10}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        sed -i "s/BITCOIND_MAX_MEMPOOL.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-1024}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/20-"$(date +%m-%d-%Y)"
     fi
 }
 
