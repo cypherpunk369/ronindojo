@@ -1449,8 +1449,6 @@ _dojo_restore() {
         # Apply bitcoind_db_cache_total tweak if needed
         . "$HOME"/RoninDojo/Scripts/update.sh
 
-        test -f "$HOME"/.config/RoninDojo/data/updates/12-* || _update_12
-
         return 0
     fi
 
