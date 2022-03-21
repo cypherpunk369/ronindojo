@@ -16,9 +16,6 @@ test -f "$HOME"/.config/RoninDojo/data/updates/10-* && rm "$HOME"/.config/RoninD
 # Migrate user.conf variables to lowercase
 test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10
 
-# Fix any existing specter installs that are missing gcc dependency
-test -f "$HOME"/.config/RoninDojo/data/updates/16-* || _update_16
-
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 
