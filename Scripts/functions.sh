@@ -121,6 +121,33 @@ EOF
 }
 
 #
+# Prints a message in the RoninDojo human messaging format
+#
+_print_message() {
+    cat <<EOF
+${red}
+***
+$1
+***
+${nc}
+EOF
+}
+
+#
+# Prints an error message in the RoninDojo human messaging format
+#
+_print_error_message() {
+    cat >&2 <<EOF
+${red}
+***
+ERROR: $1
+***
+${nc}
+EOF
+}
+
+
+#
 # Update pacman mirrors
 #
 _pacman_update_mirrors() {
