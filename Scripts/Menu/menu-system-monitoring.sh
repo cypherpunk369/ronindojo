@@ -1,13 +1,14 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
-. "$HOME"/RoninDojo/Scripts/defaults.sh
-. "$HOME"/RoninDojo/Scripts/functions.sh
+. "${HOME}"/RoninDojo/Scripts/defaults.sh
+. "${HOME}"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Task Manager"
-         2 "Check Temperature"
-         3 "Check Network Stats"
-         4 "Go Back")
+         2 "Debug Tool"
+         3 "Check Temperature"
+         4 "Check Network Stats"
+         5 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -30,11 +31,14 @@ EOF
         _sleep 3
 
         htop
-
-        bash "$HOME"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # returns to menu
         ;;
     2)
+        bash "${HOME}"/RoninDojo/Scripts/debug.sh
+        bash -c "${ronin_system_monitoring}"
+        ;;
+    3)
         cat <<EOF
 ${red}
 ***
@@ -49,10 +53,10 @@ EOF
         # cpu temp info
 
         _pause return
-        bash "$HOME"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # press any key to return to menu
         ;;
-    3)
+    4)
         cat <<EOF
 ${red}
 ***
@@ -69,10 +73,10 @@ EOF
         # network info, use wlan0 for wireless
 
         _pause return
-        bash "$HOME"/RoninDojo/Scripts/Menu/menu-system-monitoring.sh
+        bash -c "${ronin_system_monitoring}"
         # press any key to return to menu
         ;;
-    4)
+    5)
         bash -c "${ronin_system_menu}"
         # returns to menu
         ;;
