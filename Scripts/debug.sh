@@ -358,10 +358,12 @@ while true; do
           # Display ronindebug function output to user
           printf "\n"
           cat "${ronin_debug_dir}"/health.txt
+
+		  _pause return
           break
           ;;
         [nN][oO]|[Nn])
-          exit
+          break
           ;;
         *)
           cat <<EOF
@@ -376,7 +378,5 @@ EOF
 done
 
 cleanup_output_logs
-
-_pause return
 
 exit
