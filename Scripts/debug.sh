@@ -6,7 +6,7 @@
 . "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat 
+_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat nvme-cli
 
 # Import team pgp keys
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
@@ -155,6 +155,21 @@ EOF
 
 }
 
+print_disk_smart() {
+
+	if [ ! -b /dev/nvme0n1 ]; then
+		return 1
+	fi
+
+	cat <<EOF
+#####################################################################
+                        NVME Disk SMART Logs
+#####################################################################
+EOF
+
+	sudo nvme smart-log "/dev/nvme0n1"
+}
+
 print_disk_health() {
 
 cat <<EOF
@@ -277,6 +292,8 @@ ronindebug() {
 	print_memory_usage
 	printf "\n"
 	print_disk_load
+	printf "\n"
+	print_disk_smart
 	printf "\n"
 	print_disk_health
 	printf "\n"
