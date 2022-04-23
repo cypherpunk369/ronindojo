@@ -2780,3 +2780,17 @@ _uninstall_gpio() {
     _remove_GPIO_datadir
     _uninstall_gpio_service
 }
+
+_create_dojo_confs() {
+    cd "${dojo_path_my_dojo}"
+
+    cp ./conf/docker-common.conf.tpl ./conf/docker-common.conf
+    cp ./conf/docker-bitcoind.conf.tpl ./conf/docker-bitcoind.conf
+    cp ./conf/docker-mysql.conf.tpl ./conf/docker-mysql.conf
+    cp ./conf/docker-node.conf.tpl ./conf/docker-node.conf
+    cp ./conf/docker-explorer.conf.tpl ./conf/docker-explorer.conf
+    cp ./conf/docker-tor.conf.tpl ./conf/docker-tor.conf
+    cp ./conf/docker-indexer.conf.tpl ./conf/docker-indexer.conf
+    cp ./conf/docker-whirlpool.conf.tpl ./conf/docker-whirlpool.conf
+    cp ./conf/docker-mempool.conf.tpl ./conf/docker-mempool.conf
+}
