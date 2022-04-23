@@ -182,7 +182,7 @@ EOF
 	printf "\n"
 
 	# Show dmesg error logs if found when piped into grep search 
-	if dmesg | grep "error" ; then
+	if dmesg | grep "error" 1> /dev/null; then
 	    cat <<EOF
 ***
 WARNING - Dmesg Error Logs Detected:
