@@ -12,14 +12,13 @@ _install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
 
 prepare_cpu_readout() {
-	cleanup_cpu_readout
-	echo 'ENABLED="true"' | sudo tee -a "/etc/default/sysstat" > /dev/null
-	sudo systemctl restart sysstat
+	echo 'ENABLED="true"' | sudo tee "/etc/default/sysstat" > /dev/null
+	sudo systemctl start sysstat
 }
 
 cleanup_cpu_readout() {
 	sudo rm -f "/etc/default/sysstat"
-	sudo systemctl restart sysstat
+	sudo systemctl stop sysstat
 }
 
 print_cpu_load() {
