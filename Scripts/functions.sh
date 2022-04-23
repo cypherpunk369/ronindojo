@@ -2794,3 +2794,12 @@ _create_dojo_confs() {
     cp ./conf/docker-whirlpool.conf.tpl ./conf/docker-whirlpool.conf
     cp ./conf/docker-mempool.conf.tpl ./conf/docker-mempool.conf
 }
+
+_generate_dojo_credentials(){
+    
+}
+
+_backup_dojo_confs() {
+    sudo mkdir /mnt/usb/backup/dojo/confs 
+    sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf /mnt/usb/backup/dojo/confs
+}
