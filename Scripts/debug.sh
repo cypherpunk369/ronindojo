@@ -25,16 +25,25 @@ print_cpu_load() {
 
 	cat <<EOF
 #####################################################################
-CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy 
+                         CPU load readouts
 #####################################################################
 EOF
 
 	# Get cpu load values and display to user
 	cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
 
+	echo "CURRENT USAGE:"
 	sar -P ALL -u ALL 1 1 | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	echo ""
 
+	echo "AVERAGE USAGE SINCE BOOT:"
+	mpstat -P ALL | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	echo ""
+	
     cat <<EOF
+########################################################
+CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy 
+########################################################
 Load Average : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d,)
 Heath Status : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d, | awk '{if ($1 > 2) print "Unhealthy"; else if ($1 > 1) print "Caution"; else print "Normal"}')
 EOF
