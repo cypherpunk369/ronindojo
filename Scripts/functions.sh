@@ -2797,11 +2797,12 @@ _create_dojo_confs() {
 }
 
 _generate_dojo_credentials(){
-
+    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
+        -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf # import generated bitcoin creds
 }
 
-_backup_dojo_confs() {
+_ba0ckup_dojo_confs() {
     sudo chown -R "$USER":"$USER" "${dojo_backup_dir}" #change the permissions of the dojo backup directory
     _create_dir "${dojo_backup_conf}" # check if the backup dojo conf is created if not create it
     sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
-}
+}0
