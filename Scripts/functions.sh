@@ -2793,13 +2793,15 @@ _create_dojo_confs() {
     cp ./conf/docker-indexer.conf.tpl ./conf/docker-indexer.conf
     cp ./conf/docker-whirlpool.conf.tpl ./conf/docker-whirlpool.conf
     cp ./conf/docker-mempool.conf.tpl ./conf/docker-mempool.conf
+    #copy the template files to conf files during intializations. This will have default values until _generate_dojo_credentials is ran. Then files will be copied.
 }
 
 _generate_dojo_credentials(){
-    
+
 }
 
 _backup_dojo_confs() {
-    sudo mkdir /mnt/usb/backup/dojo/confs 
-    sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf /mnt/usb/backup/dojo/confs
+    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}" #change the permissions of the dojo backup directory
+    _create_dir "${dojo_backup_conf}" # check if the backup dojo conf is created if not create it
+    sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
 }
