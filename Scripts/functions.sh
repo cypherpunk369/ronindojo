@@ -2817,8 +2817,20 @@ _generate_dojo_credentials(){
     # populate docker-explorer.conf
 }
 
-_ba0ckup_dojo_confs() {
+_backup_dojo_confs() {
     sudo chown -R "$USER":"$USER" "${dojo_backup_dir}" #change the permissions of the dojo backup directory
     _create_dir "${dojo_backup_conf}" # check if the backup dojo conf is created if not create it
     sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
-}0
+}
+
+_restore_dojo_confs() {
+    if test -d "${dojo_backup_conf}"; then
+        cp "${dojo_backup_conf}"/* "${dojo_path_my_dojo}"/conf/
+    elif test -d "${dojo_backup_dir}"; then
+        cp "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf/
+        sudo chown -R "$USER":"$USER" "${dojo_path_my_dojo}"/conf/
+    # for legacy backups to ensure they are picked up
+    else
+        echo "No backup detected"
+    fi
+}
