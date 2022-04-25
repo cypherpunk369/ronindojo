@@ -2831,14 +2831,18 @@ _backup_dojo_confs() {
     sudo cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
 }
 
-_restore_dojo_confs() {
-    if test -d "${dojo_backup_conf}"; then
-        cp "${dojo_backup_conf}"/* "${dojo_path_my_dojo}"/conf/
-    elif test -d "${dojo_backup_dir}"; then
-        cp "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf/
-        sudo chown -R "$USER":"$USER" "${dojo_path_my_dojo}"/conf/
+_restore_or_create_dojo_confs() {
+    if [ -d "${dojo_backup_conf}" ]; then
+        cp -p "${dojo_backup_conf}"/* "${dojo_path_my_dojo}"/conf/
+    elif [ -d "${dojo_backup_dir}" ]; then
+        sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+        cp -p "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf/
     # for legacy backups to ensure they are picked up
     else
         echo "No backup detected"
+        _create_dojo_confs
+        _generate_dojo_credentials
+        _backup_dojo_confs
+    # if fresh install, create the confs from tpl, generate creds, and back them up to SSD.
     fi
 }
