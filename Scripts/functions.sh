@@ -1280,16 +1280,7 @@ fi
 # Check if mempool enabled
 #
 _is_mempool() {
-    local conf
-    conf="${dojo_path_my_dojo}/conf/docker-mempool.conf"
-
-    if [ -f "$conf" ]; then
-        if grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf 1>/dev/null; then
-            return 1
-        else
-            return 0
-        fi
-    elif grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf.tpl 1>/dev/null; then
+    if grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf 1>/dev/null; then
         return 1
     else
         return 0
