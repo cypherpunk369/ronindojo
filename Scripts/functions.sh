@@ -2726,8 +2726,9 @@ _uninstall_gpio() {
 }
 
 #
-# Copy the template files to conf files.
-# These will have default values until _generate_dojo_credentials is ran.
+# Creating Dojo Config files \
+# Usage: Copy the template files to conf files. \
+# WARNING: These will have default values until _generate_dojo_credentials is ran.
 #
 _create_dojo_confs() {
     for file in "${dojo_path_my_dojo}/conf/*.conf.tpl"; do
@@ -2735,6 +2736,10 @@ _create_dojo_confs() {
     done
 }
 
+#
+# Dojo Credentials Generation \
+# Usage: Generates random usernames and passwords for dojo conf
+#
 _generate_dojo_credentials(){
     _load_user_conf
     . "${HOME}"/RoninDojo/Scripts/generated-credentials.sh
@@ -2769,12 +2774,20 @@ _generate_dojo_credentials(){
     # Set Mempool MySQL credentials
 }
 
+#
+# Backup Dojo confs \
+# Usage: Copys users dojo confs to SSD for easy restore if necessary
+#
 _backup_dojo_confs() {
     sudo chown -R "$USER":"$USER" "${dojo_backup_dir}" #change the permissions of the dojo backup directory
     _create_dir "${dojo_backup_conf}" # check if the backup dojo conf is created if not create it
     cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
 }
 
+#
+# Dojo Conf function \
+# Usage: restores/creates and backs up users dojo confs to SSD
+#
 _restore_or_create_dojo_confs() {
     if [ -d "${dojo_backup_conf}" ]; then
         _print_message "Credentials backup detected and restored..."
