@@ -1111,11 +1111,6 @@ _fan_control_upgrade() {
 # Enables the Samourai & or Electrs local indexer
 #
 _set_indexer() {
-    local conf
-
-    conf="conf"
-    test -f "${dojo_path_my_dojo}"/conf/docker-indexer.conf || conf="conf.tpl"
-
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer."${conf}"
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node."${conf}"
 
@@ -1143,11 +1138,6 @@ _uninstall_electrs_indexer() {
 # Checks what indexer is set if any
 #
 _check_indexer() {
-    local conf
-    conf="conf"
-
-    test -f "${dojo_path_my_dojo}"/conf/docker-indexer.conf || conf="conf.tpl"
-
     if grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node."${conf}" 1>/dev/null && [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
         return 0
         # Found electrs
