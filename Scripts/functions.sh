@@ -2833,11 +2833,9 @@ _backup_dojo_confs() {
 
 _restore_or_create_dojo_confs() {
     if [ -d "${dojo_backup_conf}" ]; then
-        cp -p "${dojo_backup_conf}"/* "${dojo_path_my_dojo}"/conf/
-    elif [ -d "${dojo_backup_dir}" ]; then
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
-        cp -p "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf/
-    # for legacy backups to ensure they are picked up
+        cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
+    # change permissions of existing backup confs to current user. then copy with permissions to new dojo conf
     else
         echo "No backup detected"
         _create_dojo_confs
