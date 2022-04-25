@@ -1582,43 +1582,6 @@ _source_dojo_conf() {
 }
 
 #
-# Select YAML files
-#
-_select_yaml_files() {
-    local dojo_path_my_dojo
-    dojo_path_my_dojo="$HOME/dojo/docker/my-dojo"
-
-    yamlFiles="-f $dojo_path_my_dojo/docker-compose.yaml"
-
-    if [ "$BITCOIND_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/bitcoind.install.yaml"
-
-        if [ "$BITCOIND_RPC_EXTERNAL" == "on" ]; then
-            yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/bitcoind.rpc.expose.yaml"
-        fi
-    fi
-
-    if [ "$EXPLORER_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/explorer.install.yaml"
-    fi
-
-    if [ "$INDEXER_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/indexer.install.yaml"
-    fi
-
-    if [ "$WHIRLPOOL_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/whirlpool.install.yaml"
-    fi
-
-    if [ "$MEMPOOL_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/mempool.install.yaml"
-    fi
-
-    # Return yamlFiles
-    echo "$yamlFiles"
-}
-
-#
 # Stop Samourai Dojo containers
 #
 _stop_dojo() {
