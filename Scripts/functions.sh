@@ -2772,19 +2772,14 @@ _uninstall_gpio() {
     _uninstall_gpio_service
 }
 
+#
+# Copy the template files to conf files.
+# These will have default values until _generate_dojo_credentials is ran.
+#
 _create_dojo_confs() {
-    cd "${dojo_path_my_dojo}"
-
-    cp ./conf/docker-common.conf.tpl ./conf/docker-common.conf
-    cp ./conf/docker-bitcoind.conf.tpl ./conf/docker-bitcoind.conf
-    cp ./conf/docker-mysql.conf.tpl ./conf/docker-mysql.conf
-    cp ./conf/docker-node.conf.tpl ./conf/docker-node.conf
-    cp ./conf/docker-explorer.conf.tpl ./conf/docker-explorer.conf
-    cp ./conf/docker-tor.conf.tpl ./conf/docker-tor.conf
-    cp ./conf/docker-indexer.conf.tpl ./conf/docker-indexer.conf
-    cp ./conf/docker-whirlpool.conf.tpl ./conf/docker-whirlpool.conf
-    cp ./conf/docker-mempool.conf.tpl ./conf/docker-mempool.conf
-    #copy the template files to conf files during intializations. This will have default values until _generate_dojo_credentials is ran. Then files will be copied.
+    for file in "${dojo_path_my_dojo}/conf/*.conf.tpl"; do
+        cp "${file}" "${file:0:-4}"
+    done
 }
 
 _generate_dojo_credentials(){
