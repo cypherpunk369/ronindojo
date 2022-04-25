@@ -2819,24 +2819,12 @@ _backup_dojo_confs() {
 
 _restore_or_create_dojo_confs() {
     if [ -d "${dojo_backup_conf}" ]; then
-        cat <<EOF
-${red}
-***
-Credentials backup detected and restored...
-***
-${nc}
-EOF
+        _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
     # change permissions of existing backup confs to current user. then copy with permissions to new dojo conf
     else
-        cat <<EOF
-${red}
-***
-No Backup credentials detected. Setting newly generated credentials and backing them up...
-***
-${nc}
-EOF
+        _print_message "No Backup credentials detected. Setting newly generated credentials and backing them up..."
         _create_dojo_confs
         _generate_dojo_credentials
         _backup_dojo_confs
