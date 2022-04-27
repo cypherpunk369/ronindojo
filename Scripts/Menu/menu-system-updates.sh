@@ -128,6 +128,9 @@ EOF
 
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
         # upgrades dojo and returns to menu
+
+        _call_update_scripts
+        # calls any update migrations that need to happen
         ;;
     4)
         bash -c "${ronin_system_menu}"
