@@ -486,3 +486,13 @@ EOF
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/25-"$(date +%m-%d-%Y)"
 }
+
+# Fix gpio
+_update_26() {
+
+    # Removes any existing setup, places a new setup
+    _install_gpio
+    
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
+}
