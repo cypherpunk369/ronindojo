@@ -2747,31 +2747,26 @@ _generate_dojo_credentials(){
     sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
     -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
     "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 
-    # populate docker-bitcoin.conf
     
     sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
     -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
     -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \
     "${dojo_path_my_dojo}"/conf/docker-node.conf
-    # populate docker-node.conf
 
     sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
     -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
     -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" \
     "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
-    # populate docker-mysql.conf
 
     sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
     -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" \
     "${dojo_path_my_dojo}"/conf/docker-explorer.conf
-    # populate docker-explorer.conf
 
     sed -i -e 's/MEMPOOL_INSTALL=.*$/MEMPOOL_INSTALL=on/' \
     -e "s/MEMPOOL_MYSQL_USER=.*$/MEMPOOL_MYSQL_USER=${MEMPOOL_MYSQL_USER}/" \
     -e "s/MEMPOOL_MYSQL_PASS=.*$/MEMPOOL_MYSQL_PASS=${MEMPOOL_MYSQL_PASS}/" \
     -e "s/MEMPOOL_MYSQL_ROOT_PASSWORD=.*$/MEMPOOL_MYSQL_ROOT_PASSWORD=${MEMPOOL_MYSQL_ROOT_PASSWORD}/" \
     "${dojo_path_my_dojo}"/conf/docker-mempool.conf
-    # Set Mempool MySQL credentials
 }
 
 #
@@ -2779,9 +2774,9 @@ _generate_dojo_credentials(){
 # Usage: Copys users dojo confs to SSD for easy restore if necessary
 #
 _backup_dojo_confs() {
-    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}" #change the permissions of the dojo backup directory
-    _create_dir "${dojo_backup_conf}" # check if the backup dojo conf is created if not create it
-    cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}" # copy the files and keep permissions of the newly created credentials in the backup
+    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    _create_dir "${dojo_backup_conf}"
+    cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
 }
 
 #
@@ -2793,12 +2788,10 @@ _restore_or_create_dojo_confs() {
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
-    # change permissions of existing backup confs to current user. then copy with permissions to new dojo conf
     else
         _print_message "No Backup credentials detected. Setting newly generated credentials and backing them up..."
         _create_dojo_confs
         _generate_dojo_credentials
         _backup_dojo_confs
-    # if fresh install, create the confs from tpl, generate creds, and back them up to SSD.
     fi
 }
