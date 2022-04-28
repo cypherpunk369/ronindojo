@@ -132,94 +132,9 @@ ${nc}
 EOF
 _sleep
 
-if [ -d "${dojo_backup_dir}" ]; then
-    if ! _dojo_restore; then
-        cat <<EOF
-${red}
-***
-Backup restoration disabled!
-***
-${nc}
-EOF
-        _sleep
+_restore_or_create_dojo_confs
 
-        cat <<EOF
-${red}
-***
-Enable in user.conf if you wish to restore credentials on dojo install when available...
-***
-${nc}
-EOF
-        _sleep 3
-    else
-        cat <<EOF
-${red}
-***
-Credentials backup detected and restored...
-***
-${nc}
-EOF
-        _sleep
-
-        cat <<EOF
-${red}
-***
-If you wish to disable this feature, set dojo_conf_backup=false in the $HOME/.config/RoninDojo/user.conf file...
-***
-${nc}
-EOF
-        _sleep 3
-    fi
-else
-    cat <<EOF
-${red}
-***
-Configuring the bitcoin daemon server...
-***
-${nc}
-EOF
-    _sleep
-    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
-      -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
-      -e "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" \
-      -e "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=${BITCOIND_DB_CACHE:-$(_mem_total "${bitcoind_db_cache_total}")}/" \
-      -e "s/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-2048}/" \
-      -e "s/BITCOIND_RPC_EXTERNAL_IP=.*$/BITCOIND_RPC_EXTERNAL_IP=${BITCOIND_RPC_EXTERNAL_IP:-127.0.0.1}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf.tpl
-      # populate docker-bitcoind.conf.tpl template
-
-    cat <<EOF
-${red}
-***
-Configuring the Nodejs container...
-***
-${nc}
-EOF
-    _sleep
-
-    sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
-      -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
-      -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \
-      -e "s/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=${NODE_ACTIVE_INDEXER:-local_bitcoind}/" "${dojo_path_my_dojo}"/conf/docker-node.conf.tpl
-    # populate docker-node.conf.tpl template
-
-    sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
-      -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
-      -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
-    # populate docker-mysql.conf.tpl template
-
-    cat <<EOF
-${red}
-***
-Configuring the BTC RPC Explorer...
-***
-${nc}
-EOF
-    _sleep
-
-    sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
-      -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" "${dojo_path_my_dojo}"/conf/docker-explorer.conf.tpl
-    # populate docker-explorer.conf.tpl template
-fi
+_sleep
 
 _check_indexer
 
@@ -310,9 +225,6 @@ _sleep
 
     # Make sure to wait for user interaction before continuing
     [ $# -eq 0 ] && _pause continue
-
-    # Backup dojo credentials
-    "${dojo_conf_backup}" && _dojo_backup
 
     # Restore any saved IBD from a previous uninstall
     "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind restore

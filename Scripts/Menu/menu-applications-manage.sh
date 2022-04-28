@@ -127,6 +127,8 @@ if $upgrade; then
     else
         _dojo_upgrade
     fi
+    # Backup any changes made to the confs
+    "${dojo_conf_backup}" && _backup_dojo_confs
 else
     bash -c "${ronin_applications_menu}"
 fi

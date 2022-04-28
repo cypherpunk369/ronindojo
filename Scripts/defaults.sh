@@ -147,6 +147,7 @@ docker_volume_indexer="${docker_volumes}/my-dojo_data-indexer"
 dojo_backup_bitcoind="${install_dir}/backup/bitcoin"
 dojo_backup_indexer="${install_dir}/backup/indexer"
 dojo_backup_dir="${install_dir}/backup/dojo"
+dojo_backup_conf="${install_dir}/backup/dojo/conf"
 tor_backup_dir="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"

@@ -1122,11 +1122,6 @@ _fan_control_upgrade() {
 # Enables the Samourai & or Electrs local indexer
 #
 _set_indexer() {
-    local conf
-
-    conf="conf"
-    test -f "${dojo_path_my_dojo}"/conf/docker-indexer.conf || conf="conf.tpl"
-
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer."${conf}"
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node."${conf}"
 
@@ -1154,11 +1149,6 @@ _uninstall_electrs_indexer() {
 # Checks what indexer is set if any
 #
 _check_indexer() {
-    local conf
-    conf="conf"
-
-    test -f "${dojo_path_my_dojo}"/conf/docker-indexer.conf || conf="conf.tpl"
-
     if grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node."${conf}" 1>/dev/null && [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
         return 0
         # Found electrs
@@ -1291,16 +1281,7 @@ fi
 # Check if mempool enabled
 #
 _is_mempool() {
-    local conf
-    conf="${dojo_path_my_dojo}/conf/docker-mempool.conf"
-
-    if [ -f "$conf" ]; then
-        if grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf 1>/dev/null; then
-            return 1
-        else
-            return 0
-        fi
-    elif grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf.tpl 1>/dev/null; then
+    if grep "MEMPOOL_INSTALL=off" "${dojo_path_my_dojo}"/conf/docker-mempool.conf 1>/dev/null; then
         return 1
     else
         return 0
@@ -1534,36 +1515,6 @@ EOF
 }
 
 #
-# Dojo Credentials Backup
-#
-_dojo_backup() {
-    test -d "${dojo_backup_dir}"/conf || sudo mkdir -p "${dojo_backup_dir}"
-
-    if [ -d "${dojo_path}"/conf ]; then
-        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_dir}"/conf
-        return 0
-    fi
-
-    return 1
-}
-
-#
-# Dojo Credentials Restore
-#
-_dojo_restore() {
-    if "${dojo_conf_backup}"; then
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf
-
-        # Apply bitcoind_db_cache_total tweak if needed
-        . "$HOME"/RoninDojo/Scripts/update.sh
-
-        return 0
-    fi
-
-    return 1
-}
-
-#
 # Checks if dojo db container.
 #
 _dojo_check() {
@@ -1609,43 +1560,6 @@ _source_dojo_conf() {
     done
 
     export BITCOIND_RPC_EXTERNAL_IP INDEXER_RPC_PORT BITCOIND_RPC_USER BITCOIND_RPC_PASSWORD BITCOIND_RPC_PORT
-}
-
-#
-# Select YAML files
-#
-_select_yaml_files() {
-    local dojo_path_my_dojo
-    dojo_path_my_dojo="$HOME/dojo/docker/my-dojo"
-
-    yamlFiles="-f $dojo_path_my_dojo/docker-compose.yaml"
-
-    if [ "$BITCOIND_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/bitcoind.install.yaml"
-
-        if [ "$BITCOIND_RPC_EXTERNAL" == "on" ]; then
-            yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/bitcoind.rpc.expose.yaml"
-        fi
-    fi
-
-    if [ "$EXPLORER_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/explorer.install.yaml"
-    fi
-
-    if [ "$INDEXER_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/indexer.install.yaml"
-    fi
-
-    if [ "$WHIRLPOOL_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/whirlpool.install.yaml"
-    fi
-
-    if [ "$MEMPOOL_INSTALL" == "on" ]; then
-        yamlFiles="$yamlFiles -f $dojo_path_my_dojo/overrides/mempool.install.yaml"
-    fi
-
-    # Return yamlFiles
-    echo "$yamlFiles"
 }
 
 #
@@ -2790,4 +2704,78 @@ _uninstall_gpio_service() {
 _uninstall_gpio() {
     _remove_GPIO_datadir
     _uninstall_gpio_service
+}
+
+#
+# Creating Dojo Config files \
+# Usage: Copy the template files to conf files. \
+# WARNING: These will have default values until _generate_dojo_credentials is ran.
+#
+_create_dojo_confs() {
+    for file in "${dojo_path_my_dojo}/conf/*.conf.tpl"; do
+        cp "${file}" "${file:0:-4}"
+    done
+}
+
+#
+# Dojo Credentials Generation \
+# Usage: Generates random usernames and passwords for dojo conf
+#
+_generate_dojo_credentials(){
+    _load_user_conf
+    . "${HOME}"/RoninDojo/Scripts/generated-credentials.sh
+
+    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
+    -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
+    "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 
+    
+    sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
+    -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
+    -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \
+    "${dojo_path_my_dojo}"/conf/docker-node.conf
+
+    sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
+    -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
+    -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" \
+    "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
+
+    sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
+    -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" \
+    "${dojo_path_my_dojo}"/conf/docker-explorer.conf
+
+    sed -i -e 's/MEMPOOL_INSTALL=.*$/MEMPOOL_INSTALL=on/' \
+    -e "s/MEMPOOL_MYSQL_USER=.*$/MEMPOOL_MYSQL_USER=${MEMPOOL_MYSQL_USER}/" \
+    -e "s/MEMPOOL_MYSQL_PASS=.*$/MEMPOOL_MYSQL_PASS=${MEMPOOL_MYSQL_PASS}/" \
+    -e "s/MEMPOOL_MYSQL_ROOT_PASSWORD=.*$/MEMPOOL_MYSQL_ROOT_PASSWORD=${MEMPOOL_MYSQL_ROOT_PASSWORD}/" \
+    "${dojo_path_my_dojo}"/conf/docker-mempool.conf
+}
+
+#
+# Backup Dojo confs \
+# Usage: Copys users dojo confs to SSD for easy restore if necessary
+#
+_backup_dojo_confs() {
+    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    _create_dir "${dojo_backup_conf}"
+    cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
+}
+
+#
+# Dojo Conf function \
+# Usage: restores/creates and backs up users dojo confs to SSD
+#
+_restore_or_create_dojo_confs() {
+    if [ -d "${dojo_backup_conf}" ]; then
+        _print_message "Credentials backup detected and restored..."
+        sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+        cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
+    else
+        _print_message "No Backup credentials detected. Setting newly generated credentials..."
+        _create_dojo_confs
+        _generate_dojo_credentials
+        if "${dojo_conf_backup}"; then
+            _print_message "Backing up newly created credentials..."
+            _backup_dojo_confs
+        fi
+    fi
 }
