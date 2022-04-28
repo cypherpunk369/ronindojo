@@ -683,12 +683,17 @@ EOF
 
         rm "$_file" /tmp/version.json
 
+        # Mark Ronin UI initialized if necessary
+        if [ $1 = "--initialized" ]; then
+          echo -e "{\"initialized\": true}\n" > ronin-ui.dat
+        fi
+
         # Generate .env file
         cat << EOF > .env
 JWT_SECRET=$gui_jwt
 NEXT_TELEMETRY_DISABLED=1
 EOF
-        if [ "${roninui_version_staging}" = true ] ; then 
+        if [ "${roninui_version_staging}" = true ] ; then
             echo -e "VERSION_CHECK=staging\n" >> .env
         fi
         cat <<EOF
@@ -2729,8 +2734,8 @@ After=multi-user.target
 User=root
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py 
-ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py 
+ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py
+ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py
 WorkingDirectory=${ronin_gpio_data_dir}
 Restart=on-failure
 RestartSec=30
@@ -2759,7 +2764,7 @@ _install_gpio() {
 
 _remove_GPIO_datadir() {
     _load_user_conf
-    
+
     if [ -d "${ronin_gpio_data_dir}" ]; then
         sudo rm -rf "${ronin_gpio_data_dir}"
     fi
@@ -2773,7 +2778,7 @@ _uninstall_gpio_service() {
     if [ ! -f /etc/systemd/system/ronin.gpio.service ] && ! sudo systemctl is-active ronin.gpio; then
         return 0
     fi
-    
+
     sudo systemctl stop ronin.gpio
     sudo rm -f /etc/systemd/system/ronin.gpio.service
     sudo systemctl daemon-reload

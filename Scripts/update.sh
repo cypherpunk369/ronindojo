@@ -296,7 +296,7 @@ Installing Ronin UI Server...
 ${nc}
 EOF
 
-        _is_ronin_ui || _ronin_ui_install
+        _is_ronin_ui || _ronin_ui_install --initialized
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/17-"$(date +%m-%d-%Y)"
@@ -407,7 +407,7 @@ _update_24() {
         fi
         sudo touch "${hostsfile}"
     fi
-    
+
     #test if there's a 127.0.0.1 entry, edit when necessary
     if grep -q -E "^\s*127\.0\.0\.1(\s+\w+)+$" "${hostsfile}"; then
         if ! grep -q -E "^\s*127\.0\.0\.1(\s+\w+)*(\s+localhost)(\s+\w+)*$" "${hostsfile}"; then
@@ -432,7 +432,7 @@ _update_25() {
 
     local specter_version
     specter_version="v1.7.2"
-    
+
     _load_user_conf
 
     cat <<EOF
@@ -479,7 +479,7 @@ EOF
         sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
     fi
     # Remove user from plugdev group
-    
+
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/25-"$(date +%m-%d-%Y)"
 }
