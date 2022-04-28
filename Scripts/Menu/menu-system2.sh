@@ -171,7 +171,7 @@ EOF
             fi
 
             # Backup samourai dojo credentials
-            "${dojo_conf_backup}" && _dojo_backup
+            "${dojo_conf_backup}" && _backup_dojo_confs
 
             rm -rf "${dojo_path}"
 

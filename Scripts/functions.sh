@@ -1504,20 +1504,6 @@ EOF
 }
 
 #
-# Dojo Credentials Backup
-#
-_dojo_backup() {
-    test -d "${dojo_backup_dir}"/conf || sudo mkdir -p "${dojo_backup_dir}"
-
-    if [ -d "${dojo_path}"/conf ]; then
-        sudo rsync -ac --delete-before --quiet "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_dir}"/conf
-        return 0
-    fi
-
-    return 1
-}
-
-#
 # Checks if dojo db container.
 #
 _dojo_check() {
