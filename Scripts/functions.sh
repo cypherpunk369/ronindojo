@@ -1518,22 +1518,6 @@ _dojo_backup() {
 }
 
 #
-# Dojo Credentials Restore
-#
-_dojo_restore() {
-    if "${dojo_conf_backup}"; then
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_dir}"/conf/*.conf "${dojo_path_my_dojo}"/conf
-
-        # Apply bitcoind_db_cache_total tweak if needed
-        . "$HOME"/RoninDojo/Scripts/update.sh
-
-        return 0
-    fi
-
-    return 1
-}
-
-#
 # Checks if dojo db container.
 #
 _dojo_check() {
