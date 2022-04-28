@@ -2759,9 +2759,12 @@ _restore_or_create_dojo_confs() {
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
     else
-        _print_message "No Backup credentials detected. Setting newly generated credentials and backing them up..."
+        _print_message "No Backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
         _generate_dojo_credentials
-        _backup_dojo_confs
+        if "${dojo_conf_backup}"; then
+            _print_message "Backing up newly created credentials..."
+            _backup_dojo_confs
+        fi
     fi
 }

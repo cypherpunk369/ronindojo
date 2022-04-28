@@ -113,7 +113,7 @@ fi
 # run upgrade
 
 # Backup any changes made to the confs
-_backup_dojo_confs
+"${dojo_conf_backup}" && _backup_dojo_confs
 
 # Perform System Update
 test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
