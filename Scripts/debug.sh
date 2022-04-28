@@ -6,36 +6,44 @@
 . "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat 
+_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat nvme-cli
 
 # Import team pgp keys
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
 
 prepare_cpu_readout() {
-	cleanup_cpu_readout
-	echo 'ENABLED="true"' | sudo tee -a "/etc/default/sysstat" > /dev/null
-	sudo systemctl restart sysstat
+	echo 'ENABLED="true"' | sudo tee "/etc/default/sysstat" > /dev/null
+	sudo systemctl start sysstat
 }
 
 cleanup_cpu_readout() {
 	sudo rm -f "/etc/default/sysstat"
-	sudo systemctl restart sysstat
+	sudo systemctl stop sysstat
 }
 
 print_cpu_load() {
 
 	cat <<EOF
 #####################################################################
-CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy 
+                         CPU load readouts
 #####################################################################
 EOF
 
 	# Get cpu load values and display to user
 	cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
 
+	echo "CURRENT USAGE:"
 	sar -P ALL -u ALL 1 1 | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	echo ""
 
+	echo "AVERAGE USAGE SINCE BOOT:"
+	mpstat -P ALL | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	echo ""
+	
     cat <<EOF
+########################################################
+CPU Avg Load:      <1 Normal,  >1 Caution,  >2 Unhealthy 
+########################################################
 Load Average : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d,)
 Heath Status : $(uptime | awk -F'load average:' '{ print $2 }' | cut -f1 -d, | awk '{if ($1 > 2) print "Unhealthy"; else if ($1 > 1) print "Caution"; else print "Normal"}')
 EOF
@@ -147,11 +155,26 @@ EOF
 
 }
 
+print_disk_smart() {
+
+	if [ ! -b /dev/nvme0n1 ]; then
+		return 1
+	fi
+
+	cat <<EOF
+#####################################################################
+                        NVME Disk SMART Logs
+#####################################################################
+EOF
+
+	sudo nvme smart-log "/dev/nvme0n1"
+}
+
 print_disk_health() {
 
 cat <<EOF
 #####################################################################
-                        Disk Heath Status
+                        Disk Health Status
 #####################################################################
 EOF
 
@@ -174,7 +197,7 @@ EOF
 	printf "\n"
 
 	# Show dmesg error logs if found when piped into grep search 
-	if dmesg | grep "error" ; then
+	if dmesg | grep "error" 1> /dev/null; then
 	    cat <<EOF
 ***
 WARNING - Dmesg Error Logs Detected:
@@ -270,6 +293,8 @@ ronindebug() {
 	printf "\n"
 	print_disk_load
 	printf "\n"
+	print_disk_smart
+	printf "\n"
 	print_disk_health
 	printf "\n"
 	print_docker_status
@@ -350,10 +375,12 @@ while true; do
           # Display ronindebug function output to user
           printf "\n"
           cat "${ronin_debug_dir}"/health.txt
+
+		  _pause return
           break
           ;;
         [nN][oO]|[Nn])
-          exit
+          break
           ;;
         *)
           cat <<EOF
@@ -368,7 +395,5 @@ EOF
 done
 
 cleanup_output_logs
-
-_pause return
 
 exit
