@@ -112,6 +112,9 @@ fi
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
+# Backup any changes made to the confs
+_backup_dojo_confs
+
 # Perform System Update
 test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
 
