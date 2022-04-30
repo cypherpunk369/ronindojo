@@ -2755,7 +2755,9 @@ _generate_dojo_credentials(){
 # Usage: Copys users dojo confs to SSD for easy restore if necessary
 #
 _backup_dojo_confs() {
-    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    if [ ! -w "${dojo_backup_dir}" ]; then
+        sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    fi
     _create_dir "${dojo_backup_conf}"
     cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
 }
