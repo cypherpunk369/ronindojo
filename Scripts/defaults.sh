@@ -168,7 +168,8 @@ ip=$(ip route get 1 | awk '{print $7}')
 ip_range="$(echo "${ip}" | cut -d. -f1-3).0/24"
 
 # bitcoind defaults
-bitcoind_db_cache_total=0.3 # Uses 30% of total RAM
+bitcoind_db_cache=1024 
+bitcoind_mempool_size=1024 
 
 declare -a backup_dojo_data=(
     tor

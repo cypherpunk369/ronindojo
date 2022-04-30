@@ -493,3 +493,16 @@ _update_26() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
 }
+
+# Fix Bitcoin DB Cache and Mempool Size for existing users:
+_update_27() {
+    if ! grep "BITCOIND_DB_CACHE=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+        sed -i -e 's/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE="${bitcoind_db_cache}"/' "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+    if ! grep "BITCOIND_MAX_MEMPOOL=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+        sed -i -e 's/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL="${bitcoind_mempool_size}"/' "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
+}
