@@ -124,6 +124,7 @@ _call_update_scripts() {
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
     test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
 }
 
 #
