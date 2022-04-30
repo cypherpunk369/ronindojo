@@ -504,5 +504,5 @@ _update_27() {
     fi
 
     # Finalize
-    touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
+    touch "$HOME"/.config/RoninDojo/data/updates/27-"$(date +%m-%d-%Y)"
 }
