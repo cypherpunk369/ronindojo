@@ -120,9 +120,6 @@ EOF
 
         _sleep 10 --msg "Updating in"
 
-        test -f "$HOME"/ronin-update.sh && sudo rm "$HOME"/ronin-update.sh
-        # Remove old update file
-
         _ronindojo_update
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
 

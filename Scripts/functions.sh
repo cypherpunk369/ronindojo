@@ -1656,6 +1656,8 @@ _ronindojo_update() {
 
     _load_user_conf
 
+    test -f "$HOME"/ronin-update.sh && sudo rm "$HOME"/ronin-update.sh
+
     if [ -d "$HOME"/RoninDojo/.git ]; then
         cd "$HOME/RoninDojo" || exit
 
