@@ -130,6 +130,7 @@ _call_post_upgrade_update_scripts() {
     . "$HOME"/RoninDojo/Scripts/update.sh
 
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
 }
 
 #
@@ -2735,8 +2736,8 @@ _generate_dojo_credentials(){
 
     sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
     -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
-    "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 
-    
+    "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+
     sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
     -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
     -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \

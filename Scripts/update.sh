@@ -506,3 +506,18 @@ _update_27() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/27-"$(date +%m-%d-%Y)"
 }
+
+# Fix users getting locked-out
+_update_28() {
+
+    # Configure faillock
+    # https://man.archlinux.org/man/faillock.conf.5
+    sudo tee "/etc/security/faillock.conf" <<EOF >/dev/null
+deny = 10
+fail_interval = 120
+unlock_time = 120
+EOF
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/28-"$(date +%m-%d-%Y)"
+}

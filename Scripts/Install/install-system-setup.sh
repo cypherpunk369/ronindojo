@@ -115,6 +115,14 @@ EOF
     sudo pacman --quiet -S --noconfirm libusb
 fi
 
+# Configure faillock
+# https://man.archlinux.org/man/faillock.conf.5
+sudo tee "/etc/security/faillock.conf" <<EOF >/dev/null
+deny = 10
+fail_interval = 120
+unlock_time = 120
+EOF
+
 if sudo ufw status | grep 22 > /dev/null ; then
     cat <<EOF
 ${red}
