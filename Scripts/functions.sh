@@ -100,7 +100,6 @@ EOF
 }
 
 _call_update_scripts() {
-        # Source update script
     . "$HOME"/RoninDojo/Scripts/update.sh
 
     test -f "$HOME"/.config/RoninDojo/data/updates/01-* || _update_01 # Check for bridge-utils version update
@@ -123,8 +122,14 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
     test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
-    test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
     test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
+
+}
+
+_call_post_upgrade_update_scripts() {
+    . "$HOME"/RoninDojo/Scripts/update.sh
+
+    test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
 }
 
 #

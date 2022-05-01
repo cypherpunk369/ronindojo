@@ -124,13 +124,11 @@ EOF
         # Remove old update file
 
         _ronindojo_update
-        # see functions.sh
-
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
-        # upgrades dojo and returns to menu
 
         _call_update_scripts
-        # calls any update migrations that need to happen
+        _call_post_upgrade_update_scripts
+
         ;;
     4)
         bash -c "${ronin_system_menu}"
