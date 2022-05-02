@@ -2590,47 +2590,30 @@ _restore_or_create_dojo_confs() {
 }
 
 #
-# Backup Network Info \
-# Usage: Creates a file located on SSD that will be used to check if any change to the IP or range has occured and fix UFW. \
-# This should prevent issues with RoninUI, or users moving networks
-#
-_backup_network_info(){
-    echo 'ip='"${ip}"'' \
-    echo 'network='"${network}"'' \
-    >> "${ronin_data_dir}"/ip.txt # send the ip address and range to a local file in config. 
-}
-
-_ssd_backup_network_info(){
-    sudo cp -R "${ronin_data_dir}"/ip.txt /mnt/usb/backup/ip.txt
-    sudo chown -R "$USER":"$USER" /mnt/usb/backup/ip.txt
-}
-
-#
 # Network Check Service File
 # Usage: Creates a service file that will execute the network-check.sh and verify the user IP and range is still applicable
 #
 _install_network_check_service() {
     _load_user_conf
-    _backup_network_info
-    _ssd_backup_network_info
 
-    sudo bash -c "cat <<EOF > /etc/systemd/system/ronin.network.service
+    sudo tee "/etc/systemd/system/ronin.network.service" <<EOF >/dev/null
 [Unit]
 Description=Network Check
 After=multi-user.target
+After=network.target
+Requires=network.target
 
 [Service]
 User=root
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh
+ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh ${ronin_data_dir}
 Restart=on-failure
 RestartSec=30
 
 [Install]
 WantedBy=multi-user.target
 EOF
-"
 
     sudo systemctl daemon-reload
     sudo systemctl enable --now --quiet ronin.network
