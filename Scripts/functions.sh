@@ -2591,7 +2591,7 @@ _restore_or_create_dojo_confs() {
 
 #
 # Network Check Service File
-# Usage: Creates a service file that will execute the network-check.sh and verify the user IP and range is still applicable
+# Usage: Creates a service file that will execute the network-check.sh and verify the system is still connected to the same network
 #
 _install_network_check_service() {
     _load_user_conf
