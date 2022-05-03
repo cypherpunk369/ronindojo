@@ -1,5 +1,8 @@
 #/bin/bash
 
+#check to see if the device is connected to the network
+ip route get 1 2>/dev/null || exit 1
+
 ip_current=$(ip route get 1 | awk '{print $7}')
 interface_current=$(ip route get 1 | awk '{print $5}')
 network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
