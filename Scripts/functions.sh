@@ -691,7 +691,7 @@ EOF
         rm "$_file" /tmp/version.json
 
         # Mark Ronin UI initialized if necessary
-        if [ $1 = "--initialized" ]; then
+        if [ "${1}" = "--initialized" ]; then
           echo -e "{\"initialized\": true}\n" > ronin-ui.dat
         fi
 
