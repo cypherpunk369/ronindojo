@@ -27,8 +27,8 @@ fi
 
 if [ "${network}" = "${network_current}" ]; then
     return 0
-elif sudo ufw status | grep "Status: active" >/dev/null; then
-    #uncomment if you want rules from previous network to be removed
+elif sudo ufw status | head -n 1 | grep "Status: active" >/dev/null; then
+    # uncomment if you want rules from previous network to be removed
     #while sudo ufw status | grep "${network}"; do
     #    sudo ufw status numbered | grep "${network}" | head -n 1 | sed -E 's/\[\s*([0-9]+)\].*/\1/' | xargs -n 1 sudo ufw --force delete
     #done
