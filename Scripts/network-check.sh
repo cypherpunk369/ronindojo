@@ -25,7 +25,7 @@ fi
 
 . /mnt/usb/backup/ip.txt
 
-if "${network}" == "${network_current}"; then
+if [ "${network}" = "${network_current}" ]; then
     return 0
 elif sudo ufw status | grep "Status: active" >/dev/null; then
     #uncomment if you want rules from previous network to be removed
