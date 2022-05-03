@@ -18,7 +18,7 @@ _backup_network_info(){
     echo -e "ip=${ip_current}\nnetwork=${network_current}\n" >> "${ronin_data_dir}/ip.txt"
 }
 
-if [ ! -f . /mnt/usb/backup/ip.txt ]; then
+if [ ! -f /mnt/usb/backup/ip.txt ]; then
     _backup_network_info
     exit
 fi
