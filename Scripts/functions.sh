@@ -730,7 +730,7 @@ EOF
 
         _ronin_ui_avahi_service
 
-        _ufw_rule_add "${network}" "80"
+        _ufw_rule_add "${network_current}" "80"
     else
         _bad_shasum=$(sha256sum ${_file})
         cat <<EOF
@@ -2255,7 +2255,7 @@ _ufw_rule_add(){
     port=$2
 
     if ! sudo ufw status | grep "${port}" &>/dev/null; then
-        sudo ufw allow from "$ip" to any port "$port" &>/dev/null
+        sudo ufw allow from "$ip_current" to any port "$port" &>/dev/null
         sudo ufw reload
     fi
 }
