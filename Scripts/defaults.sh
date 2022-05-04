@@ -165,7 +165,7 @@ fi
 
 # Network info
 ip_current=$(ip route get 1 | awk '{print $7}')
-interface=$(ip route get 1 | awk '{print $5}')
+interface_current=$(ip route get 1 | awk '{print $5}')
 network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
 
 # bitcoind defaults
