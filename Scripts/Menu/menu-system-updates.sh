@@ -121,6 +121,12 @@ EOF
         _sleep 10 --msg "Updating in"
 
         _ronindojo_update
+
+        # re-source these scripts before calling functions from them, since they've possible been updated
+        . "$HOME"/RoninDojo/Scripts/defaults.sh
+        . "$HOME"/RoninDojo/Scripts/functions.sh
+        _load_user_conf
+
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
 
         _call_update_scripts
