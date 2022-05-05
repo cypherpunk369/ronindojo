@@ -109,11 +109,11 @@ elif ((ret==1)); then
     _set_indexer
 fi
 
-./dojo.sh upgrade --nolog --auto
-# run upgrade
-
 # Backup any changes made to the confs
 "${dojo_conf_backup}" && _backup_dojo_confs
+
+./dojo.sh upgrade --nolog --auto
+# run upgrade
 
 # Perform System Update
 test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
