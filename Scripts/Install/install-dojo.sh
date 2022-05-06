@@ -70,7 +70,7 @@ ${nc}
 EOF
 
 cd "$HOME" || exit
-git clone -q "$samourai_repo" dojo 2>/dev/null
+git clone -q "${samourai_repo}" dojo 2>/dev/null
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
