@@ -70,22 +70,9 @@ ${nc}
 EOF
 
 cd "$HOME" || exit
-git clone -q -b "${samourai_commitish}" "$samourai_repo" dojo 2>/dev/null
-
-# Switch over to a branch if in detached state. Usually this happens
-# when you clone a tag instead of a branch
+git clone -q "$samourai_repo" dojo 2>/dev/null
 cd "${dojo_path}" || exit
-
-_git_ref_type
-_ret=$?
-
-if ((_ret==3)); then
-    # valid branch
-    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-else
-    # valid tag
-    git checkout -q -b "${samourai_commitish}" "${samourai_commitish}"
-fi
+git checkout -q -f "${samourai_commitish}"
 
 # Check if RoninUI needs installing
 if ! _is_ronin_ui; then

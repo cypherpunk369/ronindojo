@@ -1356,126 +1356,24 @@ _mempool_conf() {
 }
 
 #
-# git current branch name. If in detached state returns zero output. We only need branch name as
-# we discard any detached states in future versions
-#
-_git_branch_name() {
-    git branch --show-current
-}
-
-#
-# git reference type a.k.a is it a branch or tag?
-#
-_git_ref_type() {
-    local _ref
-
-    # Check if argument was passed
-    if [ -z "$1" ]; then
-        _ref=$(_git_branch_name)
-
-        test "$_ref" || return 1
-    else
-        _ref=$1
-    fi
-
-    if git show-ref -q --verify "refs/remotes/origin/${_ref#*/}" 2>/dev/null; then
-        # Valid branch
-        return 3
-    elif git show-ref -q --verify "refs/tags/${_ref#*/}" 2>/dev/null; then
-        # Valid tag
-        return 2
-    else
-        # Invalid reference, exit script
-        return 1
-    fi
-}
-
-#
-# git check if local branch exist
-#
-_git_is_branch() {
-    if git show-ref --quiet refs/heads/"${1}"; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-#
 # Update Samourai Dojo Repository
 #
 _dojo_update() {
-    local _head _ret
-
     _load_user_conf
+
+    if [ ! -d "${dojo_path}" ]; then
+        _print_error_message "Missing git repo data folder in dojo!"
+        _pause "to exit"
+        exit 1
+    fi
 
     cd "${dojo_path}" || exit
 
-    # Fetch remotes
-    git fetch -q --all --tags --force
+    git fetch -q --tags --force
+    git checkout -q -f "${samourai_commitish}"
 
-    # Validate current branch from user.conf
-    _git_ref_type "${samourai_commitish#*}"
-    _ret=$?
-
-    # Validate branch/tag reference
-    if ((_ret==1)); then
-        cat <<EOF
-${red}
-***
-Invalid branch or tag name for ${samourai_commitish}!!!
-***
-${nc}
-EOF
-        exit
-    fi
-
-    # Check current branch/tag
-    _head=$(_git_branch_name)
-
-    # reset any local changes
-    git reset -q --hard
-
-    # Check if on existing branch/tag
-    if [ "${samourai_commitish}" != "${_head}" ]; then
-        # Make sure we are not in current master branch
-        if [ "${samourai_commitish}" != "origin/master" ]; then
-            if ((_ret==3)); then
-                if ! _git_is_branch "${samourai_commitish}"; then
-                    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-                else
-                    git branch -q -D "${samourai_commitish}"
-                    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-                fi
-            else # on a tag
-                if ! _git_is_branch "${samourai_commitish}"; then # Not on existing tag
-                    git checkout -q tags/"${samourai_commitish}" -b "${samourai_commitish}"
-                fi
-            fi
-        elif ! _git_is_branch "${samourai_commitish}"; then # coming from detach state i.e tag clone
-                git checkout -q "${samourai_commitish}"
-        else # existing master branch
-                git reset -q --hard remotes/"${samourai_commitish}"
-        fi
-
-        # Delete old local branch if available otherwise check if master branch needs
-        # to be deleted
-        if test "${_head}"; then
-            if ! git branch -q -D "${_head}" 2>/dev/null; then
-                if _git_is_branch master; then
-                    git branch -q -D master
-                fi
-            fi
-        fi
-    else # On same branch/tag
-        _git_ref_type
-        _ret=$?
-
-        if ((_ret==3)); then
-            # valid branch, so reset hard
-            git reset -q --hard remotes/"${samourai_commitish}"
-        fi
-    fi
+    _print_message "Dojo codebase updated!"
+    _sleep
 }
 
 #
@@ -1653,114 +1551,22 @@ _remove_ipv6() {
 # Update RoninDojo
 #
 _ronindojo_update() {
-    local _head _ret
-
     _load_user_conf
 
-    test -f "$HOME"/ronin-update.sh && sudo rm "$HOME"/ronin-update.sh
-
-    if [ -d "$HOME"/RoninDojo/.git ]; then
-        cd "$HOME/RoninDojo" || exit
-
-        # Fetch remotes
-        git fetch -q --all --tags --force
-
-        # Validate current branch from user.conf
-        _git_ref_type "${ronin_dojo_branch#*}"
-        _ret=$?
-
-        # Validate branch/tag reference
-        if ((_ret==1)); then
-            cat <<EOF
-${red}
-***
-Invalid branch or tag name for ${ronin_dojo_branch}!!!
-***
-${nc}
-EOF
-            exit
-        fi
-
-        cat <<EOF
-${red}
-***
-Git repo found, downloading updates...
-***
-${nc}
-EOF
-
-        # Check current branch/tag
-        _head=$(_git_branch_name)
-
-        # reset any local changes
-        git reset -q --hard
-
-        # Check if on existing branch/tag
-        if [ "${ronin_dojo_branch}" != "${_head}" ]; then
-            # Make sure we are not in current master branch
-            if [ "${ronin_dojo_branch}" != "origin/master" ]; then
-                if ((_ret==3)); then
-                    if ! _git_is_branch "${ronin_dojo_branch}"; then
-                        git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}"
-                    else
-                        git branch -q -D "${ronin_dojo_branch}"
-                        git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}"
-                    fi
-                else # on a tag
-                    if ! _git_is_branch "${ronin_dojo_branch}"; then # Not on existing tag
-                        git checkout -q tags/"${ronin_dojo_branch}" -b "${ronin_dojo_branch}"
-                    fi
-                fi
-            elif ! _git_is_branch "${ronin_dojo_branch}"; then # coming from detach state i.e tag clone
-                    git checkout -q "${ronin_dojo_branch}"
-            else # existing master branch
-                    git reset -q --hard remotes/"${ronin_dojo_branch}"
-            fi
-
-            # Delete old local branch if available otherwise check if master branch needs
-            # to be deleted
-            if test "${_head}"; then
-                if ! git branch -q -D "${_head}" 2>/dev/null; then
-                    if _git_is_branch master; then
-                        git branch -q -D master
-                    fi
-                fi
-            fi
-        else # On same branch/tag
-            _git_ref_type
-            _ret=$?
-
-            if ((_ret==3)); then
-                # valid branch, so reset hard
-                git reset -q --hard remotes/"${ronin_dojo_branch}"
-            fi
-        fi
-    else
-        cat <<EOF > "$HOME"/ronin-update.sh
-#!/bin/bash
-sudo rm -rf "$HOME/RoninDojo"
-cd "$HOME"
-
-if [ "${ronin_dojo_branch}" != "origin/master" ]; then
-    git clone -q -b "${ronin_dojo_branch#*/}" "${ronin_dojo_repo}" 2>/dev/null
-else
-    git clone -q "${ronin_dojo_repo}" 2>/dev/null
-fi
-
-# Switch over to a branch if in detached state. Usually this happens
-# when you clone a tag instead of a branch
-cd RoninDojo || exit
-
-# Would not run when ronin_dojo_branch="origin/master"
-git symbolic-ref -q HEAD 1>/dev/null || git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}" 2>/dev/null
-EOF
-
-        sudo chmod +x "$HOME"/ronin-update.sh
-        bash "$HOME"/ronin-update.sh
-        # makes script executable and runs
-        # end of script returns to menu
-        # script is deleted during next run of update
+    if [ ! -d "$HOME"/RoninDojo/.git ]; then
+        _print_error_message "Missing git repo data folder in RoninDojo!"
+        _pause "to exit"
+        exit 1
     fi
+
+    cd "$HOME/RoninDojo" || exit
+
+    # Fetch remotes
+    git fetch -q --tags --force
+    git checkout -q -f "${ronin_dojo_branch}"
+
+    _print_message "RoninDojo updated!"
+    _sleep
 }
 
 #
