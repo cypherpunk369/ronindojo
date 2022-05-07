@@ -2574,7 +2574,7 @@ _backup_dojo_confs() {
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
     fi
     _create_dir "${dojo_backup_conf}"
-    cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
+    sudo rsync -acp --quiet --delete-before "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
 }
 
 #
@@ -2585,7 +2585,7 @@ _restore_or_create_dojo_confs() {
     if [ -d "${dojo_backup_conf}" ] && ! grep "BITCOIND_RPC_USER=dojorpc" "${dojo_backup_conf}"/docker-bitcoind.conf 1>/dev/null; then
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
-        cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
+        sudo rsync -acp --quiet --delete-before "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
     else
         _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
