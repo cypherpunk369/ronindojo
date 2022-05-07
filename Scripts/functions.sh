@@ -2552,7 +2552,7 @@ _generate_dojo_credentials(){
     sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
     -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
     -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" \
-    "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
+    "${dojo_path_my_dojo}"/conf/docker-mysql.conf
 
     sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
     -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" \
@@ -2582,12 +2582,12 @@ _backup_dojo_confs() {
 # Usage: restores/creates and backs up users dojo confs to SSD
 #
 _restore_or_create_dojo_confs() {
-    if [ -d "${dojo_backup_conf}" ]; then
+    if [ -d "${dojo_backup_conf}" ] && grep ! "BITCOIND_RPC_USER=dojorpc" "${dojo_backup_conf}"/docker-bitcoind.conf 1>/dev/null; then
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
     else
-        _print_message "No Backup credentials detected. Setting newly generated credentials..."
+        _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
         _generate_dojo_credentials
         if "${dojo_conf_backup}"; then
