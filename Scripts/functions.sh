@@ -2582,7 +2582,7 @@ _backup_dojo_confs() {
 # Usage: restores/creates and backs up users dojo confs to SSD
 #
 _restore_or_create_dojo_confs() {
-    if [ -d "${dojo_backup_conf}" ] && grep ! "BITCOIND_RPC_USER=dojorpc" "${dojo_backup_conf}"/docker-bitcoind.conf 1>/dev/null; then
+    if [ -d "${dojo_backup_conf}" ] && ! grep "BITCOIND_RPC_USER=dojorpc" "${dojo_backup_conf}"/docker-bitcoind.conf 1>/dev/null; then
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
