@@ -118,7 +118,6 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
     test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
     test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
-    test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
     test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
