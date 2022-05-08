@@ -2527,7 +2527,7 @@ _uninstall_gpio() {
 # WARNING: These will have default values until _generate_dojo_credentials is ran.
 #
 _create_dojo_confs() {
-    for file in "${dojo_path_my_dojo}/conf/*.conf.tpl"; do
+    for file in ${dojo_path_my_dojo}/conf/*.conf.tpl; do
         cp "${file}" "${file:0:-4}"
     done
 }
