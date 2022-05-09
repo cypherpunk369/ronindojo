@@ -329,50 +329,6 @@ EOF
     fi
 }
 
-# Perform System Update
-_update_21() {
-    local _pacman
-    _pacman=false
-
-    if [ -d "${dojo_path}" ]; then
-        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
-
-         _pause continue
-
-        _dojo_check && _stop_dojo
-
-        # Modify pacman.conf and comment ignore packages line
-        if test -f "$HOME"/.config/RoninDojo/data/updates/06-*; then
-            sudo sed -i "s:^IgnorePkg   =.*$:#IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-            _pacman=true
-        fi
-
-        # Stopping docker
-        sudo systemctl stop --quiet docker
-
-        # Update system packages
-        sudo pacman -Syyu --noconfirm
-
-        # Uncomment IgnorePkg if necessary
-        ${_pacman} && sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-
-        if ! sudo systemctl start --quiet docker; then
-            printf "%s\n***\nRestarting system to finalize update...\n***\n%s" "${red}" "${nc}"
-
-            _pause reboot
-
-            sudo systemctl reboot
-        else
-            printf "%s\n***\nSystem packages update completed...\n***\n%s" "${red}" "${nc}"
-
-            _pause continue
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Remove any existing docker-mempool.conf in favor of new tpl for v2
 _update_22() {
     if [ -f "${dojo_path_my_dojo}"/conf/docker-mempool.conf ]; then

@@ -115,7 +115,4 @@ fi
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
-# Perform System Update
-test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
-
 _pause return
