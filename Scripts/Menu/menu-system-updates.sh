@@ -9,7 +9,8 @@ _load_user_conf
 OPTIONS=(1 "Update Mirrors"
          2 "Check for RoninDojo Update"
          3 "Update RoninDojo"
-         4 "Go Back")
+         4 "Update Operating System"
+         5 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -134,7 +135,20 @@ EOF
 
         ;;
     4)
+        _print_message "Updating system packages..."
+        _sleep
+        _print_message "Use Ctrl+C to exit if needed!"
+        _sleep 10 --msg "Updating in"
+
+        _dojo_check && _stop_dojo
+        
+        _print_message "Perfoming a full system update..."
+        sudo pacman -Syyu --noconfirm
+
+        _pause reboot
+        sudo systemctl reboot
+        ;;
+    5)
         bash -c "${ronin_system_menu}"
-        # returns to main system menu
         ;;
 esac
