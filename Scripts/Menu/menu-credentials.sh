@@ -277,7 +277,7 @@ EOF
             # press any key to return to menu
             # shows all credentials and returns to menu
             ;;
-        9)
+        8)
             ronin
             # returns to main menu
             ;;
