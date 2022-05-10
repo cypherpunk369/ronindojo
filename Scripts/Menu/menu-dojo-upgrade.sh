@@ -119,7 +119,4 @@ fi
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
-# Backup any changes made to the confs
-"${dojo_conf_backup}" && _backup_dojo_confs
-
 _pause return
