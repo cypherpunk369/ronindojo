@@ -21,7 +21,7 @@ _main() {
         test -f "$HOME"/.config/RoninDojo/user.conf || cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
     fi
 
-    # Execute the update scripts
+    # Execute the update scripts (this call here is to be removed in the next release after 1.14)
     _call_update_scripts
 
     # Create symbolic link for main ronin script
@@ -121,14 +121,8 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
     test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
-    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
-
-}
-
-_call_post_upgrade_update_scripts() {
-    . "$HOME"/RoninDojo/Scripts/update.sh
-
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
     test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
 }
 

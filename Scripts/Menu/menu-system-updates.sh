@@ -131,7 +131,6 @@ EOF
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
 
         _call_update_scripts
-        _call_post_upgrade_update_scripts
 
         ;;
     4)
