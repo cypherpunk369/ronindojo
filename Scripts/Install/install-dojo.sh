@@ -74,7 +74,7 @@ git clone -q "${samourai_repo}" dojo 2>/dev/null
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
-# Install network check before roninui to ensure network and UFW are working correctly.
+# Check if Network check is implemented. If not install and run it.
 if ! -f /etc/systemd/system/ronin.network.service; then 
     _install_network_check_service
 else

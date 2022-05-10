@@ -2618,3 +2618,13 @@ EOF
     sudo systemctl daemon-reload
     sudo systemctl enable --now --quiet ronin.network
 }
+
+#
+# Removes Network Check Service File
+#
+_uninstall_network_check_service() {
+    sudo systemctl disable ronin.network
+    sudo systemctl stop ronin.network
+    sudo rm -f "/etc/systemd/system/ronin.network.service"
+    sudo systemctl daemon-reload
+}
