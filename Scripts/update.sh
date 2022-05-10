@@ -477,3 +477,17 @@ EOF
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/28-"$(date +%m-%d-%Y)"
 }
+
+# Add service to auto detect network change, for keeping UFW ruleset up to date
+_update_30() {
+
+    # Check if Network check is implemented. If not install and run it.
+    if ! -f /etc/systemd/system/ronin.network.service; then
+        _install_network_check_service
+    else
+        sudo systemctl restart ronin.network
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/30-"$(date +%m-%d-%Y)"
+}

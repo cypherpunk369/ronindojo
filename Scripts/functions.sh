@@ -124,6 +124,7 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
     test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
     test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/30-* || _update_30 # Add service to auto detect network change, for keeping UFW ruleset up to date
 }
 
 #
@@ -729,8 +730,6 @@ EOF
         _ronin_ui_vhost
 
         _ronin_ui_avahi_service
-
-        _ufw_rule_add "${ip_range}" "80"
     else
         _bad_shasum=$(sha256sum ${_file})
         cat <<EOF
@@ -2255,7 +2254,7 @@ _ufw_rule_add(){
     port=$2
 
     if ! sudo ufw status | grep "${port}" &>/dev/null; then
-        sudo ufw allow from "$ip" to any port "$port" &>/dev/null
+        sudo ufw allow from "$ip_current" to any port "$port" &>/dev/null
         sudo ufw reload
     fi
 }
@@ -2587,4 +2586,44 @@ _restore_or_create_dojo_confs() {
             _backup_dojo_confs
         fi
     fi
+}
+
+#
+# Installs Network Check Service File
+# Usage: Creates a service file that will execute the network-check.sh and verify the system is still connected to the same network
+#
+_install_network_check_service() {
+    _load_user_conf
+
+    sudo tee "/etc/systemd/system/ronin.network.service" <<EOF >/dev/null
+[Unit]
+Description=Network Check
+After=multi-user.target
+After=network.target
+Requires=network.target
+
+[Service]
+User=root
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh ${ronin_data_dir}
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now --quiet ronin.network
+}
+
+#
+# Removes Network Check Service File
+#
+_uninstall_network_check_service() {
+    sudo systemctl disable ronin.network
+    sudo systemctl stop ronin.network
+    sudo rm -f "/etc/systemd/system/ronin.network.service"
+    sudo systemctl daemon-reload
 }

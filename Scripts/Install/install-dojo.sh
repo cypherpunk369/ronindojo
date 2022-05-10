@@ -74,6 +74,13 @@ git clone -q "${samourai_repo}" dojo 2>/dev/null
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
+# Check if Network check is implemented. If not install and run it.
+if ! -f /etc/systemd/system/ronin.network.service; then 
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
+
 # Check if RoninUI needs installing
 if ! _is_ronin_ui; then
     printf "%s\n***\nInstalling Ronin UI...\n***\n%s\n" "${red}" "${nc}"

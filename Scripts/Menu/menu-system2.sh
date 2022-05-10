@@ -123,6 +123,8 @@ EOF
         # uninstall bisq support
         _is_bisq && _bisq_uninstall
 
+        _uninstall_network_check_service
+
         cat <<EOF
 ${red}
 ***

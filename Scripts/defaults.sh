@@ -164,8 +164,9 @@ else
 fi
 
 # Network info
-ip=$(ip route get 1 | awk '{print $7}')
-ip_range="$(echo "${ip}" | cut -d. -f1-3).0/24"
+ip_current=$(ip route get 1 | awk '{print $7}')
+interface_current=$(ip route get 1 | awk '{print $5}')
+network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
 
 # bitcoind defaults
 bitcoind_db_cache=1024 

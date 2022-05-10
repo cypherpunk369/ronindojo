@@ -9,10 +9,9 @@ OPTIONS=(1 "Enable"
          3 "Status"
          4 "Delete Rule"
          5 "Reload"
-         6 "Add IP Range for SSH"
-         7 "Add Specific IP for SSH"
-         8 "Next Page"
-         9 "Go Back")
+         6 "Add Specific IP for SSH"
+         7 "Next Page"
+         8 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -141,88 +140,6 @@ EOF
             cat <<EOF
 ${red}
 ***
-Obtain the IP address of any machine on the same local network as your RoninDojo...
-***
-${nc}
-EOF
-            _sleep
-
-            cat <<EOF
-${red}
-***
-The IP address entered will be adapted to end with .0/24 range...
-***
-${nc}
-EOF
-            _sleep
-
-            cat <<EOF
-${red}
-***
-This will allow any machine on the same network to have SSH access...
-***
-${nc}
-EOF
-            _sleep
-
-            cat <<EOF
-${red}
-***
-Your IP address on the network may look like 192.168.4.21 or 12.34.56.78 depending on setup...
-***
-${nc}
-EOF
-            _sleep
-
-            cat <<EOF
-${red}
-***
-Enter the local IP address you wish to give SSH access now...
-***
-${nc}
-EOF
-
-            read -rp 'Local IP Address: ' ip_address
-            sudo ufw allow from "$ip_address"/24 to any port 22 comment 'SSH access restricted to local network'
-
-            cat <<EOF
-${red}
-***
-Reloading...
-***
-${nc}
-EOF
-            sudo ufw reload
-            # reload firewall
-
-            cat <<EOF
-${red}
-***
-Showing status...
-***
-${nc}
-EOF
-            _sleep
-            sudo ufw status
-            # show firewall status
-
-            cat <<EOF
-${red}
-***
-Make sure that you see your new rule!
-***
-${nc}
-EOF
-            _sleep
-
-            _pause return
-            bash -c "${ronin_firewall_menu}"
-            # press any key to return to menu
-            ;;
-        7)
-            cat <<EOF
-${red}
-***
 Obtain the specific IP address you wish to give access to SSH...
 ***
 ${nc}
@@ -292,11 +209,11 @@ EOF
             bash -c "${ronin_firewall_menu}"
             # press any key to return to menu
             ;;
-        8)
+        7)
             bash -c "${ronin_firewall_menu2}"
             # go to next menu page
             ;;
-        9)
+        8)
             bash -c "${ronin_system_menu2}"
             # return system menu page 2
             ;;

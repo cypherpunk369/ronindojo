@@ -109,10 +109,17 @@ elif ((ret==1)); then
     _set_indexer
 fi
 
-# Backup any changes made to the confs
-"${dojo_conf_backup}" && _backup_dojo_confs
+# Check if Network check is implemented. If not install and run it.
+if ! -f /etc/systemd/system/ronin.network.service; then
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
 
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
+
+# Backup any changes made to the confs
+"${dojo_conf_backup}" && _backup_dojo_confs
 
 _pause return
