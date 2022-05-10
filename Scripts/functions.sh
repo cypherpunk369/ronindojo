@@ -124,6 +124,7 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
     test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
     test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/30-* || _update_30 # Add service to auto detect network change, for keeping UFW ruleset up to date
 }
 
 #
@@ -2590,7 +2591,7 @@ _restore_or_create_dojo_confs() {
 }
 
 #
-# Network Check Service File
+# Installs Network Check Service File
 # Usage: Creates a service file that will execute the network-check.sh and verify the system is still connected to the same network
 #
 _install_network_check_service() {
