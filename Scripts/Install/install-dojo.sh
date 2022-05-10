@@ -81,6 +81,15 @@ if ! _is_ronin_ui; then
     _ronin_ui_install
 fi
 
+# Install network check before roninui to ensure network and UFW are working correctly.
+if -f /etc/systemd/system/ronin.network.service; then 
+    _backup_network_info
+    _ssd_backup_network_info
+    bash "${ronin_scripts_dir}"/network-check.sh
+else
+    _install_network_check_service
+fi
+
 _install_gpio
 
 cat <<EOF

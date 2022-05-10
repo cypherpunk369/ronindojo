@@ -115,4 +115,11 @@ fi
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
+# Check if Network check is implemented. If not install and run it.
+if ! -f /etc/systemd/system/ronin.network.service; then
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
+
 _pause return
