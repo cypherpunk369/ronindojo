@@ -730,8 +730,6 @@ EOF
         _ronin_ui_vhost
 
         _ronin_ui_avahi_service
-
-        _ufw_rule_add "${network_current}" "80"
     else
         _bad_shasum=$(sha256sum ${_file})
         cat <<EOF
