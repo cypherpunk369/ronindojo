@@ -576,7 +576,6 @@ ${nc}
 EOF
         _sleep
 
-        _pause return
         return 1
     fi
 
