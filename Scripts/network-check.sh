@@ -12,7 +12,14 @@ _backup_network_info(){
     echo -e "ip=${ip_current}\nnetwork=${network_current}\n" >> "${ronin_data_dir}/ip.txt"
 }
 
+_set_uwf_rules() {
+    sudo ufw allow from "${network_current}" to any port "80" >/dev/null
+    sudo ufw allow from "${network_current}" to any port "22" >/dev/null
+    sudo ufw reload
+}
+
 if [ ! -f /mnt/usb/backup/ip.txt ]; then
+    _set_uwf_rules
     _backup_network_info
     exit
 fi
@@ -26,9 +33,7 @@ elif sudo ufw status | head -n 1 | grep "Status: active" >/dev/null; then
     #while sudo ufw status | grep "${network}"; do
     #    sudo ufw status numbered | grep "${network}" | head -n 1 | sed -E 's/\[\s*([0-9]+)\].*/\1/' | xargs -n 1 sudo ufw --force delete
     #done
-    sudo ufw allow from "${network_current}" to any port "80" >/dev/null
-    sudo ufw allow from "${network_current}" to any port "22" >/dev/null
-    sudo ufw reload
+    _set_uwf_rules
     _backup_network_info
 else 
     return 1
