@@ -597,6 +597,13 @@ _setup_tor
 # docker data directory setup, see functions.sh
 _docker_datadir_setup
 
+# Check if Network check is implemented. If not install and run it.
+if ! -f /etc/systemd/system/ronin.network.service; then 
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
+
 # Install Ronin UI
 cat <<EOF
 ${red}
