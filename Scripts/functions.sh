@@ -2247,19 +2247,6 @@ EOF
 }
 
 #
-# UFW rule add
-#
-_ufw_rule_add(){
-    ip=$1
-    port=$2
-
-    if ! sudo ufw status | grep "${port}" &>/dev/null; then
-        sudo ufw allow from "$ip_current" to any port "$port" &>/dev/null
-        sudo ufw reload
-    fi
-}
-
-#
 # Yes or No Prompt
 #
 _yes_or_no() {
