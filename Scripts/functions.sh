@@ -857,7 +857,7 @@ EOF"
         # Generate Ronin UI reverse proxy server vhost
         sudo bash -c "cat <<'EOF' >/etc/nginx/sites-enabled/001-roninui
 server {
-    listen ${ip}:80;
+    listen ${ip_current}:80;
     server_name ronindojo ${_tor_hostname};
 
     ## Access and error logs.
@@ -887,9 +887,9 @@ server {
     }
 }
 EOF"
-    elif ! sudo grep -q "${ip}" /etc/nginx/sites-enabled/001-roninui; then
+    elif ! sudo grep -q "${ip_current}" /etc/nginx/sites-enabled/001-roninui; then
         # Updates the ip in vhost
-        sudo sed -i "s/listen .*$/listen ${ip}:80;/" /etc/nginx/sites-enabled/001-roninui
+        sudo sed -i "s/listen .*$/listen ${ip_current}:80;/" /etc/nginx/sites-enabled/001-roninui
 
         # Reload nginx server
         sudo systemctl reload --quiet nginx
@@ -2047,7 +2047,7 @@ EOF
     _create_dir "${ronin_data_dir}"
 
     sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
-        -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+        -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip_current}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
 
     touch "${ronin_data_dir}"/bisq.txt
 
@@ -2067,7 +2067,7 @@ ${nc}
 EOF
 
     sed -i -e '/-peerbloomfilters=1/d' \
-        -e "/-whitelist=bloomfilter@${ip}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+        -e "/-whitelist=bloomfilter@${ip_current}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
 
     rm "${ronin_data_dir}"/bisq.txt
     # Deletes bisq.txt file
