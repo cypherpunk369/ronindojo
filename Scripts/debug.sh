@@ -311,9 +311,9 @@ create_output_logs() {
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
 
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r likewhoa@weboperative.com -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
 }
 
