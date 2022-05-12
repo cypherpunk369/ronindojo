@@ -100,7 +100,7 @@ Updating PNPM, Please wait...
 ${nc}
 EOF
         # Update PNPM
-        sudo npm i -g pnpm &>/dev/null
+        sudo npm i -g pnpm@7 &>/dev/null
 
         cat <<EOF
 ${red}

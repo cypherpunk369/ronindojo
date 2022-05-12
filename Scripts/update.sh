@@ -315,7 +315,7 @@ Migrating to nodejs-lts-fermium, please wait...
 ${nc}
 EOF
         sudo pacman -R --noconfirm --cascade nodejs-lts-erbium &>/dev/null
-        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
+        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
 
         if _is_ronin_ui; then
             # Restart Ronin-UI
@@ -445,7 +445,7 @@ _update_26() {
 
     # Removes any existing setup, places a new setup
     _install_gpio
-    
+
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
 }
@@ -476,6 +476,16 @@ EOF
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/28-"$(date +%m-%d-%Y)"
+}
+
+# Update Node.js and pnpm if necessary
+_update_29() {
+    sudo pacman -Syy --needed --noconfirm --noprogressbar nodejs-lts-fermium &>/dev/null
+    sudo npm i -g pnpm@7 &>/dev/null
+    pm2 restart "RoninUI" &>/dev/null
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/29-"$(date +%m-%d-%Y)"
 }
 
 # Add service to auto detect network change, for keeping UFW ruleset up to date
