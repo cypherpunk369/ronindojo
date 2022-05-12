@@ -659,7 +659,7 @@ EOF
 
     _check_pkg "avahi-daemon" "avahi"
 
-    sudo npm i -g pnpm &>/dev/null
+    sudo npm i -g pnpm@7 &>/dev/null
 
     test -d "${ronin_ui_path}" || mkdir "${ronin_ui_path}"
 
