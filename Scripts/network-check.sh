@@ -10,8 +10,7 @@ ronin_data_dir=$1
 
 _backup_network_info(){
     echo -e "ip=${ip_current}\nnetwork=${network_current}\n" > "${ronin_data_dir}/ip.txt"
-    chown ronindojo:ronindojo "${ronin_data_dir}"/ip.txt 
-    cp -p "${ronin_data_dir}"/ip.txt /mnt/usb/backup/ip.txt
+    chown ronindojo:ronindojo "${ronin_data_dir}"/ip.txt
 }
 
 _set_uwf_rules() {
