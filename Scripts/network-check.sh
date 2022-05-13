@@ -26,7 +26,7 @@ if [ ! -f /mnt/usb/backup/ip.txt ]; then
     exit
 fi
 
-. /mnt/usb/backup/ip.txt
+. "${ronin_data_dir}"/ip.txt
 
 if [ "${network}" = "${network_current}" ]; then
     return 0
