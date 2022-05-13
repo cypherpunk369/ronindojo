@@ -9,7 +9,7 @@ network_current="$(ip route | grep $interface_current | grep -v default | awk '{
 ronin_data_dir=$1
 
 _backup_network_info(){
-    sudo chown -R ronindojo:ronindojo "${ronin_data_dir}"/ip.txt 
+    sudo chown ronindojo:ronindojo "${ronin_data_dir}"/ip.txt 
     echo -e "ip=${ip_current}\nnetwork=${network_current}\n" > "${ronin_data_dir}/ip.txt"
     sudo cp -p "${ronin_data_dir}"/ip.txt /mnt/usb/backup/ip.txt
 }
