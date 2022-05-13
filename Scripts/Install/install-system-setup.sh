@@ -123,112 +123,40 @@ fail_interval = 120
 unlock_time = 120
 EOF
 
-if sudo ufw status | grep 22 > /dev/null ; then
-    cat <<EOF
-${red}
-***
-SSH firewall rule already setup...
-***
-${nc}
-EOF
-    _sleep
-else
-    cat <<EOF
+
+cat <<EOF
 ${red}
 ***
 Setting up UFW...
 ***
 ${nc}
 EOF
-    _sleep
+
+_sleep
+
+if ! -f /etc/systemd/system/ronin.network.service; then 
 
     sudo ufw default deny incoming &>/dev/null
     sudo ufw default allow outgoing &>/dev/null
-    # setting up uncomplicated firewall
-
-    cat <<EOF
-${red}
-***
-Enabling UFW...
-***
-${nc}
-EOF
-    _sleep
-
-    sudo ufw --force enable &>/dev/null
-    sudo systemctl enable --quiet ufw
-    # enabling ufw so /etc/ufw/user.rules file configures properly
-
-    ip addr | sed -rn '/state UP/{n;n;s:^ *[^ ]* *([^ ]*).*:\1:;s:[^.]*$:0/24:p}' > "$HOME"/ip_tmp.txt
-    # creates ip_tmp.txt with IP addresses listed in ip addr
-
-    while read -r ip ; do echo "### tuple ### allow any 22 0.0.0.0/0 any $ip" > "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # make rule_tmp.txt with needed changes plus the ip address
-
-    while read -r ip ; do echo "-A ufw-user-input -p tcp --dport 22 -s $ip -j ACCEPT" >> "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # edit rule_tmp.txt
-
-    while read -r ip ; do echo "-A ufw-user-input -p udp --dport 22 -s $ip -j ACCEPT" >> "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # edit rule_tmp.txt
-
-    awk 'NR==1{a=$0}NR==FNR{next}FNR==19{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 1 in rule_tmp.txt to line 19 in /etc/ufw/user.rules
-    # using awk to get /lib/ufw/user.rules output, including newly added values, then makes a tmp file
-    # after temp file is made it is mv to /lib/ufw/user.rules
-    # awk does not have -i to write changes like sed does, that's why I took this approach
-
-    awk 'NR==2{a=$0}NR==FNR{next}FNR==20{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 2 in rule_tmp.txt to line 20 in /etc/ufw/user.rules
-
-    awk 'NR==3{a=$0}NR==FNR{next}FNR==21{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 3 in rule_tmp.txt to line 21 in /etc/ufw/user.rules
-
-    sudo sed -i "18G" /etc/ufw/user.rules
-    # adds a space to keep things formatted nicely
-
-    sudo chown root:root /etc/ufw/user.rules
-    # this command changes ownership back to root:root
-    # when /etc/ufw/user.rules is edited using awk or sed, the owner gets changed from Root to whatever User that edited that file
-    # that causes a warning to be displayed as /etc/ufw/user.rules does need to be owned by root:root
-
-    sudo rm "$HOME"/ip_tmp.txt "$HOME"/rule_tmp.txt
-    # removes txt files that are no longer needed
-
-    cat <<EOF
-${red}
-***
-Reloading UFW...
-***
-${nc}
-EOF
-    _sleep
-
+    sudo ufw enable &>/dev/null
     sudo ufw reload &>/dev/null
 
-    cat <<EOF
+    _install_network_check_service
+
+    sudo systemctl enable --now --quiet ufw
+else
+    sudo systemctl restart ronin.network
+fi
+
+cat <<EOF
 ${red}
 ***
-Checking UFW status...
-***
-${nc}
-EOF
-    _sleep
-
-    sudo ufw status
-
-    UFW_IP=$(sudo ufw status | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-    sudo ufw allow from "$UFW_IP"/24 to any port 22 comment 'SSH access restricted to local network'
-    # add comment to initial ufw rule
-
-    cat <<EOF
-${red}
-***
-Now that UFW is enabled, any computer connected to the same local network as your RoninDojo will have SSH access.
+Now that UFW is enabled, any computer connected to the same local network as your RoninDojo can access ports 22 (SSH) and 80 (HTTP).
 ***
 ${nc}
 EOF
 
-    cat <<EOF
+cat <<EOF
 ${red}
 ***
 Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc.
@@ -236,15 +164,14 @@ Leaving this setting default is NOT RECOMMENDED for users who are connecting to 
 ${nc}
 EOF
 
-    cat <<EOF
+cat <<EOF
 ${red}
 ***
 Firewall rules can be adjusted using the RoninDojo Firewall Menu.
 ***
 ${nc}
 EOF
-    _sleep 10
-fi
+_sleep 10
 
 cat <<EOF
 ${red}
@@ -596,13 +523,6 @@ _setup_tor
 
 # docker data directory setup, see functions.sh
 _docker_datadir_setup
-
-# Check if Network check is implemented. If not install and run it.
-if ! -f /etc/systemd/system/ronin.network.service; then 
-    _install_network_check_service
-else
-    sudo systemctl restart ronin.network
-fi
 
 # Install Ronin UI
 cat <<EOF
