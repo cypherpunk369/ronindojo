@@ -63,7 +63,7 @@ WARNING: Do not share these onion addresses with anyone!
 ***
 ${nc}
 
-Tor Address             = http://${tor_addr_whirlpool}
+Whirlpool CLI Address   = http://${tor_addr_whirlpool}
 Whirlpool API Key       = ${whirlpool_api_key:-Whirlpool not Initiated yet. Pair wallet with GUI}
 EOF
             _pause return
