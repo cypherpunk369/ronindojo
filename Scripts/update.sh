@@ -443,8 +443,9 @@ EOF
 # Fix gpio
 _update_26() {
 
-    # Removes any existing setup, places a new setup
-    _install_gpio
+    if [ -d "${ronin_ui_path}" ]; then
+        _install_gpio
+    fi
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
