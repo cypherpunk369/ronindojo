@@ -131,7 +131,8 @@ EOF
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
 
         _call_update_scripts
-
+        
+        bash -c "${ronin_updates_menu}"
         ;;
     4)
         _print_message "Updating system packages..."
