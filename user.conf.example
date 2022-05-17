@@ -33,7 +33,7 @@
 # Note you must use full reference path if you plan on testing a different branch
 # other than master. i.e origin/branch_name instead of just branch_name
 
-#ronin_dojo_branch="master" # defaults to master
+#ronin_dojo_branch="origin/master" # defaults to origin/master
 #samourai_commitish=""      # empty defaults to master
 
 ##############################
