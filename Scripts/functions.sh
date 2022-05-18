@@ -2572,7 +2572,7 @@ _restore_or_create_dojo_confs() {
         _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
         _generate_dojo_credentials
-        if "${dojo_conf_backup}"; then
+        if "${is_active_dojo_conf_backup}"; then
             _print_message "Backing up newly created credentials..."
             _backup_dojo_confs
         fi

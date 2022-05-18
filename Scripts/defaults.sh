@@ -108,7 +108,7 @@ ronin_ui_path="$HOME/Ronin-UI"
 #
 dojo_data_bitcoind_backup=true
 dojo_data_indexer_backup=true
-dojo_conf_backup=true
+is_active_dojo_conf_backup=true
 tor_backup=true
 backup_format=false
 
