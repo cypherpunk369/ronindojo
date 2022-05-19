@@ -123,7 +123,7 @@ done
 
 if $upgrade; then
     # Backup any changes made to the confs
-    "${dojo_conf_backup}" && _backup_dojo_confs
+    "${is_active_dojo_conf_backup}" && _backup_dojo_confs
     
     if $volume_prune; then
         _dojo_upgrade prune

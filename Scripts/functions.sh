@@ -2549,6 +2549,9 @@ _generate_dojo_credentials(){
 # Usage: Copys users dojo confs to SSD for easy restore if necessary
 #
 _backup_dojo_confs() {
+    if [ ! -d ${dojo_backup_dir} ]; then
+        sudo mkdir -p ${dojo_backup_dir}
+    fi
     if [ ! -w "${dojo_backup_dir}" ]; then
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
     fi
@@ -2569,7 +2572,7 @@ _restore_or_create_dojo_confs() {
         _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
         _generate_dojo_credentials
-        if "${dojo_conf_backup}"; then
+        if "${is_active_dojo_conf_backup}"; then
             _print_message "Backing up newly created credentials..."
             _backup_dojo_confs
         fi
