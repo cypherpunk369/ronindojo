@@ -136,7 +136,6 @@ _mount_checkup() {
     _print_message "Check output for ${primary_storage} and make sure everything looks ok..."
     df -h "${primary_storage}"
     _sleep 5
-
 }
 
 _post_mount_procedure() {
@@ -154,6 +153,23 @@ _finalize_installation() {
     [ $# -eq 0 ] && _pause continue
 }
 
+if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
+
+    _print_message "Found Blockchain data for salvage!"
+    _sleep
+    _print_message "Moving to data backup"
+    _sleep
+
+    test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
+    sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
+    if [ -d "${storage_mount}/${indexer_data_dir}/_data/db" ]; then
+        test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+    fi
+    _print_message "Blockchain data prepared for salvage!"
+    _sleep
+fi
+
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
     _sleep
@@ -167,36 +183,10 @@ if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     exit
 fi
 
-if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
-
-    _print_message "Found Blockchain data for salvage!"
-    _sleep
-    _print_message "Moving to temporary directory..."
-    _sleep
-
-    test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
-    sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
-    if [ -d "${storage_mount}/${indexer_data_dir}/_data/db" ]; then
-        test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
-        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
-    fi
-    _print_message "Blockchain data prepared for salvage!"
-    _sleep
-
-    _pre_mount_procedure
-    _mount_procedure
-    _mount_checkup
-    _post_mount_procedure
-
-    _finalize_installation
-    exit
-fi
-
-_print_message "No Blockchain data found for salvage check..."
+_print_message "No Blockchain data found for salvage..."
 _sleep
 
 _pre_mount_procedure
-
 _print_message "Formatting the SSD..."
 _sleep 5
 
