@@ -22,8 +22,6 @@ elif [ -f "${ronin_data_dir}"/system-install ]; then
     exit
 fi
 
-_nvme_check && _load_user_conf
-
 _print_message "Setting up system and installing dependencies..."
 _sleep
 
@@ -91,6 +89,9 @@ _print_message "Firewall rules can be adjusted using the RoninDojo Firewall Menu
 _sleep 10
 _print_message "All Dojo dependencies installed..."
 _sleep
+
+_nvme_check && _load_user_conf
+
 _print_message "Creating ${install_dir} directory..."
 _sleep
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
