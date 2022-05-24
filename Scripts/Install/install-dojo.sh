@@ -8,110 +8,42 @@
 _load_user_conf
 
 if ! findmnt "${install_dir}" 1>/dev/null; then
-    cat <<EOF
-${red}
-***
-Missing drive mount at ${install_dir}! Please contact support for assistance...
-***
-${nc}
-EOF
-    _sleep
-    cat <<EOF
-${red}
-***
-Exiting RoninDojo...
-***
-${nc}
-EOF
+    _print_message "Missing drive mount at ${install_dir}! Please contact support for assistance..."
+    _print_message "Exiting RoninDojo..."
     _sleep
     [ $# -eq 0 ] && _pause return
     exit 1
 fi
 
 if [ -d "${dojo_path_my_dojo}" ]; then
-    cat <<EOF
-${red}
-***
-RoninDojo is already installed...
-***
-${nc}
-EOF
+    _print_message "RoninDojo is already installed..."
+    _print_message "Exiting RoninDojo..."
     _sleep
     [ $# -eq 0 ] && _pause return
-    ronin
-    exit
+    exit 1
 fi
-# Makes sure RoninDojo has been uninstalled
 
-cat <<EOF
-${red}
-***
-Running RoninDojo install...
-***
-${nc}
-EOF
-_sleep
-
-cat <<EOF
-${red}
-***
-Use Ctrl+C to exit now if needed!
-***
-${nc}
-EOF
+_print_message "Running RoninDojo install..."
+_print_message "Use Ctrl+C to exit now if needed!"
 _sleep 10 --msg "Installing in"
 
-cat <<EOF
-${red}
-***
-Downloading latest RoninDojo release...
-***
-${nc}
-EOF
+_print_message "Downloading latest RoninDojo release..."
 
 cd "$HOME" || exit
 git clone -q "${samourai_repo}" dojo 2>/dev/null
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
-cat <<EOF
-${red}
-***
-Credentials necessary for usernames, passwords, etc. will randomly be generated now...
-***
-${nc}
-EOF
+_print_message "Credentials necessary for usernames, passwords, etc. will randomly be generated now..."
 _sleep 4
-
-cat <<EOF
-${red}
-***
-Credentials are found in RoninDojo menu, ${dojo_path_my_dojo}/conf, or the ~/RoninDojo/user.conf.example file...
-***
-${nc}
-EOF
+_print_message "Credentials are found in RoninDojo menu, ${dojo_path_my_dojo}/conf, or the ~/RoninDojo/user.conf.example file..."
 _sleep 4
-
-cat <<EOF
-${red}
-***
-Be aware these credentials are used to login to Dojo Maintenance Tool, Block Explorer, and more!
-***
-${nc}
-EOF
+_print_message "Be aware these credentials are used to login to Dojo Maintenance Tool, Block Explorer, and more!"
 _sleep 4
-
-cat <<EOF
-${red}
-***
-Setting the RPC User and Password...
-***
-${nc}
-EOF
+_print_message "Setting the RPC User and Password..."
 _sleep
 
 _restore_or_create_dojo_confs
-
 _sleep
 
 _check_indexer
@@ -133,115 +65,50 @@ if (($?==2)); then
     fi
 fi
 
-cat <<EOF
-${red}
-***
-Please see Wiki for FAQ, help, and so much more...
-***
-${nc}
-EOF
+_print_message "Please see Wiki for FAQ, help, and so much more..."
 _sleep 3
-
-cat <<EOF
-${red}
-***
-https://wiki.ronindojo.io
-***
-${nc}
-EOF
+_print_message "https://wiki.ronindojo.io"
 _sleep 3
-
-cat <<EOF
-${red}
-***
-Installing Samourai Wallet's Dojo...
-***
-${nc}
-EOF
+_print_message "Installing Samourai Wallet's Dojo..."
 _sleep
 
 # Restart docker here for good measure
 sudo systemctl restart --quiet docker
 
 cd "$dojo_path_my_dojo" || exit
-
-if ./dojo.sh install --nolog --auto; then
-
-    # Installing SW Toolkit
-    if [ ! -d "${HOME}"/boltzmann ]; then
-        cat <<EOF
-${red}
-***
-Installing Boltzmann Calculator...
-***
-${nc}
-EOF
-        # install Boltzmann
-        _install_boltzmann
-    fi
-
-    if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
-        cat <<EOF
-${red}
-***
-Installing Whirlpool Stat Tool...
-***
-${nc}
-EOF
-        # install Whirlpool Stat Tool
-        _install_wst
-    fi
-
-    cat <<EOF
-${red}
-***
-Any previous node data will now be salvaged if you choose to continue...
-***
-${nc}
-EOF
-_sleep
-
-    # Make sure to wait for user interaction before continuing
-    [ $# -eq 0 ] && _pause continue
-
-    # Restore any saved IBD from a previous uninstall
-    "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind restore
-
-    # Restore any saved indexer data from a previous uninstall
-    "${dojo_data_indexer_backup}" && _dojo_data_indexer restore
-
-    if ${tor_backup}; then
-        _tor_restore
-        docker restart tor 1>/dev/null
-    fi
-    # restore tor credentials backup to container
-
-    cat <<EOF
-${red}
-***
-All RoninDojo feature installations complete!
-***
-${nc}
-EOF
-_sleep
-
-    # Source update script
-    . "$HOME"/RoninDojo/Scripts/update.sh
-
-    # Run _update_08
-    test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
-
-    # Press to continue to prevent from snapping back to menu too quickly
+if ! ./dojo.sh install --nolog --auto; then
+    _print_error_message "Install failed! Please contact support..."
     [ $# -eq 0 ] && _pause return
-else
-        cat <<EOF
-${red}
-***
-Install failed! Please contact support...
-***
-${nc}
-EOF
-
-        [ $# -eq 0 ] && _pause return
-        [ $# -eq 0 ] && ronin
+    [ $# -eq 0 ] && ronin
+    exit
 fi
+
+if [ ! -d "${HOME}"/boltzmann ]; then
+    _print_message "Installing Boltzmann Calculator..."
+    _install_boltzmann
+fi
+
+if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
+    _print_message "Installing Whirlpool Stat Tool..."
+    _install_wst
+fi
+
+_print_message "Any previous node data will now be salvaged if you choose to continue..."
+_sleep
+[ $# -eq 0 ] && _pause continue
+
+"${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind restore
+"${dojo_data_indexer_backup}" && _dojo_data_indexer restore
+if ${tor_backup}; then
+    _tor_restore
+    docker restart tor 1>/dev/null
+fi
+
+_print_message "All RoninDojo feature installations complete!"
+_sleep
+
+. "$HOME"/RoninDojo/Scripts/update.sh
+
+test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
+
+[ $# -eq 0 ] && _pause return
