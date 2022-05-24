@@ -99,9 +99,7 @@ test -d "${install_dir}" || sudo mkdir "${install_dir}"
 if [ -b "${primary_storage}" ]; then
     _print_message "Creating ${storage_mount} directory..."
     _sleep
-
     test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
-
     _print_message "Attempting to mount drive for Blockchain data salvage..."
     _sleep
     sudo mount "${primary_storage}" "${storage_mount}"
@@ -144,6 +142,19 @@ _post_mount_procedure() {
 
     _setup_tor
     _docker_datadir_setup
+
+    _print_message "Installing Ronin UI..."
+    _ronin_ui_install
+    _install_gpio
+
+    _print_message "Installing SW Toolkit..."
+    _sleep
+    _print_message "Installing Boltzmann Calculator..."
+    _sleep
+    _install_boltzmann
+    _print_message "Installing Whirlpool Stat Tool..."
+    _sleep
+    _install_wst
 }
 
 _finalize_installation() {
@@ -189,7 +200,6 @@ _sleep
 _pre_mount_procedure
 _print_message "Formatting the SSD..."
 _sleep 5
-
 if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
     _print_error_message "Filesystem creation failed! Exiting now..."
     _sleep 3
@@ -198,18 +208,5 @@ fi
 
 _mount_checkup
 _post_mount_procedure
-
-_print_message "Installing Ronin UI..."
-_ronin_ui_install
-_install_gpio
-
-_print_message "Installing SW Toolkit..."
-_sleep
-_print_message "Installing Boltzmann Calculator..."
-_sleep
-_install_boltzmann
-_print_message "Installing Whirlpool Stat Tool..."
-_sleep
-_install_wst
 
 _finalize_installation
