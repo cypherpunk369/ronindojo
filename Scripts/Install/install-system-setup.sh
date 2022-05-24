@@ -12,14 +12,14 @@ if [ -d "$HOME"/dojo ]; then
         _pause return
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
     fi
-    exit;
+    exit
 elif [ -f "${ronin_data_dir}"/system-install ]; then
     _print_message "Previous system install detected. Exiting script..."
     if [ $# -eq 0 ]; then
         _pause return
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
     fi
-    exit;
+    exit
 fi
 
 _nvme_check && _load_user_conf
@@ -93,76 +93,20 @@ _print_message "All Dojo dependencies installed..."
 _sleep
 _print_message "Creating ${install_dir} directory..."
 _sleep
-
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
 
-if [ -b "${primary_storage}" ]; then
-    _print_message "Creating ${storage_mount} directory..."
-    _sleep
-    test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
-    _print_message "Attempting to mount drive for Blockchain data salvage..."
-    _sleep
-    sudo mount "${primary_storage}" "${storage_mount}"
-else
-    _print_message "Did not find ${primary_storage} for Blockchain data salvage."
-    _sleep
+if [ ! -b "${primary_storage}" ]; then
+    _print_error_message "device ${primary_storage} not found!"
+    [ $# -eq 0 ] && _pause return
+    exit
 fi
 
-_pre_mount_procedure() {
-    if check_swap "${storage_mount}/swapfile"; then
-        test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
-    fi
-    sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
-
-    if findmnt "${storage_mount}" 1>/dev/null; then
-        sudo umount "${storage_mount}"
-        sudo rmdir "${storage_mount}" &>/dev/null
-    fi
-}
-
-_mount_procedure() {
-    _print_message "Mounting drive..."
-    findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
-    _sleep
-}
-
-_mount_checkup() {
-    _print_message "Displaying the name on the external disk..."
-    lsblk -o NAME,SIZE,LABEL "${primary_storage}"
-    _sleep
-
-    _print_message "Check output for ${primary_storage} and make sure everything looks ok..."
-    df -h "${primary_storage}"
-    _sleep 5
-}
-
-_post_mount_procedure() {
-    _swap_size
-    create_swap --file "${install_dir_swap}" --count "${_size}"
-
-    _setup_tor
-    _docker_datadir_setup
-
-    _print_message "Installing Ronin UI..."
-    _ronin_ui_install
-    _install_gpio
-
-    _print_message "Installing SW Toolkit..."
-    _sleep
-    _print_message "Installing Boltzmann Calculator..."
-    _sleep
-    _install_boltzmann
-    _print_message "Installing Whirlpool Stat Tool..."
-    _sleep
-    _install_wst
-}
-
-_finalize_installation() {
-    _create_dir "${ronin_data_dir}"
-    touch "${ronin_data_dir}"/system-install
-    _print_message "Dojo is ready to be installed!"
-    [ $# -eq 0 ] && _pause continue
-}
+_print_message "Creating ${storage_mount} directory..."
+_sleep
+test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+_print_message "Attempting to mount drive for Blockchain data salvage..."
+_sleep
+sudo mount "${primary_storage}" "${storage_mount}"
 
 if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
 
@@ -181,32 +125,65 @@ if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
     _sleep
 fi
 
+if check_swap "${storage_mount}/swapfile"; then
+    test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
+fi
+sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
+
+if findmnt "${storage_mount}" 1>/dev/null; then
+    sudo umount "${storage_mount}"
+    sudo rmdir "${storage_mount}" &>/dev/null
+fi
+
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
     _sleep
 
-    _pre_mount_procedure
-    _mount_procedure
-    _mount_checkup
-    _post_mount_procedure
+    _print_message "Mounting drive..."
+    findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
+    _sleep
 
-    _finalize_installation
-    exit
+else
+    _print_message "No Blockchain data found for salvage..."
+    _sleep
+
+    _print_message "Formatting the SSD..."
+    _sleep 5
+    if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
+        _print_error_message "Filesystem creation failed! Exiting now..."
+        _sleep 3
+        exit 1
+    fi
 fi
 
-_print_message "No Blockchain data found for salvage..."
+_print_message "Displaying the name on the external disk..."
+lsblk -o NAME,SIZE,LABEL "${primary_storage}"
 _sleep
 
-_pre_mount_procedure
-_print_message "Formatting the SSD..."
+_print_message "Check output for ${primary_storage} and make sure everything looks ok..."
+df -h "${primary_storage}"
 _sleep 5
-if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
-    _print_error_message "Filesystem creation failed! Exiting now..."
-    _sleep 3
-    exit 1
-fi
 
-_mount_checkup
-_post_mount_procedure
+_swap_size
+create_swap --file "${install_dir_swap}" --count "${_size}"
 
-_finalize_installation
+_setup_tor
+_docker_datadir_setup
+
+_print_message "Installing Ronin UI..."
+_ronin_ui_install
+_install_gpio
+
+_print_message "Installing SW Toolkit..."
+_sleep
+_print_message "Installing Boltzmann Calculator..."
+_sleep
+_install_boltzmann
+_print_message "Installing Whirlpool Stat Tool..."
+_sleep
+_install_wst
+
+_create_dir "${ronin_data_dir}"
+touch "${ronin_data_dir}"/system-install
+_print_message "Dojo is ready to be installed!"
+[ $# -eq 0 ] && _pause continue
