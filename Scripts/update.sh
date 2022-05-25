@@ -135,47 +135,6 @@ _update_07() {
     fi
 }
 
-# Create mnt-usb.mount if missing and system is already mounted.
-_update_08() {
-    local uuid tmp systemd_mountpoint fstype
-
-    if findmnt /mnt/usb 1>/dev/null && [ ! -f /etc/systemd/system/mnt-usb.mount ]; then
-        uuid=$(lsblk -no UUID "${primary_storage}")
-        tmp=${install_dir:1}                                    # Remove leading '/'
-        systemd_mountpoint=${tmp////-}                          # Replace / with -
-        fstype=$(blkid -o value -s TYPE "${primary_storage}")
-
-        cat <<EOF
-${red}
-***
-Adding missing systemd mount unit file for device ${primary_storage}...
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
-[Unit]
-Description=Mount External SSD Drive ${primary_storage}
-
-[Mount]
-What=/dev/disk/by-uuid/${uuid}
-Where=${install_dir}
-Type=${fstype}
-Options=defaults
-
-[Install]
-WantedBy=multi-user.target
-EOF"
-        sudo systemctl enable --quiet mnt-usb.mount
-
-        _sleep 4 --msg "Restarting RoninDojo in"
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/08-"$(date +%m-%d-%Y)"
-
-        ronin
-    fi
-}
-
 # Migrate bitcoin ibd data to new backup directory
 _update_09() {
     if sudo test -d "${install_dir}"/bitcoin && sudo test -d "${install_dir}"/bitcoin/blocks; then
