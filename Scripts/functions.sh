@@ -1712,16 +1712,6 @@ _create_fs() {
         sudo mkdir -p "${mountpoint}" || return 1
 
     elif findmnt "${device}" 1>/dev/null; then
-        if [ "${mountpoint}" = "${install_dir}" ]; then
-            for x in tor docker; do
-                sudo systemctl stop --quiet "${x}"
-            done
-
-            if check_swap "${install_dir_swap}"; then
-                test -f "${install_dir_swap}" && sudo swapoff "${install_dir_swap}"
-            fi
-        fi
-
         sudo umount -l "${device}"
     fi
 
