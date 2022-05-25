@@ -1681,18 +1681,6 @@ _disable_bluetooth() {
 }
 
 #
-# Check fs type
-# Shows the filesystem type of a giving partition
-#
-check_fstype() {
-    local type device="${1}"
-
-    type="$(lsblk -f "${device}" | tail -1 | awk '{print$2}')"
-
-    echo "${type}"
-}
-
-#
 # Create fs
 # TODO add btrfs support
 #
