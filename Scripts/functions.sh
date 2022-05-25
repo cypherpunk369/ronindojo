@@ -1708,24 +1708,17 @@ _create_fs() {
     done
 
     if [ ! -d "${mountpoint}" ]; then
-        _print_message "Creating ${mountpoint} directory..."
         sudo mkdir -p "${mountpoint}" || return 1
-
     elif findmnt "${device}" 1>/dev/null; then
-        sudo umount -l "${device}"
+        if ! sudo umount "${device}"; then
+            _print_error_message "Could not prepare device ${device} for formatting, was likely still in use"
+            exit
+        fi
     fi
 
-    # This quick hack checks if device is either a SSD device or a NVMe device
     [[ "${device}" =~ "sd" ]] && _device="${device%?}" || _device="${device%??}"
-
-    # wipe labels
     sudo wipefs -a --force "${_device}" 1>/dev/null
-
-    # Create a partition table with a single partition that takes the whole disk
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
-
-    _print_message "Using ${fstype} filesystem format for ${device} partition..."
-
     sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
 
     # Sleep here ONLY, don't ask me why ask likewhoa!
@@ -1736,16 +1729,8 @@ _create_fs() {
     uuid=$(lsblk -no UUID "${device}")      # UUID of device
     local tmp=${mountpoint:1}               # Remove leading '/'
     local systemd_mountpoint=${tmp////-}    # Replace / with -
-
-    # Check if drive unit file was previously created
-    if [ -f /etc/systemd/system/"${systemd_mountpoint}".mount ]; then
-        systemd_mount=true
-    fi
-
-    if ! grep "${uuid}" /etc/systemd/system/"${systemd_mountpoint}".mount &>/dev/null; then
-        _print_message "Adding device ${device} to systemd.mount unit file"
-
-        sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
+    
+    sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
 [Unit]
 Description=Mount External SSD Drive ${device}
 
@@ -1759,16 +1744,12 @@ Options=defaults
 WantedBy=multi-user.target
 EOF
 
-        _print_message "Mounting ${device} to ${mountpoint}"
-    fi
-
-    if $systemd_mount; then
-        sudo systemctl daemon-reload
-    fi
-
+    sudo systemctl daemon-reload
     sudo systemctl start --quiet "${systemd_mountpoint}".mount || return 1
     sudo systemctl enable --quiet "${systemd_mountpoint}".mount || return 1
-    
+
+    _print_message "Mounted ${device} to ${mountpoint}"
+
     return 0
 }
 
