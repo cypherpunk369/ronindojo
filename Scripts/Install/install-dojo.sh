@@ -74,16 +74,6 @@ if ! ./dojo.sh install --nolog --auto; then
     exit
 fi
 
-if [ ! -d "${HOME}"/boltzmann ]; then
-    _print_message "Installing Boltzmann Calculator..."
-    _install_boltzmann
-fi
-
-if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
-    _print_message "Installing Whirlpool Stat Tool..."
-    _install_wst
-fi
-
 _print_message "Any previous node data will now be salvaged if you choose to continue..."
 [ $# -eq 0 ] && _pause continue
 
