@@ -136,7 +136,7 @@ else
     _print_message "No Blockchain data found for salvage..."
     _print_message "Formatting the SSD..."
 
-    if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
+    if ! _create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
         _print_error_message "Filesystem creation failed! Exiting now..."
         _sleep 3
         exit 1

@@ -1696,7 +1696,7 @@ check_fstype() {
 # Create fs
 # TODO add btrfs support
 #
-create_fs() {
+_create_fs() {
     local supported_filesystems=("ext2" "ext3" "ext4" "xfs") fstype="ext4"
 
     # Parse Arguments
