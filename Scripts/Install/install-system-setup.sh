@@ -26,7 +26,7 @@ _print_message "Setting up system and installing dependencies..."
 _sleep
 
 _print_message "Use Ctrl+C to exit now if needed!"
-_sleep 10 --msg "Installing in"
+_sleep 3 --msg "Installing in"
 
 "$HOME"/RoninDojo/Scripts/.logo
 # display ronindojo logo
@@ -67,7 +67,6 @@ unlock_time = 120
 EOF
 
 _print_message "Setting up UFW..."
-_sleep
 
 if ! -f /etc/systemd/system/ronin.network.service; then 
 
@@ -86,14 +85,11 @@ fi
 _print_message "Now that UFW is enabled, any computer connected to the same local network as your RoninDojo can access ports 22 (SSH) and 80 (HTTP)."
 _print_message "Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc."
 _print_message "Firewall rules can be adjusted using the RoninDojo Firewall Menu."
-_sleep 10
 _print_message "All Dojo dependencies installed..."
-_sleep
 
 _nvme_check && _load_user_conf
 
 _print_message "Creating ${install_dir} directory..."
-_sleep
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
 
 if [ ! -b "${primary_storage}" ]; then
@@ -103,18 +99,14 @@ if [ ! -b "${primary_storage}" ]; then
 fi
 
 _print_message "Creating ${storage_mount} directory..."
-_sleep
 test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
-_sleep
 sudo mount "${primary_storage}" "${storage_mount}"
 
 if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
 
     _print_message "Found Blockchain data for salvage!"
-    _sleep
     _print_message "Moving to data backup"
-    _sleep
 
     test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
     sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
@@ -123,7 +115,6 @@ if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
         sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
     fi
     _print_message "Blockchain data prepared for salvage!"
-    _sleep
 fi
 
 if check_swap "${storage_mount}/swapfile"; then
@@ -138,18 +129,13 @@ fi
 
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
-    _sleep
-
     _print_message "Mounting drive..."
     findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
-    _sleep
 
 else
     _print_message "No Blockchain data found for salvage..."
-    _sleep
-
     _print_message "Formatting the SSD..."
-    _sleep 5
+
     if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
         _print_error_message "Filesystem creation failed! Exiting now..."
         _sleep 3
@@ -163,7 +149,6 @@ _sleep
 
 _print_message "Check output for ${primary_storage} and make sure everything looks ok..."
 df -h "${primary_storage}"
-_sleep 5
 
 _swap_size
 create_swap --file "${install_dir_swap}" --count "${_size}"
@@ -175,13 +160,9 @@ _print_message "Installing Ronin UI..."
 _ronin_ui_install
 _install_gpio
 
-_print_message "Installing SW Toolkit..."
-_sleep
 _print_message "Installing Boltzmann Calculator..."
-_sleep
 _install_boltzmann
 _print_message "Installing Whirlpool Stat Tool..."
-_sleep
 _install_wst
 
 _create_dir "${ronin_data_dir}"
