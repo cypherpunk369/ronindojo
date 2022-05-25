@@ -1682,31 +1682,12 @@ _disable_bluetooth() {
 
 #
 # Create fs
-# TODO add btrfs support
 #
 _create_fs() {
-    local supported_filesystems=("ext2" "ext3" "ext4" "xfs") fstype="ext4"
+    local fstype="ext4"
 
-    # Parse Arguments
     while [ $# -gt 0 ]; do
         case "$1" in
-            --fstype|-fs)
-                if [[ ! "${supported_filesystems[*]}" =~ ${2} ]]; then
-                    cat <<EOF
-${red}
-***
-Error: unsupported filesystem type ${2}
-Available options are: ${supported_filesystems[@]}
-Exiting!
-***
-${nc}
-EOF
-                    return 1
-                else
-                    local fstype="$2"
-                    shift 2
-                fi
-                ;;
             --label|-L)
                 local label="$2"
                 shift 2
@@ -1719,31 +1700,23 @@ EOF
                 local mountpoint="$2"
                 shift 2
                 ;;
-            -*|--*=) # unsupported flags
-                echo "Error: Unsupported flag $1" >&2
+            *) # unsupported flags
+                echo "Error: Unsupported argument $1" >&2
                 exit 1
                 ;;
         esac
     done
 
-    # Create mount point directory if not available
     if [ ! -d "${mountpoint}" ]; then
-        cat <<EOF
-${red}
-***
-Creating ${mountpoint} directory...
-***
-${nc}
-EOF
+        _print_message "Creating ${mountpoint} directory..."
         sudo mkdir -p "${mountpoint}" || return 1
-    elif findmnt "${device}" 1>/dev/null; then # Is device already mounted?
-        # Make sure to stop tor and docker when mount point is ${install_dir}
+
+    elif findmnt "${device}" 1>/dev/null; then
         if [ "${mountpoint}" = "${install_dir}" ]; then
             for x in tor docker; do
                 sudo systemctl stop --quiet "${x}"
             done
 
-            # Stop swap on mount point
             if check_swap "${install_dir_swap}"; then
                 test -f "${install_dir_swap}" && sudo swapoff "${install_dir_swap}"
             fi
@@ -1761,20 +1734,9 @@ EOF
     # Create a partition table with a single partition that takes the whole disk
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 
-    cat <<EOF
-${red}
-***
-Using ${fstype} filesystem format for ${device} partition...
-***
-${nc}
-EOF
+    _print_message "Using ${fstype} filesystem format for ${device} partition..."
 
-    # Create filesystem
-    if [[ $fstype =~ 'ext' ]]; then
-        sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
-    elif [[ $fstype =~ 'xfs' ]]; then
-        sudo mkfs."${fstype}" -L "${label}" "${device}" 1>/dev/null || return 1
-    fi
+    sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
 
     # Sleep here ONLY, don't ask me why ask likewhoa!
     _sleep 5
@@ -1791,14 +1753,9 @@ EOF
     fi
 
     if ! grep "${uuid}" /etc/systemd/system/"${systemd_mountpoint}".mount &>/dev/null; then
-        cat <<EOF
-${red}
-***
-Adding device ${device} to systemd.mount unit file
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
+        _print_message "Adding device ${device} to systemd.mount unit file"
+
+        sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
 [Unit]
 Description=Mount External SSD Drive ${device}
 
@@ -1810,15 +1767,9 @@ Options=defaults
 
 [Install]
 WantedBy=multi-user.target
-EOF"
-        # Mount filesystem
-        cat <<EOF
-${red}
-***
-Mounting ${device} to ${mountpoint}
-***
-${nc}
 EOF
+
+        _print_message "Mounting ${device} to ${mountpoint}"
     fi
 
     if $systemd_mount; then
@@ -1827,9 +1778,7 @@ EOF
 
     sudo systemctl start --quiet "${systemd_mountpoint}".mount || return 1
     sudo systemctl enable --quiet "${systemd_mountpoint}".mount || return 1
-    # mount drive to ${mountpoint} using systemd.mount
-
-
+    
     return 0
 }
 
