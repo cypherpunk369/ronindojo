@@ -2090,8 +2090,6 @@ _dojo_data_indexer() {
                     cd "$dojo_path_my_dojo" || exit
                     _dojo_check && _stop_dojo
 
-                    _sleep
-
                     if sudo test -d "${docker_volume_indexer}"/_data/db; then
                         sudo rm -rf "${docker_volume_indexer}"/_data/db
                     fi
@@ -2105,29 +2103,13 @@ _dojo_data_indexer() {
                     # stops dojo and removes new data directories
                     # then moves salvaged indexer data
 
-                    cat <<EOF
-${red}
-***
-Indexer data restore completed...
-***
-${nc}
-EOF
-                    _sleep
-
+                    _print_message "Indexer data restore completed..."
                     sudo rm -rf "${dojo_backup_indexer}"
                     # remove old salvage directories
 
                     cd "$dojo_path_my_dojo" || exit
                     _source_dojo_conf
-
-                    cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                    # Start docker containers
+                    _print_message "Starting dojo..."
                     ./dojo.sh start
                     # start dojo
                 fi
@@ -2170,18 +2152,10 @@ _dojo_data_bitcoind() {
         case "$1" in
             restore)
                 if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
-                    cat <<EOF
-${red}
-***
-Blockchain data restore starting...
-***
-${nc}
-EOF
+                    _print_message "Blockchain data restore starting..."
 
                     cd "$dojo_path_my_dojo" || exit
                     _dojo_check && _stop_dojo
-
-                    _sleep
 
                     for dir in blocks chainstate indexes; do
                         if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
@@ -2199,14 +2173,7 @@ EOF
                     # stops dojo and removes new data directories
                     # then moves salvaged block data
 
-                    cat <<EOF
-${red}
-***
-Blockchain data restore completed...
-***
-${nc}
-EOF
-                    _sleep
+                    _print_message "Blockchain data restore completed..."
 
                     sudo rm -rf "${dojo_backup_bitcoind}"
                     # remove old salvage directories
@@ -2214,17 +2181,8 @@ EOF
                     if ! "${dojo_data_indexer_backup}"; then
                         cd "$dojo_path_my_dojo" || exit
                         _source_dojo_conf
-
-                        cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                        # Start docker containers
+                        _print_message "Starting Dojo..."
                         ./dojo.sh start
-                        # start dojo
                     fi
                     # Only start dojo if no indexer restore is enabled
                 fi
