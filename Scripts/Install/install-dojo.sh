@@ -77,10 +77,7 @@ _stop_dojo
 
 "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_restore
 "${dojo_data_indexer_backup}" && _dojo_data_indexer_restore
-if ${tor_backup}; then
-    _tor_restore
-    docker restart tor 1>/dev/null
-fi
+"${tor_backup}" && _tor_restore
 
 ./dojo.sh start
 
