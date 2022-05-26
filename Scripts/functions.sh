@@ -451,10 +451,7 @@ _tor_backup() {
 
     if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
         sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
-        return 0
     fi
-
-    return 1
 }
 
 #
@@ -463,27 +460,11 @@ _tor_backup() {
 _tor_restore() {
     if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
         sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
-        cat <<EOF
-${red}
-***
-Tor credentials backup detected and restored...
-***
-${nc}
-EOF
-_sleep
 
-        cat <<EOF
-${red}
-***
-If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file...
-***
-${nc}
-EOF
-_sleep 3
-        return 0
+        _print_message "Tor credentials backup detected and restored..."
+        _print_message "If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file..."
+        _sleep 3
     fi
-
-    return 1
 }
 
 #
