@@ -90,12 +90,16 @@ fi
 _print_message "Any previous node data will now be salvaged if you choose to continue..."
 [ $# -eq 0 ] && _pause continue
 
+_stop_dojo
+
 "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_restore
 "${dojo_data_indexer_backup}" && _dojo_data_indexer_restore
 if ${tor_backup}; then
     _tor_restore
     docker restart tor 1>/dev/null
 fi
+
+./dojo.sh start
 
 _print_message "All RoninDojo feature installations complete!"
 
