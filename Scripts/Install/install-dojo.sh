@@ -51,9 +51,6 @@ if (($?==2)); then
         _set_indexer
 
         if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-            if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
-                sudo rm -rf "${dojo_backup_indexer}"/_data/db/bitcoin
-            fi
         elif [ "${dojo_indexer}" = "electrs" ]; then
             bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
         else
@@ -63,6 +60,8 @@ if (($?==2)); then
             exit 1
         fi
     fi
+    
+    sudo rm -rf "${dojo_backup_indexer}"
 
 elif (($?==0)); then # Found electrs previous install.
     _set_indexer
