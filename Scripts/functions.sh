@@ -2042,7 +2042,7 @@ _dojo_data_bitcoind_backup() {
 _tor_backup() {
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
+    if sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
         sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
     fi
 }
