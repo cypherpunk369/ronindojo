@@ -83,6 +83,5 @@ _stop_dojo
 
 _print_message "All RoninDojo feature installations complete!"
 
-. "$HOME"/RoninDojo/Scripts/update.sh
 
 [ $# -eq 0 ] && _pause return
