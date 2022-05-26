@@ -1400,20 +1400,13 @@ EOF
     _dojo_check && _stop_dojo
     cd "${dojo_path_my_dojo}" || exit
 
-    # Delete existing electrs mainnet directory if upgrading
-    if [ ! -f "$HOME"/.config/RoninDojo/data/electrs.install ]; then
-        # Show Indexer Install State
-        _check_indexer
-        ret=$?
+    _check_indexer
+    ret=$?
 
-        if ((ret==0)); then # Electrs enabled
-            if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
-                sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
-            fi
+    if ((ret==0)); then # Electrs enabled
+        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
         fi
-
-        # Mark as fresh install
-        touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
 
     . dojo.sh upgrade --nolog --auto

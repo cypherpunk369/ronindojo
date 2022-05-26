@@ -56,7 +56,6 @@ if (($?==2)); then
             fi
         elif [ "${dojo_indexer}" = "electrs" ]; then
             bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-            touch "$HOME"/.config/RoninDojo/data/electrs.install
         else
             _print_error_message "Incorrect value set for \$dojo_indexer: ${dojo_indexer}"
             _print_error_message "Check your user.conf file"
@@ -69,7 +68,6 @@ elif (($?==0)); then # Found electrs previous install.
     _set_indexer
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
     sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
-    touch "$HOME"/.config/RoninDojo/data/electrs.install
 
 elif (($?==1)); then # found addrindexrs previous install
     _set_indexer 
