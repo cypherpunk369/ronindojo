@@ -1145,6 +1145,23 @@ _uninstall_electrs_indexer() {
 }
 
 #
+# Checks salvaged data for which indexer is used
+#
+_check_salvage_db() {     
+    if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+        return 0 
+        # returns electrs prior install.
+    elif sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
+        return 1
+        # returns addrindexrs prior install.
+    else 
+        return 2
+        # returns no prior install found
+    fi
+}
+
+
+#
 # Checks what indexer is set if any
 #
 _check_indexer() {
@@ -2003,6 +2020,10 @@ _dojo_data_indexer() {
                     fi
 
                     if sudo test -d "${dojo_backup_indexer}"/db; then
+                        if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+                            sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
+                        fi
+                        # if addrindexrs dir is found then move it.
                         sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
                     fi
 
@@ -2040,6 +2061,10 @@ _dojo_data_indexer() {
 
                 if sudo test -d "${docker_volume_indexer}"/_data/db; then
                     sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
+                fi
+
+                if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
+                    sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
                 fi
 
                 # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script

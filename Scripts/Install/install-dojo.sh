@@ -40,23 +40,32 @@ _print_message "Setting the RPC User and Password..."
 _restore_or_create_dojo_confs
 
 
-_check_indexer
+_check_salvage_db
 
 if (($?==2)); then
-    # No indexer found, fresh install
+    # No indexer found or fresh install
     # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
+    # default set in defaults.sh
     _set_indexer
 
-    # Enable Samourai indexer
     if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-        _uninstall_electrs_indexer
-
-        _set_indexer
+        if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+            sudo rm -rf "${dojo_backup_indexer}"/_data/db/bitcoin
+        fi
     else
         bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-
         touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
+
+elif (($?==0)); then # Found electrs previous install.
+    _set_indexer
+    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+    sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet
+    touch "$HOME"/.config/RoninDojo/data/electrs.install
+    # checks for electrs 0.8.x db and deletes if it was previously used)
+
+elif (($?==1)); then # found addrindexrs previous install
+    _set_indexer 
 fi
 
 _print_message "Please see Wiki for FAQ, help, and so much more..."
