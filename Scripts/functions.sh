@@ -444,30 +444,6 @@ _is_active() {
 }
 
 #
-# Tor credentials backup
-#
-_tor_backup() {
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
-
-    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
-    fi
-}
-
-#
-# Tor credentials restore
-#
-_tor_restore() {
-    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
-
-        _print_message "Tor credentials backup detected and restored..."
-        _print_message "If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file..."
-        _sleep 3
-    fi
-}
-
-#
 # Setup torrc
 #
 _setup_tor() {
@@ -2058,6 +2034,30 @@ _dojo_data_bitcoind_backup() {
             sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
         fi
     done
+}
+
+#
+# Tor credentials backup
+#
+_tor_backup() {
+    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
+
+    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
+        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
+    fi
+}
+
+#
+# Tor credentials restore
+#
+_tor_restore() {
+    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
+        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
+
+        _print_message "Tor credentials backup detected and restored..."
+        _print_message "If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file..."
+        _sleep 3
+    fi
 }
 
 #
