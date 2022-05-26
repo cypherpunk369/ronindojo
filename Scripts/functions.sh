@@ -2014,16 +2014,9 @@ _dojo_data_indexer_restore() {
             sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
         fi
 
-        # changes to dojo path, otherwise exit
-        # websearch "bash Logical OR (||)" for info
-        # stops dojo and removes new data directories
-        # then moves salvaged indexer data
-
         _print_message "Indexer data restore completed..."
         sudo rm -rf "${dojo_backup_indexer}"
-        # remove old salvage directories
     fi
-    # check for indexer db data directory, if not found continue
 }
 
 #
@@ -2042,8 +2035,6 @@ _dojo_data_indexer_backup() {
     if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
         sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
     fi
-
-    # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script
 }
 
 #
@@ -2066,17 +2057,11 @@ _dojo_data_bitcoind_restore() {
                 sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
             fi
         done
-        # changes to dojo path, otherwise exit
-        # websearch "bash Logical OR (||)" for info
-        # stops dojo and removes new data directories
-        # then moves salvaged block data
 
         _print_message "Blockchain data restore completed..."
 
         sudo rm -rf "${dojo_backup_bitcoind}"
-        # remove old salvage directories
     fi
-    # check for IBD data, if not found continue
 }
 
 #
@@ -2086,14 +2071,12 @@ _dojo_data_bitcoind_backup() {
     _load_user_conf
 
     test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
-    # check if salvage directory exist
 
     for dir in blocks chainstate indexes; do
         if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
             sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
         fi
     done
-    # moves blockchain data to ${dojo_backup_bitcoind} to be used by the dojo install script
 }
 
 #
