@@ -68,9 +68,9 @@ if (($?==2)); then
 elif (($?==0)); then # Found electrs previous install.
     _set_indexer
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet
+    sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
     touch "$HOME"/.config/RoninDojo/data/electrs.install
-    
+
 elif (($?==1)); then # found addrindexrs previous install
     _set_indexer 
 fi
