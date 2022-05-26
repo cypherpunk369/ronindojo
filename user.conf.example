@@ -65,6 +65,7 @@
 # Indexer Override #
 ####################
 
+# Possible values are: "samourai-indexer", "electrs", "none"
 #dojo_indexer="samourai-indexer"
 
 ##############################

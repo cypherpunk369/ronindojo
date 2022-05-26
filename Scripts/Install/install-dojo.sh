@@ -46,15 +46,23 @@ if (($?==2)); then
     # No indexer found or fresh install
     # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
     # default set in defaults.sh
-    _set_indexer
 
-    if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-        if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
-            sudo rm -rf "${dojo_backup_indexer}"/_data/db/bitcoin
+    if [ "${dojo_indexer}" != "none" ]; then
+        _set_indexer
+
+        if [ "${dojo_indexer}" = "samourai-indexer" ]; then
+            if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+                sudo rm -rf "${dojo_backup_indexer}"/_data/db/bitcoin
+            fi
+        elif [ "${dojo_indexer}" = "electrs" ]; then
+            bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+            touch "$HOME"/.config/RoninDojo/data/electrs.install
+        else
+            _print_error_message "Incorrect value set for \$dojo_indexer: ${dojo_indexer}"
+            _print_error_message "Check your user.conf file"
+            [ $# -eq 0 ] && _pause exit
+            exit 1
         fi
-    else
-        bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-        touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
 
 elif (($?==0)); then # Found electrs previous install.
@@ -62,8 +70,7 @@ elif (($?==0)); then # Found electrs previous install.
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
     sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet
     touch "$HOME"/.config/RoninDojo/data/electrs.install
-    # checks for electrs 0.8.x db and deletes if it was previously used)
-
+    
 elif (($?==1)); then # found addrindexrs previous install
     _set_indexer 
 fi
