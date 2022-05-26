@@ -2016,7 +2016,6 @@ _dojo_data_bitcoind_restore() {
         done
 
         _print_message "Blockchain data restore completed..."
-
         sudo rm -rf "${dojo_backup_bitcoind}"
     fi
 }
@@ -2054,9 +2053,8 @@ _tor_restore() {
     if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
         sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
 
-        _print_message "Tor credentials backup detected and restored..."
-        _print_message "If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file..."
-        _sleep 3
+        _print_message "Tor restore completed..."
+        sudo rm -rf "${tor_backup_dir}"
     fi
 }
 
