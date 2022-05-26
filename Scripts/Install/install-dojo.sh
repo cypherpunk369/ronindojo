@@ -70,18 +70,21 @@ if ! ./dojo.sh install --nolog --auto; then
     exit
 fi
 
-_print_message "Any previous node data will now be salvaged if you choose to continue..."
-[ $# -eq 0 ] && _pause continue
+if $dojo_data_bitcoind_backup && $dojo_data_indexer_backup && $tor_backup; then
 
-_stop_dojo
+    _print_message "Any previous node data will now be salvaged if you choose to continue..."
+    [ $# -eq 0 ] && _pause continue
 
-"${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_restore
-"${dojo_data_indexer_backup}" && _dojo_data_indexer_restore
-"${tor_backup}" && _tor_restore
+    _stop_dojo
 
-./dojo.sh start
+    $dojo_data_bitcoind_backup && _dojo_data_bitcoind_restore
+    $dojo_data_indexer_backup && _dojo_data_indexer_restore
+    $tor_backup && _tor_restore
+
+    ./dojo.sh start
+
+fi
 
 _print_message "All RoninDojo feature installations complete!"
-
 
 [ $# -eq 0 ] && _pause return
