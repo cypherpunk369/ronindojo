@@ -47,18 +47,17 @@ if (($?==2)); then
     # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
     # default set in defaults.sh
 
-    if [ "${dojo_indexer}" != "none" ]; then
+    if [ "${dojo_indexer}" == "none" ]; then
+    if [ "${dojo_indexer}" = "samourai-indexer" ]; then
         _set_indexer
-
-        if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-        elif [ "${dojo_indexer}" = "electrs" ]; then
-            bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-        else
-            _print_error_message "Incorrect value set for \$dojo_indexer: ${dojo_indexer}"
-            _print_error_message "Check your user.conf file"
-            [ $# -eq 0 ] && _pause exit
-            exit 1
-        fi
+    elif [ "${dojo_indexer}" = "electrs" ]; then
+        _set_indexer
+        bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+    else
+        _print_error_message "Incorrect value set for \$dojo_indexer: ${dojo_indexer}"
+        _print_error_message "Check your user.conf file"
+        [ $# -eq 0 ] && _pause exit
+        exit 1
     fi
     
     sudo rm -rf "${dojo_backup_indexer}"
