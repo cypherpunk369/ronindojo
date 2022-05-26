@@ -39,36 +39,20 @@ _print_message "Setting the RPC User and Password..."
 
 _restore_or_create_dojo_confs
 
+_set_indexer
 
 _check_salvage_db
 
-if (($?==2)); then
-    # No indexer found or fresh install
-    # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
-    # default set in defaults.sh
-
-    if [ "${dojo_indexer}" == "none" ]; then
-    if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-        _set_indexer
-    elif [ "${dojo_indexer}" = "electrs" ]; then
-        _set_indexer
-        bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    else
-        _print_error_message "Incorrect value set for \$dojo_indexer: ${dojo_indexer}"
-        _print_error_message "Check your user.conf file"
-        [ $# -eq 0 ] && _pause exit
-        exit 1
-    fi
+if (($?==2)); then # No indexer found or fresh install
     
+    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
     sudo rm -rf "${dojo_backup_indexer}"
 
 elif (($?==0)); then # Found electrs previous install.
-    _set_indexer
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
     sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
 
-elif (($?==1)); then # found addrindexrs previous install
-    _set_indexer 
+elif (($?==1)); then # found addrindexrs previous install 
 fi
 
 _print_message "Please see Wiki for FAQ, help, and so much more..."

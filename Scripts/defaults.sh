@@ -184,7 +184,3 @@ roninui_version_file="https://ronindojo.io/downloads/RoninUI/version.json"
 if [ "$roninui_version_staging" = true ]; then
     roninui_version_file="https://ronindojo.io/downloads/RoninUI/version-staging.json"
 fi
-
-# Ronin Default Indexer
-
-dojo_indexer="electrs"
