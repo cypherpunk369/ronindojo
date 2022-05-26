@@ -6,11 +6,8 @@
 
 _load_user_conf
 
-if [ ! -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then # new install
-    . "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf.tpl
-else # existing install so load
-    . "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
-fi
+. "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
+
 # Retrieve bitcoind RPC credentials
 
 cat <<EOF > "${dojo_path_my_dojo}"/indexer/electrs.toml
