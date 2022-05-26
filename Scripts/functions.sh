@@ -1995,131 +1995,133 @@ EOF
 }
 
 #
-# Indexer data backup/restore
+# Indexer data restore
 #
-_dojo_data_indexer() {
+_dojo_data_indexer_restore() {
     _load_user_conf
 
-    case "$1" in
-        restore)
-            if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
-                cd "$dojo_path_my_dojo" || exit
-                _dojo_check && _stop_dojo
+    if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
+        cd "$dojo_path_my_dojo" || exit
+        _dojo_check && _stop_dojo
 
-                if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                    sudo rm -rf "${docker_volume_indexer}"/_data/db
-                fi
+        if sudo test -d "${docker_volume_indexer}"/_data/db; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db
+        fi
 
-                if sudo test -d "${dojo_backup_indexer}"/db; then
-                    if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
-                        sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
-                    fi
-                    # if addrindexrs dir is found then move it.
-                    sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-                fi
-
-                # changes to dojo path, otherwise exit
-                # websearch "bash Logical OR (||)" for info
-                # stops dojo and removes new data directories
-                # then moves salvaged indexer data
-
-                _print_message "Indexer data restore completed..."
-                sudo rm -rf "${dojo_backup_indexer}"
-                # remove old salvage directories
-
-                cd "$dojo_path_my_dojo" || exit
-                _source_dojo_conf
-                _print_message "Starting dojo..."
-                ./dojo.sh start
-                # start dojo
+        if sudo test -d "${dojo_backup_indexer}"/db; then
+            if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+                sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
             fi
-            # check for indexer db data directory, if not found continue
+            # if addrindexrs dir is found then move it.
+            sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
+        fi
 
-            if ! _dojo_check; then
-                cd "$dojo_path_my_dojo" || exit
-                _source_dojo_conf
+        # changes to dojo path, otherwise exit
+        # websearch "bash Logical OR (||)" for info
+        # stops dojo and removes new data directories
+        # then moves salvaged indexer data
 
-                # Start docker containers
-                ./dojo.sh start
-                # start dojo
-            fi
+        _print_message "Indexer data restore completed..."
+        sudo rm -rf "${dojo_backup_indexer}"
+        # remove old salvage directories
 
-            ;;
-        backup)
-            test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-            # check if salvage directory exist
+        cd "$dojo_path_my_dojo" || exit
+        _source_dojo_conf
+        _print_message "Starting dojo..."
+        ./dojo.sh start
+        # start dojo
+    fi
+    # check for indexer db data directory, if not found continue
 
-            if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
-            fi
+    if ! _dojo_check; then
+        cd "$dojo_path_my_dojo" || exit
+        _source_dojo_conf
 
-            if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
-                sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
-            fi
-
-            # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script
-            ;;
-    esac
-}
+        # Start docker containers
+        ./dojo.sh start
+        # start dojo
+    fi
 }
 
 #
-# Bitcoin IBD backup/restore
+# Indexer data backup
 #
-_dojo_data_bitcoind() {
+_dojo_data_indexer_backup() {
     _load_user_conf
 
-    case "$1" in
-        restore)
-            if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
-                _print_message "Blockchain data restore starting..."
+    test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
+    # check if salvage directory exist
 
-                cd "$dojo_path_my_dojo" || exit
-                _dojo_check && _stop_dojo
+    if sudo test -d "${docker_volume_indexer}"/_data/db; then
+        sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
+    fi
 
-                for dir in blocks chainstate indexes; do
-                    if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                        sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
-                    fi
-                done
+    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
+        sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
+    fi
 
-                for dir in blocks chainstate indexes; do
-                    if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
-                        sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
-                    fi
-                done
-                # changes to dojo path, otherwise exit
-                # websearch "bash Logical OR (||)" for info
-                # stops dojo and removes new data directories
-                # then moves salvaged block data
+    # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script
+}
 
-                _print_message "Blockchain data restore completed..."
+#
+# Bitcoin IBD restore
+#
+_dojo_data_bitcoind_restore() {
+    _load_user_conf
 
-                sudo rm -rf "${dojo_backup_bitcoind}"
-                # remove old salvage directories
+    if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
+        _print_message "Blockchain data restore starting..."
 
-                if ! "${dojo_data_indexer_backup}"; then
-                    cd "$dojo_path_my_dojo" || exit
-                    _source_dojo_conf
-                    _print_message "Starting Dojo..."
-                    ./dojo.sh start
-                fi
-                # Only start dojo if no indexer restore is enabled
+        cd "$dojo_path_my_dojo" || exit
+        _dojo_check && _stop_dojo
+
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+                sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
             fi
-            # check for IBD data, if not found continue
-            ;;
-        backup)
-            test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
-            # check if salvage directory exist
+        done
 
-            for dir in blocks chainstate indexes; do
-                if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                    sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
-                fi
-            done
-            # moves blockchain data to ${dojo_backup_bitcoind} to be used by the dojo install script
-            ;;
-    esac
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
+                sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
+            fi
+        done
+        # changes to dojo path, otherwise exit
+        # websearch "bash Logical OR (||)" for info
+        # stops dojo and removes new data directories
+        # then moves salvaged block data
+
+        _print_message "Blockchain data restore completed..."
+
+        sudo rm -rf "${dojo_backup_bitcoind}"
+        # remove old salvage directories
+
+        if ! "${dojo_data_indexer_backup}"; then
+            cd "$dojo_path_my_dojo" || exit
+            _source_dojo_conf
+            _print_message "Starting Dojo..."
+            ./dojo.sh start
+        fi
+        # Only start dojo if no indexer restore is enabled
+    fi
+    # check for IBD data, if not found continue
+}
+
+#
+# Bitcoin IBD backup
+#
+_dojo_data_bitcoind_backup() {
+    _load_user_conf
+
+    test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
+    # check if salvage directory exist
+
+    for dir in blocks chainstate indexes; do
+        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+            sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
+        fi
+    done
+    # moves blockchain data to ${dojo_backup_bitcoind} to be used by the dojo install script
 }
 
 #
