@@ -125,11 +125,6 @@ if check_swap "${storage_mount}/swapfile"; then
 fi
 sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
 
-if findmnt "${storage_mount}" 1>/dev/null; then
-    sudo umount "${storage_mount}"
-    sudo rmdir "${storage_mount}" &>/dev/null
-fi
-
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
     _print_message "Mounting drive..."

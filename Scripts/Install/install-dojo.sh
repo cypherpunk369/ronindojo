@@ -81,6 +81,11 @@ if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
     $dojo_data_indexer_backup && _dojo_data_indexer_restore
     $tor_backup && _tor_restore
 
+    if findmnt "${storage_mount}" 1>/dev/null; then
+        sudo umount "${storage_mount}"
+        sudo rmdir "${storage_mount}" &>/dev/null
+    fi
+
     ./dojo.sh start
 
 fi
