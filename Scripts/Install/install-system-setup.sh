@@ -113,6 +113,9 @@ if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
     if [ -d "${storage_mount}/${indexer_data_dir}/_data/db" ]; then
         test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
         sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+        if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
+            sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
+        fi
     fi
     _print_message "Blockchain data prepared for salvage!"
 fi
