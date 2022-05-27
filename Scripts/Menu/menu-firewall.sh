@@ -9,9 +9,10 @@ OPTIONS=(1 "Enable"
          3 "Status"
          4 "Delete Rule"
          5 "Reload"
-         6 "Add Specific IP for SSH"
-         7 "Next Page"
-         8 "Go Back")
+         6 "Add IP Range for SSH"
+         7 "Add Specific IP for SSH"
+         8 "Next Page"
+         9 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -137,6 +138,35 @@ EOF
             # reload firewall, press any key to return to menu
             ;;
         6)
+            _print_message "Obtain the IP address of any machine on the same local network as your RoninDojo..."
+            _sleep
+            _print_message "The IP address entered will be adapted to end with .0/24 range..."
+            _sleep
+            _print_message "This will allow any machine on the same network to have SSH access..."
+            _sleep
+            _print_message "Your IP address on the network may look like 192.168.4.21 or 12.34.56.78 depending on setup..."
+            _sleep
+            _print_message "Enter the local IP address you wish to give SSH access now..."
+            _sleep
+
+            read -rp 'Local IP Address: ' ip_address
+            sudo ufw allow from "$ip_address"/24 to any port 22 comment 'SSH access restricted to local network'
+
+            _print_message "Reloading..."
+            sudo ufw reload
+            
+            _print_message "Showing status..."
+            _sleep
+            sudo ufw status
+
+            _print_message "Make sure that you see your new rule!"
+            _sleep
+
+            _pause return
+            bash -c "${ronin_firewall_menu}"
+            exit
+            ;;
+        7)
             cat <<EOF
 ${red}
 ***
@@ -209,11 +239,11 @@ EOF
             bash -c "${ronin_firewall_menu}"
             # press any key to return to menu
             ;;
-        7)
+        8)
             bash -c "${ronin_firewall_menu2}"
             # go to next menu page
             ;;
-        8)
+        9)
             bash -c "${ronin_system_menu2}"
             # return system menu page 2
             ;;
