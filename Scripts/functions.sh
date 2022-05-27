@@ -2039,10 +2039,10 @@ _dojo_data_bitcoind_backup() {
 # Tor credentials backup
 #
 _tor_backup() {
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
+    test -d "${dojo_backup_tor}" || sudo mkdir -p "${dojo_backup_tor}"
 
     if sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
+        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${dojo_backup_tor}"
     fi
 }
 
@@ -2050,11 +2050,11 @@ _tor_backup() {
 # Tor credentials restore
 #
 _tor_restore() {
-    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
+    if sudo test -d "${dojo_backup_tor}"/_data/hsv3dojo; then
+        sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
 
         _print_message "Tor restore completed..."
-        sudo rm -rf "${tor_backup_dir}"
+        sudo rm -rf "${dojo_backup_tor}"
     fi
 }
 
