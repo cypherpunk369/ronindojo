@@ -102,10 +102,10 @@ EOF
         # stop dojo
 
         # Backup Bitcoin Blockchain Data
-        "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind backup
+        "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_backup
 
         # Backup Indexer Data
-        "${dojo_data_indexer_backup}" && _dojo_data_indexer backup
+        "${dojo_data_indexer_backup}" && _dojo_data_indexer_backup
 
         cat <<EOF
 ${red}

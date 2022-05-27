@@ -444,49 +444,6 @@ _is_active() {
 }
 
 #
-# Tor credentials backup
-#
-_tor_backup() {
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
-
-    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
-        return 0
-    fi
-
-    return 1
-}
-
-#
-# Tor credentials restore
-#
-_tor_restore() {
-    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
-        cat <<EOF
-${red}
-***
-Tor credentials backup detected and restored...
-***
-${nc}
-EOF
-_sleep
-
-        cat <<EOF
-${red}
-***
-If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file...
-***
-${nc}
-EOF
-_sleep 3
-        return 0
-    fi
-
-    return 1
-}
-
-#
 # Setup torrc
 #
 _setup_tor() {
@@ -1145,6 +1102,23 @@ _uninstall_electrs_indexer() {
 }
 
 #
+# Checks salvaged data for which indexer is used
+#
+_check_salvage_db() {     
+    if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+        return 0 
+        # returns electrs prior install.
+    elif sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
+        return 1
+        # returns addrindexrs prior install.
+    else 
+        return 2
+        # returns no prior install found
+    fi
+}
+
+
+#
 # Checks what indexer is set if any
 #
 _check_indexer() {
@@ -1383,20 +1357,13 @@ EOF
     _dojo_check && _stop_dojo
     cd "${dojo_path_my_dojo}" || exit
 
-    # Delete existing electrs mainnet directory if upgrading
-    if [ ! -f "$HOME"/.config/RoninDojo/data/electrs.install ]; then
-        # Show Indexer Install State
-        _check_indexer
-        ret=$?
+    _check_indexer
+    ret=$?
 
-        if ((ret==0)); then # Electrs enabled
-            if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
-                sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
-            fi
+    if ((ret==0)); then # Electrs enabled
+        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
         fi
-
-        # Mark as fresh install
-        touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
 
     . dojo.sh upgrade --nolog --auto
@@ -1681,44 +1648,13 @@ _disable_bluetooth() {
 }
 
 #
-# Check fs type
-# Shows the filesystem type of a giving partition
-#
-check_fstype() {
-    local type device="${1}"
-
-    type="$(lsblk -f "${device}" | tail -1 | awk '{print$2}')"
-
-    echo "${type}"
-}
-
-#
 # Create fs
-# TODO add btrfs support
 #
-create_fs() {
-    local supported_filesystems=("ext2" "ext3" "ext4" "xfs") fstype="ext4"
+_create_fs() {
+    local fstype="ext4"
 
-    # Parse Arguments
     while [ $# -gt 0 ]; do
         case "$1" in
-            --fstype|-fs)
-                if [[ ! "${supported_filesystems[*]}" =~ ${2} ]]; then
-                    cat <<EOF
-${red}
-***
-Error: unsupported filesystem type ${2}
-Available options are: ${supported_filesystems[@]}
-Exiting!
-***
-${nc}
-EOF
-                    return 1
-                else
-                    local fstype="$2"
-                    shift 2
-                fi
-                ;;
             --label|-L)
                 local label="$2"
                 shift 2
@@ -1731,62 +1667,26 @@ EOF
                 local mountpoint="$2"
                 shift 2
                 ;;
-            -*|--*=) # unsupported flags
-                echo "Error: Unsupported flag $1" >&2
+            *) # unsupported flags
+                echo "Error: Unsupported argument $1" >&2
                 exit 1
                 ;;
         esac
     done
 
-    # Create mount point directory if not available
     if [ ! -d "${mountpoint}" ]; then
-        cat <<EOF
-${red}
-***
-Creating ${mountpoint} directory...
-***
-${nc}
-EOF
         sudo mkdir -p "${mountpoint}" || return 1
-    elif findmnt "${device}" 1>/dev/null; then # Is device already mounted?
-        # Make sure to stop tor and docker when mount point is ${install_dir}
-        if [ "${mountpoint}" = "${install_dir}" ]; then
-            for x in tor docker; do
-                sudo systemctl stop --quiet "${x}"
-            done
-
-            # Stop swap on mount point
-            if check_swap "${install_dir_swap}"; then
-                test -f "${install_dir_swap}" && sudo swapoff "${install_dir_swap}"
-            fi
+    elif findmnt "${device}" 1>/dev/null; then
+        if ! sudo umount "${device}"; then
+            _print_error_message "Could not prepare device ${device} for formatting, was likely still in use"
+            exit
         fi
-
-        sudo umount -l "${device}"
     fi
 
-    # This quick hack checks if device is either a SSD device or a NVMe device
     [[ "${device}" =~ "sd" ]] && _device="${device%?}" || _device="${device%??}"
-
-    # wipe labels
     sudo wipefs -a --force "${_device}" 1>/dev/null
-
-    # Create a partition table with a single partition that takes the whole disk
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
-
-    cat <<EOF
-${red}
-***
-Using ${fstype} filesystem format for ${device} partition...
-***
-${nc}
-EOF
-
-    # Create filesystem
-    if [[ $fstype =~ 'ext' ]]; then
-        sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
-    elif [[ $fstype =~ 'xfs' ]]; then
-        sudo mkfs."${fstype}" -L "${label}" "${device}" 1>/dev/null || return 1
-    fi
+    sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
 
     # Sleep here ONLY, don't ask me why ask likewhoa!
     _sleep 5
@@ -1796,21 +1696,8 @@ EOF
     uuid=$(lsblk -no UUID "${device}")      # UUID of device
     local tmp=${mountpoint:1}               # Remove leading '/'
     local systemd_mountpoint=${tmp////-}    # Replace / with -
-
-    # Check if drive unit file was previously created
-    if [ -f /etc/systemd/system/"${systemd_mountpoint}".mount ]; then
-        systemd_mount=true
-    fi
-
-    if ! grep "${uuid}" /etc/systemd/system/"${systemd_mountpoint}".mount &>/dev/null; then
-        cat <<EOF
-${red}
-***
-Adding device ${device} to systemd.mount unit file
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
+    
+    sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
 [Unit]
 Description=Mount External SSD Drive ${device}
 
@@ -1822,25 +1709,13 @@ Options=defaults
 
 [Install]
 WantedBy=multi-user.target
-EOF"
-        # Mount filesystem
-        cat <<EOF
-${red}
-***
-Mounting ${device} to ${mountpoint}
-***
-${nc}
 EOF
-    fi
 
-    if $systemd_mount; then
-        sudo systemctl daemon-reload
-    fi
-
+    sudo systemctl daemon-reload
     sudo systemctl start --quiet "${systemd_mountpoint}".mount || return 1
     sudo systemctl enable --quiet "${systemd_mountpoint}".mount || return 1
-    # mount drive to ${mountpoint} using systemd.mount
 
+    _print_message "Mounted ${device} to ${mountpoint}"
 
     return 0
 }
@@ -2077,174 +1952,110 @@ EOF
 }
 
 #
-# Indexer data backup/restore
+# Indexer data restore
 #
-_dojo_data_indexer() {
+_dojo_data_indexer_restore() {
     _load_user_conf
 
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            restore)
-                if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
-                    cd "$dojo_path_my_dojo" || exit
-                    _dojo_check && _stop_dojo
+    if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
 
-                    _sleep
+        if sudo test -d "${docker_volume_indexer}"/_data/db; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db
+        fi
 
-                    if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                        sudo rm -rf "${docker_volume_indexer}"/_data/db
-                    fi
+        if sudo test -d "${dojo_backup_indexer}"/db; then
+            if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+                sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
+            fi
+            # if addrindexrs dir is found then move it.
+            sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
+        fi
 
-                    if sudo test -d "${dojo_backup_indexer}"/db; then
-                        sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-                    fi
+        _print_message "Indexer data restore completed..."
+        sudo rm -rf "${dojo_backup_indexer}"
+    fi
+}
 
-                    # changes to dojo path, otherwise exit
-                    # websearch "bash Logical OR (||)" for info
-                    # stops dojo and removes new data directories
-                    # then moves salvaged indexer data
+#
+# Indexer data backup
+#
+_dojo_data_indexer_backup() {
+    _load_user_conf
 
-                    cat <<EOF
-${red}
-***
-Indexer data restore completed...
-***
-${nc}
-EOF
-                    _sleep
+    test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
+    # check if salvage directory exist
 
-                    sudo rm -rf "${dojo_backup_indexer}"
-                    # remove old salvage directories
+    if sudo test -d "${docker_volume_indexer}"/_data/db; then
+        sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
+    fi
 
-                    cd "$dojo_path_my_dojo" || exit
-                    _source_dojo_conf
+    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
+        sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
+    fi
+}
 
-                    cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                    # Start docker containers
-                    ./dojo.sh start
-                    # start dojo
-                fi
-                # check for indexer db data directory, if not found continue
+#
+# Bitcoin IBD restore
+#
+_dojo_data_bitcoind_restore() {
+    _load_user_conf
 
-                if ! _dojo_check; then
-                    cd "$dojo_path_my_dojo" || exit
-                    _source_dojo_conf
+    if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
+        _print_message "Blockchain data restore starting..."
 
-                    # Start docker containers
-                    ./dojo.sh start
-                    # start dojo
-                fi
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+                sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
+            fi
+        done
 
-                return 0
-                ;;
-            backup)
-                test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-                # check if salvage directory exist
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
+                sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
+            fi
+        done
 
-                if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                    sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
-                fi
+        _print_message "Blockchain data restore completed..."
+        sudo rm -rf "${dojo_backup_bitcoind}"
+    fi
+}
 
-                # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script
-                return 0
-                ;;
-        esac
+#
+# Bitcoin IBD backup
+#
+_dojo_data_bitcoind_backup() {
+    _load_user_conf
+
+    test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
+
+    for dir in blocks chainstate indexes; do
+        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+            sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
+        fi
     done
 }
 
 #
-# Bitcoin IBD backup/restore
+# Tor credentials backup
 #
-_dojo_data_bitcoind() {
-    _load_user_conf
+_tor_backup() {
+    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            restore)
-                if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
-                    cat <<EOF
-${red}
-***
-Blockchain data restore starting...
-***
-${nc}
-EOF
+    if sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
+        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
+    fi
+}
 
-                    cd "$dojo_path_my_dojo" || exit
-                    _dojo_check && _stop_dojo
+#
+# Tor credentials restore
+#
+_tor_restore() {
+    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
+        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
 
-                    _sleep
-
-                    for dir in blocks chainstate indexes; do
-                        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                            sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
-                        fi
-                    done
-
-                    for dir in blocks chainstate indexes; do
-                        if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
-                            sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
-                        fi
-                    done
-                    # changes to dojo path, otherwise exit
-                    # websearch "bash Logical OR (||)" for info
-                    # stops dojo and removes new data directories
-                    # then moves salvaged block data
-
-                    cat <<EOF
-${red}
-***
-Blockchain data restore completed...
-***
-${nc}
-EOF
-                    _sleep
-
-                    sudo rm -rf "${dojo_backup_bitcoind}"
-                    # remove old salvage directories
-
-                    if ! "${dojo_data_indexer_backup}"; then
-                        cd "$dojo_path_my_dojo" || exit
-                        _source_dojo_conf
-
-                        cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                        # Start docker containers
-                        ./dojo.sh start
-                        # start dojo
-                    fi
-                    # Only start dojo if no indexer restore is enabled
-                fi
-                # check for IBD data, if not found continue
-                return 0
-                ;;
-            backup)
-                test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
-                # check if salvage directory exist
-
-                for dir in blocks chainstate indexes; do
-                    if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                        sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
-                    fi
-                done
-                # moves blockchain data to ${dojo_backup_bitcoind} to be used by the dojo install script
-                return 0
-                ;;
-        esac
-    done
+        _print_message "Tor restore completed..."
+        sudo rm -rf "${tor_backup_dir}"
+    fi
 }
 
 #
