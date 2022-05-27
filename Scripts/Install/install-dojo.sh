@@ -70,7 +70,7 @@ if ! ./dojo.sh install --nolog --auto; then
     exit
 fi
 
-if $dojo_data_bitcoind_backup && $dojo_data_indexer_backup && $tor_backup; then
+if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
 
     _print_message "Any previous node data will now be salvaged if you choose to continue..."
     [ $# -eq 0 ] && _pause continue
