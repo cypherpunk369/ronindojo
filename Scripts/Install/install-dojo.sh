@@ -51,8 +51,6 @@ if (($?==2)); then # No indexer found or fresh install
 elif (($?==0)); then # Found electrs previous install.
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
     sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
-
-elif (($?==1)); then # found addrindexrs previous install 
 fi
 
 _print_message "Please see Wiki for FAQ, help, and so much more..."
