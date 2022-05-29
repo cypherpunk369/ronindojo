@@ -1,10 +1,19 @@
 #!/bin/bash
 # shellcheck disable=SC2154 source=/dev/null
 
+##############################
+# LOADING VARS AND FUNCTIONS #
+##############################
+
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
+
+
+##############
+# ASSERTIONS #
+##############
 
 if [ -d "$HOME"/dojo ]; then
     _print_message "Dojo directory found, please uninstall Dojo first!"
@@ -22,6 +31,11 @@ elif [ -f "${ronin_data_dir}"/system-install ]; then
     exit
 fi
 
+
+####################
+# INSTRUCTING USER #
+####################
+
 _print_message "Setting up system and installing dependencies..."
 _sleep
 
@@ -33,6 +47,11 @@ _sleep 3 --msg "Installing in"
 
 test -f /etc/motd && sudo rm /etc/motd
 
+
+##################################
+# DISABLING UNNECESSARY SERVICES #
+##################################
+
 if _disable_bluetooth; then
     _print_message "Disabling Bluetooth..."
 fi
@@ -40,6 +59,11 @@ fi
 if _disable_ipv6; then
     _print_message "Disabling Ipv6..."
 fi
+
+
+#######################
+# FIXING DEPENDENCIES #
+#######################
 
 _pacman_update_mirrors
 
@@ -57,6 +81,11 @@ if ! pacman -Q libusb 1>/dev/null; then
     _print_message "Installing libusb..."
     sudo pacman --quiet -S --noconfirm libusb
 fi
+
+
+###############################
+# SETTING UP SECURITY PROFILE #
+###############################
 
 # Configure faillock
 # https://man.archlinux.org/man/faillock.conf.5
@@ -87,16 +116,31 @@ _print_message "Leaving this setting default is NOT RECOMMENDED for users who ar
 _print_message "Firewall rules can be adjusted using the RoninDojo Firewall Menu."
 _print_message "All Dojo dependencies installed..."
 
+
+#######################################
+# STORAGE DEVICES SETUP: LOADING VARS #
+#######################################
+
 _nvme_check && _load_user_conf
 
 _print_message "Creating ${install_dir} directory..."
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
+
+
+#####################################
+# STORAGE DEVICES SETUP: ASSERTIONS #
+#####################################
 
 if [ ! -b "${primary_storage}" ]; then
     _print_error_message "device ${primary_storage} not found!"
     [ $# -eq 0 ] && _pause return
     exit
 fi
+
+
+##################################
+# STORAGE DEVICES SETUP: SALVAGE #
+##################################
 
 _print_message "Creating ${storage_mount} directory..."
 test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
@@ -120,10 +164,20 @@ if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
     _print_message "Blockchain data prepared for salvage!"
 fi
 
+
+##########################################
+# STORAGE DEVICES SETUP: SALVAGE CLEANUP #
+##########################################
+
 if check_swap "${storage_mount}/swapfile"; then
     test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
 fi
 sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
+
+
+#######################################################
+# STORAGE DEVICES SETUP: MOUNT EXISTING OR FORMAT NEW #
+#######################################################
 
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
@@ -141,6 +195,11 @@ else
     fi
 fi
 
+
+###########################################
+# STORAGE DEVICES SETUP: USER INTERACTION #
+###########################################
+
 _print_message "Displaying the name on the external disk..."
 lsblk -o NAME,SIZE,LABEL "${primary_storage}"
 _sleep
@@ -148,11 +207,21 @@ _sleep
 _print_message "Check output for ${primary_storage} and make sure everything looks ok..."
 df -h "${primary_storage}"
 
+
+#########################################
+# STORAGE DEVICES SETUP: SYSTEMS CONFIG #
+#########################################
+
 _swap_size
 create_swap --file "${install_dir_swap}" --count "${_size}"
 
 _setup_tor
 _docker_datadir_setup
+
+
+#######################
+# INSTALLING TOOLSETS #
+#######################
 
 _print_message "Installing Ronin UI..."
 _ronin_ui_install
@@ -162,6 +231,11 @@ _print_message "Installing Boltzmann Calculator..."
 _install_boltzmann
 _print_message "Installing Whirlpool Stat Tool..."
 _install_wst
+
+
+#######################
+# INSTALLING FINALIZE #
+#######################
 
 _create_dir "${ronin_data_dir}"
 touch "${ronin_data_dir}"/system-install
