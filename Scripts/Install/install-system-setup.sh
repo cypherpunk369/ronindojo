@@ -201,7 +201,7 @@ sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
     _print_message "Found Blockchain data backup!"
     _print_message "Mounting drive..."
-    findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
+    sudo mount "${primary_storage}" "${install_dir}"
 
 else
     _print_message "No Blockchain data found for salvage..."
