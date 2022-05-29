@@ -151,17 +151,36 @@ if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
 
     _print_message "Found Blockchain data for salvage!"
     _print_message "Moving to data backup"
-
     test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
+
     sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
-    if [ -d "${storage_mount}/${indexer_data_dir}/_data/db" ]; then
-        test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
-        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
-        if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
-            sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
-        fi
-    fi
+
     _print_message "Blockchain data prepared for salvage!"
+fi
+
+if sudo test -d "${storage_mount}/${indexer_data_dir}/_data/db"; then
+
+    _print_message "Found Indexer data for salvage!"
+    _print_message "Moving to data backup"
+    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+
+    sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+    if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
+        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
+    fi
+
+    _print_message "Indexer data prepared for salvage!"
+fi
+
+if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
+
+    _print_message "Found Tor data for salvage!"
+    _print_message "Moving to data backup"
+    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
+
+    sudo cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null
+
+    _print_message "Tor data prepared for salvage!"
 fi
 
 

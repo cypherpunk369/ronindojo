@@ -132,6 +132,8 @@ storage_mount="/mnt/backup"
 
 bitcoin_ibd_backup_dir="${storage_mount}/backup/bitcoin"
 indexer_backup_dir="${storage_mount}/backup/indexer"
+tor_backup_dir="${storage_mount}/backup/tor"
+
 install_dir="/mnt/usb"
 install_dir_tor="${install_dir}/tor"
 install_dir_swap="${install_dir}/swapfile"
