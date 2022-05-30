@@ -22,9 +22,6 @@ test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 # Uninstall legacy Ronin UI
 test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17
 
-# Create mnt-usb.mount if missing and system is already mounted.
-test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08
-
 # Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
 test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
 
