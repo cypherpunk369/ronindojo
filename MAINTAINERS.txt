@@ -19,6 +19,7 @@ Website:
     - @OrangedMike
     - @pajasevi
     - @BrotherRabbit
+    - @Din_J7
 
 Ronin UI:
     - @pajasevi
@@ -29,6 +30,7 @@ Documentation:
     - @BitcoinQnA
     - @s2l1
     - @OrangedMike
+    - @heady_wook
 
 Quality Assurance:
     - @BrotherRabbit
@@ -37,6 +39,7 @@ Quality Assurance:
     - @dammkewl
     - @kycfree
     - @Numbers
+    - @heady_wook
 
 Translation:
     - @OrangedMike
