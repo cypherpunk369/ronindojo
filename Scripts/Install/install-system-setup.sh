@@ -1,657 +1,262 @@
 #!/bin/bash
 # shellcheck disable=SC2154 source=/dev/null
 
+##############################
+# LOADING VARS AND FUNCTIONS #
+##############################
+
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
 
+
+##############
+# ASSERTIONS #
+##############
+
 if [ -d "$HOME"/dojo ]; then
-    cat <<EOF
-${red}
-***
-Dojo directory found, please uninstall Dojo first!
-***
-${nc}
-EOF
-    _sleep
-
-    [ $# -eq 0 ] && _pause return
-    bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
+    _print_message "Dojo directory found, please uninstall Dojo first!"
+    if [ $# -eq 0 ]; then
+        _pause return
+        bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
+    fi
+    exit
 elif [ -f "${ronin_data_dir}"/system-install ]; then
-    cat <<EOF
-${red}
-***
-Previous system install detected. Exiting script...
-***
-${nc}
-EOF
-    [ $# -eq 0 ] && _pause return
-    bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
-else
-    # Automatically set primary_storage for nvme capable hardware
-    _nvme_check && _load_user_conf
-
-    cat <<EOF
-${red}
-***
-Setting up system and installing dependencies...
-***
-${nc}
-EOF
+    _print_message "Previous system install detected. Exiting script..."
+    if [ $# -eq 0 ]; then
+        _pause return
+        bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
+    fi
+    exit
 fi
-_sleep
-# checks for "$HOME"/dojo directory, if found kicks back to menu
 
-cat <<EOF
-${red}
-***
-Use Ctrl+C to exit now if needed!
-***
-${nc}
-EOF
-_sleep 10 --msg "Installing in"
+
+####################
+# INSTRUCTING USER #
+####################
+
+_print_message "Setting up system and installing dependencies..."
+_sleep
+
+_print_message "Use Ctrl+C to exit now if needed!"
+_sleep 3 --msg "Installing in"
 
 "$HOME"/RoninDojo/Scripts/.logo
 # display ronindojo logo
 
 test -f /etc/motd && sudo rm /etc/motd
-# remove ssh banner for the script logo
+
+
+##################################
+# DISABLING UNNECESSARY SERVICES #
+##################################
 
 if _disable_bluetooth; then
-    cat <<EOF
-${red}
-***
-Disabling Bluetooth...
-***
-${nc}
-EOF
+    _print_message "Disabling Bluetooth..."
 fi
-# disable bluetooth, see functions.sh
 
 if _disable_ipv6; then
-    cat <<EOF
-${red}
-***
-Disabling Ipv6...
-***
-${nc}
-EOF
+    _print_message "Disabling Ipv6..."
 fi
-# disable ipv6, see functions.sh
 
-# Update mirrors
+
+#######################
+# FIXING DEPENDENCIES #
+#######################
+
 _pacman_update_mirrors
 
-cat <<EOF
-${red}
-***
-Checking package dependencies. Please wait...
-***
-${nc}
-EOF
+_print_message "Checking package dependencies. Please wait..."
 
-# Source update script
 . "$HOME"/RoninDojo/Scripts/update.sh
-
-# Run _update_19
 test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
 
-# Install system dependencies
 for pkg in "${!package_dependencies[@]}"; do
     _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
 done
-# install system dependencies, see defaults.sh
-# websearch "bash associative array" for info
 
+# TODO: replace this with use of _install_pkg_if_missing
 if ! pacman -Q libusb 1>/dev/null; then
-    cat <<EOF
-${red}
-***
-Installing libusb...
-***
-${nc}
-EOF
+    _print_message "Installing libusb..."
     sudo pacman --quiet -S --noconfirm libusb
 fi
 
-if sudo ufw status | grep 22 > /dev/null ; then
-    cat <<EOF
-${red}
-***
-SSH firewall rule already setup...
-***
-${nc}
+
+###############################
+# SETTING UP SECURITY PROFILE #
+###############################
+
+# Configure faillock
+# https://man.archlinux.org/man/faillock.conf.5
+sudo tee "/etc/security/faillock.conf" <<EOF >/dev/null
+deny = 10
+fail_interval = 120
+unlock_time = 120
 EOF
-    _sleep
-else
-    cat <<EOF
-${red}
-***
-Setting up UFW...
-***
-${nc}
-EOF
-    _sleep
+
+_print_message "Setting up UFW..."
+
+if ! -f /etc/systemd/system/ronin.network.service; then 
 
     sudo ufw default deny incoming &>/dev/null
     sudo ufw default allow outgoing &>/dev/null
-    # setting up uncomplicated firewall
-
-    cat <<EOF
-${red}
-***
-Enabling UFW...
-***
-${nc}
-EOF
-    _sleep
-
-    sudo ufw --force enable &>/dev/null
-    sudo systemctl enable --quiet ufw
-    # enabling ufw so /etc/ufw/user.rules file configures properly
-
-    ip addr | sed -rn '/state UP/{n;n;s:^ *[^ ]* *([^ ]*).*:\1:;s:[^.]*$:0/24:p}' > "$HOME"/ip_tmp.txt
-    # creates ip_tmp.txt with IP addresses listed in ip addr
-
-    while read -r ip ; do echo "### tuple ### allow any 22 0.0.0.0/0 any $ip" > "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # make rule_tmp.txt with needed changes plus the ip address
-
-    while read -r ip ; do echo "-A ufw-user-input -p tcp --dport 22 -s $ip -j ACCEPT" >> "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # edit rule_tmp.txt
-
-    while read -r ip ; do echo "-A ufw-user-input -p udp --dport 22 -s $ip -j ACCEPT" >> "$HOME"/rule_tmp.txt; done <"$HOME"/ip_tmp.txt
-    # edit rule_tmp.txt
-
-    awk 'NR==1{a=$0}NR==FNR{next}FNR==19{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 1 in rule_tmp.txt to line 19 in /etc/ufw/user.rules
-    # using awk to get /lib/ufw/user.rules output, including newly added values, then makes a tmp file
-    # after temp file is made it is mv to /lib/ufw/user.rules
-    # awk does not have -i to write changes like sed does, that's why I took this approach
-
-    awk 'NR==2{a=$0}NR==FNR{next}FNR==20{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 2 in rule_tmp.txt to line 20 in /etc/ufw/user.rules
-
-    awk 'NR==3{a=$0}NR==FNR{next}FNR==21{print a}1' "$HOME"/rule_tmp.txt /etc/ufw/user.rules > "$HOME"/user.rules_tmp.txt && sudo mv "$HOME"/user.rules_tmp.txt /etc/ufw/user.rules
-    # copying from line 3 in rule_tmp.txt to line 21 in /etc/ufw/user.rules
-
-    sudo sed -i "18G" /etc/ufw/user.rules
-    # adds a space to keep things formatted nicely
-
-    sudo chown root:root /etc/ufw/user.rules
-    # this command changes ownership back to root:root
-    # when /etc/ufw/user.rules is edited using awk or sed, the owner gets changed from Root to whatever User that edited that file
-    # that causes a warning to be displayed as /etc/ufw/user.rules does need to be owned by root:root
-
-    sudo rm "$HOME"/ip_tmp.txt "$HOME"/rule_tmp.txt
-    # removes txt files that are no longer needed
-
-    cat <<EOF
-${red}
-***
-Reloading UFW...
-***
-${nc}
-EOF
-    _sleep
-
+    sudo ufw enable &>/dev/null
     sudo ufw reload &>/dev/null
 
-    cat <<EOF
-${red}
-***
-Checking UFW status...
-***
-${nc}
-EOF
-    _sleep
+    _install_network_check_service
 
-    sudo ufw status
-
-    UFW_IP=$(sudo ufw status | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-    sudo ufw allow from "$UFW_IP"/24 to any port 22 comment 'SSH access restricted to local network'
-    # add comment to initial ufw rule
-
-    cat <<EOF
-${red}
-***
-Now that UFW is enabled, any computer connected to the same local network as your RoninDojo will have SSH access.
-***
-${nc}
-EOF
-
-    cat <<EOF
-${red}
-***
-Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc.
-***
-${nc}
-EOF
-
-    cat <<EOF
-${red}
-***
-Firewall rules can be adjusted using the RoninDojo Firewall Menu.
-***
-${nc}
-EOF
-    _sleep 10
+    sudo systemctl enable --now --quiet ufw
+else
+    sudo systemctl restart ronin.network
 fi
 
-cat <<EOF
-${red}
-***
-All Dojo dependencies installed...
-***
-${nc}
-EOF
-_sleep
+_print_message "Now that UFW is enabled, any computer connected to the same local network as your RoninDojo can access ports 22 (SSH) and 80 (HTTP)."
+_print_message "Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc."
+_print_message "Firewall rules can be adjusted using the RoninDojo Firewall Menu."
+_print_message "All Dojo dependencies installed..."
 
-cat <<EOF
-${red}
-***
-Creating ${install_dir} directory...
-***
-${nc}
-EOF
-_sleep
 
+#######################################
+# STORAGE DEVICES SETUP: LOADING VARS #
+#######################################
+
+_nvme_check && _load_user_conf
+
+_print_message "Creating ${install_dir} directory..."
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
-# test for ${install_dir} directory, otherwise creates using mkdir
-# websearch "bash Logical OR (||)" for info
 
-if [ -b "${primary_storage}" ]; then
-    cat <<EOF
-${red}
-***
-Creating ${storage_mount} directory...
-***
-${nc}
-EOF
-    _sleep
 
-    test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+#####################################
+# STORAGE DEVICES SETUP: ASSERTIONS #
+#####################################
 
-    cat <<EOF
-${red}
-***
-Attempting to mount drive for Blockchain data salvage...
-***
-${nc}
-EOF
-    _sleep
-    sudo mount "${primary_storage}" "${storage_mount}"
-else
-    cat <<EOF
-${red}
-***
-Did not find ${primary_storage} for Blockchain data salvage.
-***
-${nc}
-EOF
-    _sleep
-fi
-# mount main storage drive to "${storage_mount}" directory if found in prep for data salvage
-
-if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
-    cat <<EOF
-${red}
-***
-Found Blockchain data for salvage!
-***
-${nc}
-EOF
-_sleep
-
-    # Check if swap in use
-    if check_swap "${storage_mount}/swapfile"; then
-        test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
-    fi
-
-    if [ -f "${storage_mount}"/swapfile ]; then
-        sudo rm -rf "${storage_mount}"/{swapfile,docker,tor} &>/dev/null
-    fi
-
-    if findmnt "${storage_mount}" 1>/dev/null; then
-        sudo umount "${storage_mount}"
-        sudo rmdir "${storage_mount}" &>/dev/null
-    fi
-    # if uninstall-salvage directory is found, delete older {docker,tor} directory and swapfile
-
-    cat <<EOF
-${red}
-***
-Mounting drive...
-***
-${nc}
-EOF
-_sleep
-
-    # Mount primary drive if not already mounted
-    findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
-
-    cat <<EOF
-${red}
-***
-Displaying the name on the external disk...
-***
-${nc}
-EOF
-_sleep
-
-    lsblk -o NAME,SIZE,LABEL "${primary_storage}"
-    # double-check that /dev/sda exists, and that its storage capacity is what you expected
-
-    cat <<EOF
-${red}
-***
-Check output for ${primary_storage} and make sure everything looks ok...
-***
-${nc}
-EOF
-
-    df -h "${primary_storage}"
-    _sleep 5
-    # checks disk info
-
-    # Calculate swapfile size
-    _swap_size
-
-    create_swap --file "${install_dir_swap}" --count "${_size}"
-    # created a 2GB swapfile on the external drive instead of sd card to preserve sd card life
-
-    _setup_tor
-    # tor configuration setup, see functions.sh
-
-    _docker_datadir_setup
-    # docker data directory setup, see functions.sh
-
-    _create_ronin_data_dir
-    # create directory to store user info, see functions.sh
-
-    cat <<EOF
-${red}
-***
-Dojo is ready to be installed!
-***
-${nc}
-EOF
-
-    # Make sure to wait for user interaction before continuing
-    [ $# -eq 0 ] && _pause continue
-
-    # Make sure we don't run system install twice
-    touch "${ronin_data_dir}"/system-install
-
+if [ ! -b "${primary_storage}" ]; then
+    _print_error_message "device ${primary_storage} not found!"
+    [ $# -eq 0 ] && _pause return
     exit
-else
-    cat <<EOF
-${red}
-***
-No Blockchain data found for salvage check 1...
-***
-${nc}
-EOF
-    _sleep
 fi
-# checks for blockchain data to salvage, if found exits this script to dojo install, and if not found continue to salvage check 2 below
+
+
+##################################
+# STORAGE DEVICES SETUP: SALVAGE #
+##################################
+
+_print_message "Creating ${storage_mount} directory..."
+test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+_print_message "Attempting to mount drive for Blockchain data salvage..."
+sudo mount "${primary_storage}" "${storage_mount}"
 
 if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
-    if sudo test -d "${storage_mount}/${indexer_data_dir}/_data/db"; then
-        _indexer_salvage=true
-    else
-        _indexer_salvage=false
-    fi
 
-    cat <<EOF
-${red}
-***
-Found Blockchain data for salvage!
-***
-${nc}
-EOF
-    _sleep
-
-    cat <<EOF
-${red}
-***
-Moving to temporary directory...
-***
-${nc}
-EOF
-    _sleep
-
+    _print_message "Found Blockchain data for salvage!"
+    _print_message "Moving to data backup"
     test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
 
     sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
-    # moves blockchain salvage data to ${storage_mount} if found
 
-    if "${_indexer_salvage}"; then
-        test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
-        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+    _print_message "Blockchain data prepared for salvage!"
+fi
+
+if sudo test -d "${storage_mount}/${indexer_data_dir}/_data/db"; then
+
+    _print_message "Found Indexer data for salvage!"
+    _print_message "Moving to data backup"
+    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+
+    sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+    if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
+        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
     fi
 
-    cat <<EOF
-${red}
-***
-Blockchain data prepared for salvage!
-***
-${nc}
-EOF
-    _sleep
+    _print_message "Indexer data prepared for salvage!"
+fi
 
-    # Check if swap in use
-    if check_swap "${storage_mount}/swapfile"; then
-        test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
-    fi
+if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
 
-    sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
+    _print_message "Found Tor data for salvage!"
+    _print_message "Moving to data backup"
+    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    if findmnt "${storage_mount}" 1>/dev/null; then
-        sudo umount "${storage_mount}"
-        sudo rmdir "${storage_mount}" &>/dev/null
-    fi
-    # remove docker, tor, swap file directories from ${storage_mount}
-    # then unmount and remove ${storage_mount}
+    sudo cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null
 
-    cat <<EOF
-${red}
-***
-Mounting drive...
-***
-${nc}
-EOF
-    _sleep
+    _print_message "Tor data prepared for salvage!"
+fi
 
-    # Mount primary drive if not already mounted
-    findmnt "${primary_storage}" 1>/dev/null || sudo mount "${primary_storage}" "${install_dir}"
 
-    _sleep
+##########################################
+# STORAGE DEVICES SETUP: SALVAGE CLEANUP #
+##########################################
 
-    cat <<EOF
-${red}
-***
-Displaying the name on the external disk...
-***
-${nc}
-EOF
-    _sleep
+if check_swap "${storage_mount}/swapfile"; then
+    test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
+fi
+sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
 
-    lsblk -o NAME,SIZE,LABEL "${primary_storage}"
-    # lsblk lists disk by device
-    # double-check that ${primary_storage} exists, and its storage capacity is what you expected
 
-    cat <<EOF
-${red}
-***
-Check output for ${primary_storage} and make sure everything looks ok...
-***
-${nc}
-EOF
+#######################################################
+# STORAGE DEVICES SETUP: MOUNT EXISTING OR FORMAT NEW #
+#######################################################
 
-    df -h "${primary_storage}"
-    _sleep 5
-    # checks disk info
+if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
+    _print_message "Found Blockchain data backup!"
+    _print_message "Mounting drive..."
+    sudo mount "${primary_storage}" "${install_dir}"
 
-    # Calculate swapfile size
-    _swap_size
-
-    create_swap --file "${install_dir_swap}" --count "${_size}"
-    # created a 2GB swapfile on the external drive instead of sd card to preserve sd card life
-
-    _setup_tor
-    # tor configuration setup, see functions.sh
-
-    _docker_datadir_setup
-    # docker data directory setup, see functions.sh
-
-    cat <<EOF
-${red}
-***
-Dojo is ready to be installed!
-***
-${nc}
-EOF
-
-    # Make sure to wait for user interaction before continuing
-    [ $# -eq 0 ] && _pause continue
-
-    # Make sure we don't run system install twice
-    touch "${ronin_data_dir}"/system-install
-
-    exit
 else
-    cat <<EOF
-${red}
-***
-No Blockchain data found for salvage check 2...
-***
-${nc}
-EOF
-    _sleep
+    _print_message "No Blockchain data found for salvage..."
+    _print_message "Formatting the SSD..."
 
-    # Check if swap in use
-    if check_swap "${storage_mount}/swapfile" ; then
-        test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
-    fi
-
-    if findmnt "${storage_mount}" 1>/dev/null; then
-        sudo umount "${storage_mount}"
-        sudo rmdir "${storage_mount}"
+    if ! _create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
+        _print_error_message "Filesystem creation failed! Exiting now..."
+        _sleep 3
+        exit 1
     fi
 fi
-# checks for blockchain data to salvage, if found exit to dojo install, and if not found continue to format drive
 
-cat <<EOF
-${red}
-***
-Formatting the SSD...
-***
-${nc}
-EOF
-_sleep 5
 
-if ! create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
-    printf "\n %sFilesystem creation failed! Exiting now...%s" "${red}" "${nc}"
-    _sleep 3
-    exit 1
-fi
-# create a partition table with a single partition that takes the whole disk
-# format partition
+###########################################
+# STORAGE DEVICES SETUP: USER INTERACTION #
+###########################################
 
-cat <<EOF
-${red}
-***
-Displaying the name on the external disk...
-***
-${nc}
-EOF
+_print_message "Displaying the name on the external disk..."
+lsblk -o NAME,SIZE,LABEL "${primary_storage}"
 _sleep
 
-lsblk -o NAME,SIZE,LABEL "${primary_storage}"
-# double-check that ${primary_storage} exists, and its storage capacity is what you expected
-
-cat <<EOF
-${red}
-***
-Check output for ${primary_storage} and make sure everything looks ok...
-***
-${nc}
-EOF
-
+_print_message "Check output for ${primary_storage} and make sure everything looks ok..."
 df -h "${primary_storage}"
-_sleep 5
-# checks disk info
 
-# tor configuration setup, see functions.sh
-_setup_tor
 
-# docker data directory setup, see functions.sh
-_docker_datadir_setup
+#########################################
+# STORAGE DEVICES SETUP: SYSTEMS CONFIG #
+#########################################
 
-# Install Ronin UI
-cat <<EOF
-${red}
-***
-Installing Ronin UI...
-***
-${nc}
-EOF
-
-_ronin_ui_install
-
-_install_gpio
-
-# Calculate swapfile size
 _swap_size
-
-# created a 2GB swapfile on the external drive instead of sd card to preserve sd card life
 create_swap --file "${install_dir_swap}" --count "${_size}"
 
-cat <<EOF
-${red}
-***
-Installing SW Toolkit...
-***
-${nc}
-EOF
-_sleep
+_setup_tor
+_docker_datadir_setup
 
-cat <<EOF
-${red}
-***
-Installing Boltzmann Calculator...
-***
-${nc}
-EOF
-_sleep
 
+#######################
+# INSTALLING TOOLSETS #
+#######################
+
+_print_message "Installing Ronin UI..."
+_ronin_ui_install
+_install_gpio
+
+_print_message "Installing Boltzmann Calculator..."
 _install_boltzmann
-# install Boltzmann
-
-cat <<EOF
-${red}
-***
-Installing Whirlpool Stat Tool...
-***
-${nc}
-EOF
-_sleep
-
+_print_message "Installing Whirlpool Stat Tool..."
 _install_wst
 
-cat <<EOF
-${red}
-***
-Dojo is ready to be installed!
-***
-${nc}
-EOF
 
-# Make sure to wait for user interaction before continuing
-[ $# -eq 0 ] && _pause continue
+#######################
+# INSTALLING FINALIZE #
+#######################
 
-# Make sure we don't run system install twice
+_create_dir "${ronin_data_dir}"
 touch "${ronin_data_dir}"/system-install
-
-# will continue to dojo install if it was selected on the install menu
+_print_message "Dojo is ready to be installed!"
+[ $# -eq 0 ] && _pause continue

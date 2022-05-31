@@ -16,17 +16,11 @@ test -f "$HOME"/.config/RoninDojo/data/updates/10-* && rm "$HOME"/.config/RoninD
 # Migrate user.conf variables to lowercase
 test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10
 
-# Fix any existing specter installs that are missing gcc dependency
-test -f "$HOME"/.config/RoninDojo/data/updates/16-* || _update_16
-
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 
 # Uninstall legacy Ronin UI
 test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17
-
-# Create mnt-usb.mount if missing and system is already mounted.
-test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08
 
 # Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
 test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
@@ -93,10 +87,6 @@ EOF
 fi
 # stop whirlpool for existing whirlpool users
 
-if _is_specter ; then
-    _specter_upgrade || sed -i 's/  -disablewallet=.*$/  -disablewallet=0/' "${dojo_path_my_dojo}"/bitcoin/restart.sh
-fi
-
 if _is_bisq ; then
     _bisq_install
 fi
@@ -116,13 +106,14 @@ elif ((ret==1)); then
     _set_indexer
 fi
 
+# Check if Network check is implemented. If not install and run it.
+if [ ! -f /etc/systemd/system/ronin.network.service ]; then
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
+
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
-# Perform System Update
-test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
-
 _pause return
-
-ronin
-# return to menu

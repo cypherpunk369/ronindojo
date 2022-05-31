@@ -8,348 +8,86 @@
 _load_user_conf
 
 if ! findmnt "${install_dir}" 1>/dev/null; then
-    cat <<EOF
-${red}
-***
-Missing drive mount at ${install_dir}! Please contact support for assistance...
-***
-${nc}
-EOF
-    _sleep
-    cat <<EOF
-${red}
-***
-Exiting RoninDojo...
-***
-${nc}
-EOF
-    _sleep
+    _print_message "Missing drive mount at ${install_dir}! Please contact support for assistance..."
+    _print_message "Exiting RoninDojo..."
     [ $# -eq 0 ] && _pause return
     exit 1
 fi
 
 if [ -d "${dojo_path_my_dojo}" ]; then
-    cat <<EOF
-${red}
-***
-RoninDojo is already installed...
-***
-${nc}
-EOF
-    _sleep
+    _print_message "RoninDojo is already installed..."
+    _print_message "Exiting RoninDojo..."
     [ $# -eq 0 ] && _pause return
-    ronin
-    exit
+    exit 1
 fi
-# Makes sure RoninDojo has been uninstalled
 
-cat <<EOF
-${red}
-***
-Running RoninDojo install...
-***
-${nc}
-EOF
-_sleep
+_print_message "Running RoninDojo install..."
+_print_message "Use Ctrl+C to exit now if needed!"
+_sleep 3 --msg "Installing in"
 
-cat <<EOF
-${red}
-***
-Use Ctrl+C to exit now if needed!
-***
-${nc}
-EOF
-_sleep 10 --msg "Installing in"
-
-cat <<EOF
-${red}
-***
-Downloading latest RoninDojo release...
-***
-${nc}
-EOF
+_print_message "Downloading latest RoninDojo release..."
 
 cd "$HOME" || exit
-git clone -q -b "${samourai_commitish#*/}" "$samourai_repo" dojo 2>/dev/null
-
-# Switch over to a branch if in detached state. Usually this happens
-# when you clone a tag instead of a branch
+git clone -q "${samourai_repo}" dojo 2>/dev/null
 cd "${dojo_path}" || exit
+git checkout -q -f "${samourai_commitish}"
 
-_git_ref_type
-_ret=$?
+_print_message "Credentials necessary for usernames, passwords, etc. will randomly be generated now..."
+_print_message "Credentials are found in RoninDojo menu, ${dojo_path_my_dojo}/conf, or the ~/RoninDojo/user.conf.example file..."
+_print_message "Be aware these credentials are used to login to Dojo Maintenance Tool, Block Explorer, and more!"
+_print_message "Setting the RPC User and Password..."
 
-if ((_ret==3)); then
-    # valid branch
-    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-else
-    # valid tag
-    git checkout -q -b "${samourai_commitish}" "${samourai_commitish}"
+_restore_or_create_dojo_confs
+
+_set_indexer
+
+_check_salvage_db
+
+if (($?==2)); then # No indexer found or fresh install
+    
+    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+    sudo rm -rf "${dojo_backup_indexer}"
+
+elif (($?==0)); then # Found electrs previous install.
+    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
+    sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
 fi
 
-# Check if RoninUI needs installing
-if ! _is_ronin_ui; then
-    printf "%s\n***\nInstalling Ronin UI...\n***\n%s\n" "${red}" "${nc}"
-
-    _ronin_ui_install
-fi
-
-cat <<EOF
-${red}
-***
-Credentials necessary for usernames, passwords, etc. will randomly be generated now...
-***
-${nc}
-EOF
-_sleep 4
-
-cat <<EOF
-${red}
-***
-Credentials are found in RoninDojo menu, ${dojo_path_my_dojo}/conf, or the ~/RoninDojo/user.conf.example file...
-***
-${nc}
-EOF
-_sleep 4
-
-cat <<EOF
-${red}
-***
-Be aware these credentials are used to login to Dojo Maintenance Tool, Block Explorer, and more!
-***
-${nc}
-EOF
-_sleep 4
-
-cat <<EOF
-${red}
-***
-Setting the RPC User and Password...
-***
-${nc}
-EOF
-_sleep
-
-if [ -d "${dojo_backup_dir}" ]; then
-    if ! _dojo_restore; then
-        cat <<EOF
-${red}
-***
-Backup restoration disabled!
-***
-${nc}
-EOF
-        _sleep
-
-        cat <<EOF
-${red}
-***
-Enable in user.conf if you wish to restore credentials on dojo install when available...
-***
-${nc}
-EOF
-        _sleep 3
-    else
-        cat <<EOF
-${red}
-***
-Credentials backup detected and restored...
-***
-${nc}
-EOF
-        _sleep
-
-        cat <<EOF
-${red}
-***
-If you wish to disable this feature, set dojo_conf_backup=false in the $HOME/.config/RoninDojo/user.conf file...
-***
-${nc}
-EOF
-        _sleep 3
-    fi
-else
-    cat <<EOF
-${red}
-***
-Configuring the bitcoin daemon server...
-***
-${nc}
-EOF
-    _sleep
-    sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
-      -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
-      -e "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" \
-      -e "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=${BITCOIND_DB_CACHE:-$(_mem_total "${bitcoind_db_cache_total}")}/" \
-      -e "s/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-2048}/" \
-      -e "s/BITCOIND_RPC_EXTERNAL_IP=.*$/BITCOIND_RPC_EXTERNAL_IP=${BITCOIND_RPC_EXTERNAL_IP:-127.0.0.1}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf.tpl
-      # populate docker-bitcoind.conf.tpl template
-
-    cat <<EOF
-${red}
-***
-Configuring the Nodejs container...
-***
-${nc}
-EOF
-    _sleep
-
-    sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
-      -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
-      -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \
-      -e "s/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=${NODE_ACTIVE_INDEXER:-local_bitcoind}/" "${dojo_path_my_dojo}"/conf/docker-node.conf.tpl
-    # populate docker-node.conf.tpl template
-
-    sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
-      -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
-      -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
-    # populate docker-mysql.conf.tpl template
-
-    cat <<EOF
-${red}
-***
-Configuring the BTC RPC Explorer...
-***
-${nc}
-EOF
-    _sleep
-
-    sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
-      -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" "${dojo_path_my_dojo}"/conf/docker-explorer.conf.tpl
-    # populate docker-explorer.conf.tpl template
-fi
-
-_check_indexer
-
-if (($?==2)); then
-    # No indexer found, fresh install
-    # Enable default electrs indexer unless dojo_indexer="samourai-indexer" set in user.conf
-    _set_indexer
-
-    # Enable Samourai indexer
-    if [ "${dojo_indexer}" = "samourai-indexer" ]; then
-        _uninstall_electrs_indexer
-
-        _set_indexer
-    else
-        bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-
-        touch "$HOME"/.config/RoninDojo/data/electrs.install
-    fi
-fi
-
-cat <<EOF
-${red}
-***
-Please see Wiki for FAQ, help, and so much more...
-***
-${nc}
-EOF
-_sleep 3
-
-cat <<EOF
-${red}
-***
-https://wiki.ronindojo.io
-***
-${nc}
-EOF
-_sleep 3
-
-cat <<EOF
-${red}
-***
-Installing Samourai Wallet's Dojo...
-***
-${nc}
-EOF
-_sleep
+_print_message "Please see Wiki for FAQ, help, and so much more..."
+_print_message "https://wiki.ronindojo.io"
+_print_message "Installing Samourai Wallet's Dojo..."
 
 # Restart docker here for good measure
 sudo systemctl restart --quiet docker
 
 cd "$dojo_path_my_dojo" || exit
+if ! ./dojo.sh install --nolog --auto; then
+    _print_error_message "Install failed! Please contact support..."
+    [ $# -eq 0 ] && _pause return
+    [ $# -eq 0 ] && ronin
+    exit
+fi
 
-if ./dojo.sh install --nolog --auto; then
+if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
 
-    # Installing SW Toolkit
-    if [ ! -d "${HOME}"/boltzmann ]; then
-        cat <<EOF
-${red}
-***
-Installing Boltzmann Calculator...
-***
-${nc}
-EOF
-        # install Boltzmann
-        _install_boltzmann
-    fi
-
-    if [ ! -d "${HOME}"/Whirlpool-Stats-Tool ]; then
-        cat <<EOF
-${red}
-***
-Installing Whirlpool Stat Tool...
-***
-${nc}
-EOF
-        # install Whirlpool Stat Tool
-        _install_wst
-    fi
-
-    cat <<EOF
-${red}
-***
-Any previous node data will now be salvaged if you choose to continue...
-***
-${nc}
-EOF
-_sleep
-
-    # Make sure to wait for user interaction before continuing
+    _print_message "Any previous node data will now be salvaged if you choose to continue..."
     [ $# -eq 0 ] && _pause continue
 
-    # Backup dojo credentials
-    "${dojo_conf_backup}" && _dojo_backup
+    _stop_dojo
 
-    # Restore any saved IBD from a previous uninstall
-    "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind restore
+    $dojo_data_bitcoind_backup && _dojo_data_bitcoind_restore
+    $dojo_data_indexer_backup && _dojo_data_indexer_restore
+    $tor_backup && _tor_restore
 
-    # Restore any saved indexer data from a previous uninstall
-    "${dojo_data_indexer_backup}" && _dojo_data_indexer restore
+    ./dojo.sh start
 
-    if ${tor_backup}; then
-        _tor_restore
-        docker restart tor 1>/dev/null
-    fi
-    # restore tor credentials backup to container
-
-    cat <<EOF
-${red}
-***
-All RoninDojo feature installations complete!
-***
-${nc}
-EOF
-_sleep
-
-    # Source update script
-    . "$HOME"/RoninDojo/Scripts/update.sh
-
-    # Run _update_08
-    test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
-
-    # Press to continue to prevent from snapping back to menu too quickly
-    [ $# -eq 0 ] && _pause return
-else
-        cat <<EOF
-${red}
-***
-Install failed! Please contact support...
-***
-${nc}
-EOF
-
-        [ $# -eq 0 ] && _pause return
-        [ $# -eq 0 ] && ronin
 fi
+
+if findmnt "${storage_mount}" 1>/dev/null; then
+    sudo umount "${storage_mount}"
+    sudo rmdir "${storage_mount}" &>/dev/null
+fi
+
+_print_message "All RoninDojo feature installations complete!"
+
+[ $# -eq 0 ] && _pause return

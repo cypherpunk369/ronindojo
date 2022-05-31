@@ -169,8 +169,8 @@ Re-installing Ronin UI...
 ${nc}
 EOF
         _ronin_ui_uninstall
-        _ronin_ui_install
-        
+        _ronin_ui_install --initialized
+
         pm2 status
 
         _pause return

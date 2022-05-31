@@ -13,9 +13,8 @@ OPTIONS=(1 "Dojo"
          4 "Mempool"
          5 "Ronin UI"
          6 "Bitcoind"
-         7 "Specter Server"
-         8 "All Credentials"
-         9 "Go Back")
+         7 "All Credentials"
+         8 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -64,7 +63,7 @@ WARNING: Do not share these onion addresses with anyone!
 ***
 ${nc}
 
-Tor Address             = http://${tor_addr_whirlpool}
+Whirlpool CLI Address   = http://${tor_addr_whirlpool}
 Whirlpool API Key       = ${whirlpool_api_key:-Whirlpool not Initiated yet. Pair wallet with GUI}
 EOF
             _pause return
@@ -183,50 +182,6 @@ EOF
             # shows bitcoind and btc rpc explorer credentials and returns to menu
             ;;
         7)
-            if ! _is_specter ; then
-                cat <<EOF
-${red}
-***
-Specter Server is not installed...
-***
-${nc}
-EOF
-                _sleep
-                cat <<EOF
-${red}
-***
-Install using the manage applications menu...
-***
-${nc}
-EOF
-                _sleep
-
-                _pause return
-
-                bash -c "${ronin_credentials_menu}"
-            else
-                cat <<EOF
-${red}
-***
-Specter Server Credentials
-***
-${nc}
-
-Local IP                = https://${ip}:${specter_port}
-Tor Address             = http://${tor_addr_specter}
-RPC User                = $BITCOIND_RPC_USER
-RPC Password            = $BITCOIND_RPC_PASSWORD
-RPC IP                  = $BITCOIND_IP
-RPC Port                = $BITCOIND_RPC_PORT
-EOF
-            fi
-
-            _pause return
-            bash -c "${ronin_credentials_menu}"
-            # press any key to return to menu
-            # shows specter server credentials and returns to menu
-            ;;
-        8)
             _ronin_ui_credentials && cd "$HOME" || exit
             cat <<EOF
 ${red}
@@ -317,28 +272,12 @@ Tor Address             = http://${tor_addr_mempool}
 EOF
             fi
 
-            if _is_specter ; then
-                cat <<EOF
-${red}
-***
-Specter Server Credentials
-***
-${nc}
-Local IP                = https://${ip}:${specter_port}
-Tor Address             = http://${tor_addr_specter}
-RPC User                = $BITCOIND_RPC_USER
-RPC Password            = $BITCOIND_RPC_PASSWORD
-RPC IP                  = $BITCOIND_IP
-RPC Port                = $BITCOIND_RPC_PORT
-EOF
-            fi
-
             _pause return
             bash -c "${ronin_credentials_menu}"
             # press any key to return to menu
             # shows all credentials and returns to menu
             ;;
-        9)
+        8)
             ronin
             # returns to main menu
             ;;

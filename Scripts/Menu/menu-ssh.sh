@@ -25,10 +25,12 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        if _is_active sshd; then
-            printf "%s\n***\nStarting SSH...\n***%s\n" "${red}" "${nc}"
+        _print_message "Starting SSH..."
+
+        if systemctl is-active --quiet sshd; then
+            sudo systemctl start --quiet "$sshd"
         else
-            printf "%s\n***\nSSH already started...\n***%s\n" "${red}" "${nc}"
+            _print_message "SSH already started..."
         fi
 
         _pause continue

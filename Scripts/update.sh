@@ -135,47 +135,6 @@ _update_07() {
     fi
 }
 
-# Create mnt-usb.mount if missing and system is already mounted.
-_update_08() {
-    local uuid tmp systemd_mountpoint fstype
-
-    if findmnt /mnt/usb 1>/dev/null && [ ! -f /etc/systemd/system/mnt-usb.mount ]; then
-        uuid=$(lsblk -no UUID "${primary_storage}")
-        tmp=${install_dir:1}                                    # Remove leading '/'
-        systemd_mountpoint=${tmp////-}                          # Replace / with -
-        fstype=$(blkid -o value -s TYPE "${primary_storage}")
-
-        cat <<EOF
-${red}
-***
-Adding missing systemd mount unit file for device ${primary_storage}...
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
-[Unit]
-Description=Mount External SSD Drive ${primary_storage}
-
-[Mount]
-What=/dev/disk/by-uuid/${uuid}
-Where=${install_dir}
-Type=${fstype}
-Options=defaults
-
-[Install]
-WantedBy=multi-user.target
-EOF"
-        sudo systemctl enable --quiet mnt-usb.mount
-
-        _sleep 4 --msg "Restarting RoninDojo in"
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/08-"$(date +%m-%d-%Y)"
-
-        ronin
-    fi
-}
-
 # Migrate bitcoin ibd data to new backup directory
 _update_09() {
     if sudo test -d "${install_dir}"/bitcoin && sudo test -d "${install_dir}"/bitcoin/blocks; then
@@ -222,18 +181,6 @@ _update_11() {
     fi
 }
 
-# Set BITCOIND_DB_CACHE to use bitcoind_db_cache_total value if not set
-_update_12() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ] && [ -z "${BITCOIND_DB_CACHE}" ]; then
-        if findmnt /mnt/usb 1>/dev/null && ! _dojo_check && ! grep BITCOIND_DB_CACHE="$(_mem_total "${bitcoind_db_cache_total}")" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 1>/dev/null; then
-            sed -i "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=$(_mem_total "${bitcoind_db_cache_total}")/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-
-            # Finalize
-            touch "$HOME"/.config/RoninDojo/data/updates/12-"$(date +%m-%d-%Y)"
-        fi
-    fi
-}
-
 # tag that system install has been installed already
 _update_13() {
     if [ -d "${install_dir_tor}" ] && [ ! -f "${ronin_data_dir}"/system-install ]; then
@@ -268,34 +215,6 @@ _update_15() {
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/15-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Fix any existing specter installs that are missing gcc dependency
-_update_16() {
-    local _specter_version
-
-    if findmnt /mnt/usb 1>/dev/null && ! hash gcc 2>/dev/null && _is_specter; then
-        cat <<EOF
-${red}
-***
-Detected an incomplete Specter install, please wait while it's fixed...
-***
-${nc}
-EOF
-        shopt -s nullglob
-
-        cd "${HOME}" || exit
-
-        for dir in specter*; do
-            if [ -d "$dir" ]; then
-                _specter_version="${dir#*-}"
-                _specter_uninstall "${_specter_version}" && _specter_install
-            fi
-        done
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/16-"$(date +%m-%d-%Y)"
     fi
 }
 
@@ -336,24 +255,10 @@ Installing Ronin UI Server...
 ${nc}
 EOF
 
-        _is_ronin_ui || _ronin_ui_install
+        _is_ronin_ui || _ronin_ui_install --initialized
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/17-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Update docker-bitcoind.conf settings for existing users
-_update_18() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
-        if grep -q "BITCOIND_RPC_THREADS=12" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
-            sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-16}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        elif grep -q "BITCOIND_MAX_MEMPOOL=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
-            sed -i "s/BITCOIND_MAX_MEMPOOL.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-2048}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/18-"$(date +%m-%d-%Y)"
     fi
 }
 
@@ -369,7 +274,7 @@ Migrating to nodejs-lts-fermium, please wait...
 ${nc}
 EOF
         sudo pacman -R --noconfirm --cascade nodejs-lts-erbium &>/dev/null
-        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
+        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
 
         if _is_ronin_ui; then
             # Restart Ronin-UI
@@ -380,64 +285,6 @@ EOF
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Revert some settings in docker-bitcoind.conf
-_update_20() {
-    if [ -f "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf ]; then
-        sed -i "s/BITCOIND_RPC_THREADS.*$/BITCOIND_RPC_THREADS=${BITCOIND_RPC_THREADS:-10}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-        sed -i "s/BITCOIND_MAX_MEMPOOL.*$/BITCOIND_MAX_MEMPOOL=${BITCOIND_MAX_MEMPOOL:-1024}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/20-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Perform System Update
-_update_21() {
-    local _pacman
-    _pacman=false
-
-    if [ -d "${dojo_path}" ]; then
-        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
-
-         _pause continue
-
-        _dojo_check && _stop_dojo
-
-        # Modify pacman.conf and comment ignore packages line
-        if test -f "$HOME"/.config/RoninDojo/data/updates/06-*; then
-            sudo sed -i "s:^IgnorePkg   =.*$:#IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-            _pacman=true
-        fi
-
-        # Stopping docker
-        sudo systemctl stop --quiet docker
-
-        # Update system packages
-        sudo pacman -Syyu --noconfirm
-
-        # Uncomment IgnorePkg if necessary
-        ${_pacman} && sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-
-        if ! sudo systemctl start --quiet docker; then
-            printf "%s\n***\nRestarting system to finalize update...\n***\n%s" "${red}" "${nc}"
-
-            _pause reboot
-
-            # Finalize
-            touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
-
-            sudo systemctl reboot
-        else
-            printf "%s\n***\nSystem packages update completed...\n***\n%s" "${red}" "${nc}"
-
-            _pause continue
-
-            # Finalize
-            touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
-        fi
     fi
 }
 
@@ -475,7 +322,7 @@ _update_24() {
         fi
         sudo touch "${hostsfile}"
     fi
-    
+
     #test if there's a 127.0.0.1 entry, edit when necessary
     if grep -q -E "^\s*127\.0\.0\.1(\s+\w+)+$" "${hostsfile}"; then
         if ! grep -q -E "^\s*127\.0\.0\.1(\s+\w+)*(\s+localhost)(\s+\w+)*$" "${hostsfile}"; then
@@ -486,4 +333,131 @@ _update_24() {
         #append the missing entry
         echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}"
     fi
+}
+
+# Remove specter
+_update_25() {
+
+    if [ ! -d "$HOME"/.venv_specter ]; then
+        return 0
+    fi
+
+    local _specter_version
+    _specter_version="$1"
+
+    local specter_version
+    specter_version="v1.7.2"
+
+    _load_user_conf
+
+    cat <<EOF
+${red}
+***
+Uninstalling Specter ${_specter_version:-$specter_version}...
+***
+${nc}
+EOF
+
+    if systemctl is-active --quiet specter; then
+        sudo systemctl stop --quiet specter
+        sudo systemctl --quiet disable specter
+        sudo rm /etc/systemd/system/specter.service
+        sudo systemctl daemon-reload
+    fi
+    # Remove systemd unit
+
+    cd "${dojo_path_my_dojo}"/bitcoin || exit
+    git checkout restart.sh &>/dev/null && cd - 1>/dev/null || exit
+    # Resets to defaults
+
+    if [ -f /etc/udev/rules.d/51-coinkite.rules ]; then
+        cd "$HOME"/specter-"${_specter_version:-$specter_version}"/udev || exit
+
+        for file in *.rules; do
+            test -f /etc/udev/rules.d/"${file}" && sudo rm /etc/udev/rules.d/"${file}"
+        done
+
+        sudo udevadm trigger
+        sudo udevadm control --reload-rules
+    fi
+    # Delete udev rules
+
+    rm -rf "$HOME"/.specter "$HOME"/specter-* "$HOME"/.venv_specter &>/dev/null
+    rm "$HOME"/.config/RoninDojo/specter* &>/dev/null
+    # Deletes the .specter dir, source dir, venv directory, certificate files and specter.service file
+
+    sudo sed -i -e "s:^ControlPort .*$:#ControlPort 9051:" -e "/specter/,+3d" /etc/tor/torrc
+    sudo systemctl restart --quiet tor
+    # Remove torrc changes
+
+    if getent group plugdev | grep -q "${ronindojo_user}" &>/dev/null; then
+        sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
+    fi
+    # Remove user from plugdev group
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/25-"$(date +%m-%d-%Y)"
+}
+
+# Fix gpio
+_update_26() {
+
+    if [ -d "${ronin_ui_path}" ]; then
+        _install_gpio
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
+}
+
+# Fix Bitcoin DB Cache and Mempool Size for existing users:
+_update_27() {
+    if ! grep "BITCOIND_DB_CACHE=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
+        sed -i -e "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=${bitcoind_db_cache}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+    if ! grep "BITCOIND_MAX_MEMPOOL=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
+        sed -i -e "s/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL=${bitcoind_mempool_size}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/27-"$(date +%m-%d-%Y)"
+}
+
+# Fix users getting locked-out
+_update_28() {
+
+    # Configure faillock
+    # https://man.archlinux.org/man/faillock.conf.5
+    sudo tee "/etc/security/faillock.conf" <<EOF >/dev/null
+deny = 10
+fail_interval = 120
+unlock_time = 120
+EOF
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/28-"$(date +%m-%d-%Y)"
+}
+
+# Update Node.js and pnpm if necessary
+_update_29() {
+    sudo pacman -Syy --needed --noconfirm --noprogressbar nodejs-lts-fermium &>/dev/null
+    sudo npm i -g pnpm@7 &>/dev/null
+    pm2 restart "RoninUI" &>/dev/null
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/29-"$(date +%m-%d-%Y)"
+}
+
+# Add service to auto detect network change, for keeping UFW ruleset up to date
+_update_30() {
+
+    # Check if Network check is implemented. If not install and run it.
+    if ! -f /etc/systemd/system/ronin.network.service; then
+        _install_network_check_service
+    else
+        sudo systemctl restart ronin.network
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/30-"$(date +%m-%d-%Y)"
 }

@@ -1,3 +1,18 @@
+Changelog
+
+RoninDojo v1.14.0 Change Log
+- Dojo v1.14.0
+- Mempool Space v2.3.2
+- New Debug Script implemented
+- remove Specter support (We don't support KYC services)
+- GPIO fixes
+- RoninUI backend fixes
+- Lower db_cache and mempool size
+- Refactor dojo conf backup and restore
+- refactor salvage data process
+- refactor ufw setup
+- refactor install system and dojo process.
+
 RoninDojo v1.13.1 Change Log
 - RoninUI 2.0 Prep
 - Ronin Plug-n-Play finalization

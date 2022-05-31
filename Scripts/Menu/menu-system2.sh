@@ -102,10 +102,10 @@ EOF
         # stop dojo
 
         # Backup Bitcoin Blockchain Data
-        "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind backup
+        "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_backup
 
         # Backup Indexer Data
-        "${dojo_data_indexer_backup}" && _dojo_data_indexer backup
+        "${dojo_data_indexer_backup}" && _dojo_data_indexer_backup
 
         cat <<EOF
 ${red}
@@ -120,11 +120,10 @@ EOF
         # uninstall mempool.space
         _is_mempool && _mempool_uninstall
 
-        # uninstall specter desktop
-        _is_specter && _specter_uninstall
-
         # uninstall bisq support
         _is_bisq && _bisq_uninstall
+
+        _uninstall_network_check_service
 
         cat <<EOF
 ${red}
@@ -174,7 +173,7 @@ EOF
             fi
 
             # Backup samourai dojo credentials
-            "${dojo_conf_backup}" && _dojo_backup
+            "${is_active_dojo_conf_backup}" && _backup_dojo_confs
 
             rm -rf "${dojo_path}"
 
