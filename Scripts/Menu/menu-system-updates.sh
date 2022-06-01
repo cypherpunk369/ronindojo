@@ -9,7 +9,8 @@ _load_user_conf
 OPTIONS=(1 "Update Mirrors"
          2 "Check for RoninDojo Update"
          3 "Update RoninDojo"
-         4 "Go Back")
+         4 "Update Operating System"
+         5 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -99,7 +100,7 @@ Updating PNPM, Please wait...
 ${nc}
 EOF
         # Update PNPM
-        sudo npm i -g pnpm &>/dev/null
+        sudo npm i -g pnpm@7 &>/dev/null
 
         cat <<EOF
 ${red}
@@ -120,20 +121,34 @@ EOF
 
         _sleep 10 --msg "Updating in"
 
-        test -f "$HOME"/ronin-update.sh && sudo rm "$HOME"/ronin-update.sh
-        # Remove old update file
-
         _ronindojo_update
-        # see functions.sh
+
+        # re-source these scripts before calling functions from them, since they've possible been updated
+        . "$HOME"/RoninDojo/Scripts/defaults.sh
+        . "$HOME"/RoninDojo/Scripts/functions.sh
+        _load_user_conf
 
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-upgrade.sh
-        # upgrades dojo and returns to menu
 
         _call_update_scripts
-        # calls any update migrations that need to happen
+        
+        bash -c "${ronin_updates_menu}"
         ;;
     4)
+        _print_message "Updating system packages..."
+        _sleep
+        _print_message "Use Ctrl+C to exit if needed!"
+        _sleep 10 --msg "Updating in"
+
+        _dojo_check && _stop_dojo
+        
+        _print_message "Perfoming a full system update..."
+        sudo pacman -Syyu --noconfirm
+
+        _pause reboot
+        sudo systemctl reboot
+        ;;
+    5)
         bash -c "${ronin_system_menu}"
-        # returns to main system menu
         ;;
 esac

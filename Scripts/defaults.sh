@@ -108,7 +108,7 @@ ronin_ui_path="$HOME/Ronin-UI"
 #
 dojo_data_bitcoind_backup=true
 dojo_data_indexer_backup=true
-dojo_conf_backup=true
+is_active_dojo_conf_backup=true
 tor_backup=true
 backup_format=false
 
@@ -118,7 +118,7 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.13.0" # Tag release
+samourai_commitish="v1.14.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
@@ -132,6 +132,8 @@ storage_mount="/mnt/backup"
 
 bitcoin_ibd_backup_dir="${storage_mount}/backup/bitcoin"
 indexer_backup_dir="${storage_mount}/backup/indexer"
+tor_backup_dir="${storage_mount}/backup/tor"
+
 install_dir="/mnt/usb"
 install_dir_tor="${install_dir}/tor"
 install_dir_swap="${install_dir}/swapfile"
@@ -148,7 +150,7 @@ dojo_backup_bitcoind="${install_dir}/backup/bitcoin"
 dojo_backup_indexer="${install_dir}/backup/indexer"
 dojo_backup_dir="${install_dir}/backup/dojo"
 dojo_backup_conf="${install_dir}/backup/dojo/conf"
-tor_backup_dir="${install_dir}/backup/tor"
+dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
@@ -164,11 +166,13 @@ else
 fi
 
 # Network info
-ip=$(ip route get 1 | awk '{print $7}')
-ip_range="$(echo "${ip}" | cut -d. -f1-3).0/24"
+ip_current=$(ip route get 1 | awk '{print $7}')
+interface_current=$(ip route get 1 | awk '{print $5}')
+network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
 
 # bitcoind defaults
-bitcoind_db_cache_total=0.3 # Uses 30% of total RAM
+bitcoind_db_cache=1024 
+bitcoind_mempool_size=1024 
 
 declare -a backup_dojo_data=(
     tor

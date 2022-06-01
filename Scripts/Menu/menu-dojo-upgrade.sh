@@ -22,9 +22,6 @@ test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 # Uninstall legacy Ronin UI
 test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17
 
-# Create mnt-usb.mount if missing and system is already mounted.
-test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08
-
 # Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
 test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
 
@@ -109,16 +106,14 @@ elif ((ret==1)); then
     _set_indexer
 fi
 
+# Check if Network check is implemented. If not install and run it.
+if [ ! -f /etc/systemd/system/ronin.network.service ]; then
+    _install_network_check_service
+else
+    sudo systemctl restart ronin.network
+fi
+
 ./dojo.sh upgrade --nolog --auto
 # run upgrade
 
-# Backup any changes made to the confs
-"${dojo_conf_backup}" && _backup_dojo_confs
-
-# Perform System Update
-test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21
-
 _pause return
-
-ronin
-# return to menu

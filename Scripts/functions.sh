@@ -21,7 +21,7 @@ _main() {
         test -f "$HOME"/.config/RoninDojo/user.conf || cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
     fi
 
-    # Execute the update scripts
+    # Execute the update scripts (this call here is to be removed in the next release after 1.14)
     _call_update_scripts
 
     # Create symbolic link for main ronin script
@@ -100,7 +100,6 @@ EOF
 }
 
 _call_update_scripts() {
-        # Source update script
     . "$HOME"/RoninDojo/Scripts/update.sh
 
     test -f "$HOME"/.config/RoninDojo/data/updates/01-* || _update_01 # Check for bridge-utils version update
@@ -110,7 +109,6 @@ _call_update_scripts() {
     _update_05 # Check on tor unit service
     test -f "$HOME"/.config/RoninDojo/data/updates/06-* || _update_06 # Modify pacman to Ignore specific packages
     test -f "$HOME"/.config/RoninDojo/data/updates/07-* || _update_07 # Set user.conf in appropriate place
-    test -f "$HOME"/.config/RoninDojo/data/updates/08-* || _update_08 # Make sure mnt-usb.mount is available
     test -f "$HOME"/.config/RoninDojo/data/updates/09-* || _update_09 # Migrate bitcoin ibd data to new backup directory
     test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10 # Migrate user.conf variables to lowercase
     test -f "$HOME"/.config/RoninDojo/data/updates/11-* || _update_11 # Migrate to new ui backend tor location
@@ -119,11 +117,14 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
     test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
     test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
-    test -f "$HOME"/.config/RoninDojo/data/updates/21-* || _update_21 # Perform System Update
     test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
     _update_24 # Fix hosts file, rerun always in case OS update reverts it
     test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
     test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
+    test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
+    test -f "$HOME"/.config/RoninDojo/data/updates/30-* || _update_30 # Add service to auto detect network change, for keeping UFW ruleset up to date
 }
 
 #
@@ -442,49 +443,6 @@ _is_active() {
 }
 
 #
-# Tor credentials backup
-#
-_tor_backup() {
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
-
-    if [ -d "${dojo_path}" ] && sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${tor_backup_dir}"
-        return 0
-    fi
-
-    return 1
-}
-
-#
-# Tor credentials restore
-#
-_tor_restore() {
-    if sudo test -d "${tor_backup_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --quiet --delete-before "${tor_backup_dir}"/ "${install_dir}/${tor_data_dir}"/_data
-        cat <<EOF
-${red}
-***
-Tor credentials backup detected and restored...
-***
-${nc}
-EOF
-_sleep
-
-        cat <<EOF
-${red}
-***
-If you wish to disable this feature, set tor_backup=false in $HOME/.conf/RoninDojo/user.conf file...
-***
-${nc}
-EOF
-_sleep 3
-        return 0
-    fi
-
-    return 1
-}
-
-#
 # Setup torrc
 #
 _setup_tor() {
@@ -570,7 +528,6 @@ ${nc}
 EOF
         _sleep
 
-        _pause return
         return 1
     fi
 
@@ -659,7 +616,7 @@ EOF
 
     _check_pkg "avahi-daemon" "avahi"
 
-    sudo npm i -g pnpm &>/dev/null
+    sudo npm i -g pnpm@7 &>/dev/null
 
     test -d "${ronin_ui_path}" || mkdir "${ronin_ui_path}"
 
@@ -684,7 +641,7 @@ EOF
         rm "$_file" /tmp/version.json
 
         # Mark Ronin UI initialized if necessary
-        if [ $1 = "--initialized" ]; then
+        if [ "${1}" = "--initialized" ]; then
           echo -e "{\"initialized\": true}\n" > ronin-ui.dat
         fi
 
@@ -730,8 +687,6 @@ EOF
         _ronin_ui_vhost
 
         _ronin_ui_avahi_service
-
-        _ufw_rule_add "${ip_range}" "80"
     else
         _bad_shasum=$(sha256sum ${_file})
         cat <<EOF
@@ -859,7 +814,7 @@ EOF"
         # Generate Ronin UI reverse proxy server vhost
         sudo bash -c "cat <<'EOF' >/etc/nginx/sites-enabled/001-roninui
 server {
-    listen ${ip}:80;
+    listen ${ip_current}:80;
     server_name ronindojo ${_tor_hostname};
 
     ## Access and error logs.
@@ -889,9 +844,9 @@ server {
     }
 }
 EOF"
-    elif ! sudo grep -q "${ip}" /etc/nginx/sites-enabled/001-roninui; then
+    elif ! sudo grep -q "${ip_current}" /etc/nginx/sites-enabled/001-roninui; then
         # Updates the ip in vhost
-        sudo sed -i "s/listen .*$/listen ${ip}:80;/" /etc/nginx/sites-enabled/001-roninui
+        sudo sed -i "s/listen .*$/listen ${ip_current}:80;/" /etc/nginx/sites-enabled/001-roninui
 
         # Reload nginx server
         sudo systemctl reload --quiet nginx
@@ -1122,8 +1077,8 @@ _fan_control_upgrade() {
 # Enables the Samourai & or Electrs local indexer
 #
 _set_indexer() {
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer."${conf}"
-    sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node."${conf}"
+    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
 }
@@ -1146,13 +1101,30 @@ _uninstall_electrs_indexer() {
 }
 
 #
+# Checks salvaged data for which indexer is used
+#
+_check_salvage_db() {     
+    if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+        return 0 
+        # returns electrs prior install.
+    elif sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
+        return 1
+        # returns addrindexrs prior install.
+    else 
+        return 2
+        # returns no prior install found
+    fi
+}
+
+
+#
 # Checks what indexer is set if any
 #
 _check_indexer() {
-    if grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node."${conf}" 1>/dev/null && [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
+    if grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node.conf 1>/dev/null && [ -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
         return 0
         # Found electrs
-    elif grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node."${conf}" 1>/dev/null && [ ! -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
+    elif grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node.conf 1>/dev/null && [ ! -f "${dojo_path_my_dojo}"/indexer/electrs.toml ]; then
         return 1
         # Found SW indexer
     fi
@@ -1349,126 +1321,24 @@ _mempool_conf() {
 }
 
 #
-# git current branch name. If in detached state returns zero output. We only need branch name as
-# we discard any detached states in future versions
-#
-_git_branch_name() {
-    git branch --show-current
-}
-
-#
-# git reference type a.k.a is it a branch or tag?
-#
-_git_ref_type() {
-    local _ref
-
-    # Check if argument was passed
-    if [ -z "$1" ]; then
-        _ref=$(_git_branch_name)
-
-        test "$_ref" || return 1
-    else
-        _ref=$1
-    fi
-
-    if git show-ref -q --verify "refs/remotes/origin/${_ref#*/}" 2>/dev/null; then
-        # Valid branch
-        return 3
-    elif git show-ref -q --verify "refs/tags/${_ref#*/}" 2>/dev/null; then
-        # Valid tag
-        return 2
-    else
-        # Invalid reference, exit script
-        return 1
-    fi
-}
-
-#
-# git check if local branch exist
-#
-_git_is_branch() {
-    if git show-ref --quiet refs/heads/"${1}"; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-#
 # Update Samourai Dojo Repository
 #
 _dojo_update() {
-    local _head _ret
-
     _load_user_conf
+
+    if [ ! -d "${dojo_path}" ]; then
+        _print_error_message "Missing git repo data folder in dojo!"
+        _pause "to exit"
+        exit 1
+    fi
 
     cd "${dojo_path}" || exit
 
-    # Fetch remotes
-    git fetch -q --all --tags --force
+    git fetch -q --tags --force
+    git checkout -q -f "${samourai_commitish}"
 
-    # Validate current branch from user.conf
-    _git_ref_type "${samourai_commitish#*/}"
-    _ret=$?
-
-    # Validate branch/tag reference
-    if ((_ret==1)); then
-        cat <<EOF
-${red}
-***
-Invalid branch or tag name for ${samourai_commitish}!!!
-***
-${nc}
-EOF
-        exit
-    fi
-
-    # Check current branch/tag
-    _head=$(_git_branch_name)
-
-    # reset any local changes
-    git reset -q --hard
-
-    # Check if on existing branch/tag
-    if [ "${samourai_commitish}" != "${_head}" ]; then
-        # Make sure we are not in current master branch
-        if [ "${samourai_commitish}" != "origin/master" ]; then
-            if ((_ret==3)); then
-                if ! _git_is_branch "${samourai_commitish}"; then
-                    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-                else
-                    git branch -q -D "${samourai_commitish}"
-                    git switch -q -c "${samourai_commitish}" -t "${samourai_commitish}"
-                fi
-            else # on a tag
-                if ! _git_is_branch "${samourai_commitish}"; then # Not on existing tag
-                    git checkout -q tags/"${samourai_commitish}" -b "${samourai_commitish}"
-                fi
-            fi
-        elif ! _git_is_branch "${samourai_commitish}"; then # coming from detach state i.e tag clone
-                git checkout -q "${samourai_commitish}"
-        else # existing master branch
-                git reset -q --hard remotes/"${samourai_commitish}"
-        fi
-
-        # Delete old local branch if available otherwise check if master branch needs
-        # to be deleted
-        if test "${_head}"; then
-            if ! git branch -q -D "${_head}" 2>/dev/null; then
-                if _git_is_branch master; then
-                    git branch -q -D master
-                fi
-            fi
-        fi
-    else # On same branch/tag
-        _git_ref_type
-        _ret=$?
-
-        if ((_ret==3)); then
-            # valid branch, so reset hard
-            git reset -q --hard remotes/"${samourai_commitish}"
-        fi
-    fi
+    _print_message "Dojo codebase updated!"
+    _sleep
 }
 
 #
@@ -1486,20 +1356,13 @@ EOF
     _dojo_check && _stop_dojo
     cd "${dojo_path_my_dojo}" || exit
 
-    # Delete existing electrs mainnet directory if upgrading
-    if [ ! -f "$HOME"/.config/RoninDojo/data/electrs.install ]; then
-        # Show Indexer Install State
-        _check_indexer
-        ret=$?
+    _check_indexer
+    ret=$?
 
-        if ((ret==0)); then # Electrs enabled
-            if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
-                sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
-            fi
+    if ((ret==0)); then # Electrs enabled
+        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
         fi
-
-        # Mark as fresh install
-        touch "$HOME"/.config/RoninDojo/data/electrs.install
     fi
 
     . dojo.sh upgrade --nolog --auto
@@ -1646,112 +1509,22 @@ _remove_ipv6() {
 # Update RoninDojo
 #
 _ronindojo_update() {
-    local _head _ret
-
     _load_user_conf
 
-    if [ -d "$HOME"/RoninDojo/.git ]; then
-        cd "$HOME/RoninDojo" || exit
-
-        # Fetch remotes
-        git fetch -q --all --tags --force
-
-        # Validate current branch from user.conf
-        _git_ref_type "${ronin_dojo_branch#*}"
-        _ret=$?
-
-        # Validate branch/tag reference
-        if ((_ret==1)); then
-            cat <<EOF
-${red}
-***
-Invalid branch or tag name for ${ronin_dojo_branch}!!!
-***
-${nc}
-EOF
-            exit
-        fi
-
-        cat <<EOF
-${red}
-***
-Git repo found, downloading updates...
-***
-${nc}
-EOF
-
-        # Check current branch/tag
-        _head=$(_git_branch_name)
-
-        # reset any local changes
-        git reset -q --hard
-
-        # Check if on existing branch/tag
-        if [ "${ronin_dojo_branch}" != "${_head}" ]; then
-            # Make sure we are not in current master branch
-            if [ "${ronin_dojo_branch}" != "origin/master" ]; then
-                if ((_ret==3)); then
-                    if ! _git_is_branch "${ronin_dojo_branch}"; then
-                        git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}"
-                    else
-                        git branch -q -D "${ronin_dojo_branch}"
-                        git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}"
-                    fi
-                else # on a tag
-                    if ! _git_is_branch "${ronin_dojo_branch}"; then # Not on existing tag
-                        git checkout -q tags/"${ronin_dojo_branch}" -b "${ronin_dojo_branch}"
-                    fi
-                fi
-            elif ! _git_is_branch "${ronin_dojo_branch}"; then # coming from detach state i.e tag clone
-                    git checkout -q "${ronin_dojo_branch}"
-            else # existing master branch
-                    git reset -q --hard remotes/"${ronin_dojo_branch}"
-            fi
-
-            # Delete old local branch if available otherwise check if master branch needs
-            # to be deleted
-            if test "${_head}"; then
-                if ! git branch -q -D "${_head}" 2>/dev/null; then
-                    if _git_is_branch master; then
-                        git branch -q -D master
-                    fi
-                fi
-            fi
-        else # On same branch/tag
-            _git_ref_type
-            _ret=$?
-
-            if ((_ret==3)); then
-                # valid branch, so reset hard
-                git reset -q --hard remotes/"${ronin_dojo_branch}"
-            fi
-        fi
-    else
-        cat <<EOF > "$HOME"/ronin-update.sh
-#!/bin/bash
-sudo rm -rf "$HOME/RoninDojo"
-cd "$HOME"
-
-if [ "${ronin_dojo_branch}" != "origin/master" ]; then
-    git clone -q -b "${ronin_dojo_branch#*/}" "${ronin_dojo_repo}" 2>/dev/null
-else
-    git clone -q "${ronin_dojo_repo}" 2>/dev/null
-fi
-
-# Switch over to a branch if in detached state. Usually this happens
-# when you clone a tag instead of a branch
-cd RoninDojo || exit
-
-# Would not run when ronin_dojo_branch="origin/master"
-git symbolic-ref -q HEAD 1>/dev/null || git switch -q -c "${ronin_dojo_branch}" -t "${ronin_dojo_branch}" 2>/dev/null
-EOF
-
-        sudo chmod +x "$HOME"/ronin-update.sh
-        bash "$HOME"/ronin-update.sh
-        # makes script executable and runs
-        # end of script returns to menu
-        # script is deleted during next run of update
+    if [ ! -d "$HOME"/RoninDojo/.git ]; then
+        _print_error_message "Missing git repo data folder in RoninDojo!"
+        _pause "to exit"
+        exit 1
     fi
+
+    cd "$HOME/RoninDojo" || exit
+
+    # Fetch remotes
+    git fetch -q --tags --force
+    git checkout -q -f "${ronin_dojo_branch}"
+
+    _print_message "RoninDojo updated!"
+    _sleep
 }
 
 #
@@ -1874,44 +1647,13 @@ _disable_bluetooth() {
 }
 
 #
-# Check fs type
-# Shows the filesystem type of a giving partition
-#
-check_fstype() {
-    local type device="${1}"
-
-    type="$(lsblk -f "${device}" | tail -1 | awk '{print$2}')"
-
-    echo "${type}"
-}
-
-#
 # Create fs
-# TODO add btrfs support
 #
-create_fs() {
-    local supported_filesystems=("ext2" "ext3" "ext4" "xfs") fstype="ext4"
+_create_fs() {
+    local fstype="ext4"
 
-    # Parse Arguments
     while [ $# -gt 0 ]; do
         case "$1" in
-            --fstype|-fs)
-                if [[ ! "${supported_filesystems[*]}" =~ ${2} ]]; then
-                    cat <<EOF
-${red}
-***
-Error: unsupported filesystem type ${2}
-Available options are: ${supported_filesystems[@]}
-Exiting!
-***
-${nc}
-EOF
-                    return 1
-                else
-                    local fstype="$2"
-                    shift 2
-                fi
-                ;;
             --label|-L)
                 local label="$2"
                 shift 2
@@ -1924,62 +1666,26 @@ EOF
                 local mountpoint="$2"
                 shift 2
                 ;;
-            -*|--*=) # unsupported flags
-                echo "Error: Unsupported flag $1" >&2
+            *) # unsupported flags
+                echo "Error: Unsupported argument $1" >&2
                 exit 1
                 ;;
         esac
     done
 
-    # Create mount point directory if not available
     if [ ! -d "${mountpoint}" ]; then
-        cat <<EOF
-${red}
-***
-Creating ${mountpoint} directory...
-***
-${nc}
-EOF
         sudo mkdir -p "${mountpoint}" || return 1
-    elif findmnt "${device}" 1>/dev/null; then # Is device already mounted?
-        # Make sure to stop tor and docker when mount point is ${install_dir}
-        if [ "${mountpoint}" = "${install_dir}" ]; then
-            for x in tor docker; do
-                sudo systemctl stop --quiet "${x}"
-            done
-
-            # Stop swap on mount point
-            if check_swap "${install_dir_swap}"; then
-                test -f "${install_dir_swap}" && sudo swapoff "${install_dir_swap}"
-            fi
+    elif findmnt "${device}" 1>/dev/null; then
+        if ! sudo umount "${device}"; then
+            _print_error_message "Could not prepare device ${device} for formatting, was likely still in use"
+            exit
         fi
-
-        sudo umount -l "${device}"
     fi
 
-    # This quick hack checks if device is either a SSD device or a NVMe device
     [[ "${device}" =~ "sd" ]] && _device="${device%?}" || _device="${device%??}"
-
-    # wipe labels
     sudo wipefs -a --force "${_device}" 1>/dev/null
-
-    # Create a partition table with a single partition that takes the whole disk
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
-
-    cat <<EOF
-${red}
-***
-Using ${fstype} filesystem format for ${device} partition...
-***
-${nc}
-EOF
-
-    # Create filesystem
-    if [[ $fstype =~ 'ext' ]]; then
-        sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
-    elif [[ $fstype =~ 'xfs' ]]; then
-        sudo mkfs."${fstype}" -L "${label}" "${device}" 1>/dev/null || return 1
-    fi
+    sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
 
     # Sleep here ONLY, don't ask me why ask likewhoa!
     _sleep 5
@@ -1989,21 +1695,8 @@ EOF
     uuid=$(lsblk -no UUID "${device}")      # UUID of device
     local tmp=${mountpoint:1}               # Remove leading '/'
     local systemd_mountpoint=${tmp////-}    # Replace / with -
-
-    # Check if drive unit file was previously created
-    if [ -f /etc/systemd/system/"${systemd_mountpoint}".mount ]; then
-        systemd_mount=true
-    fi
-
-    if ! grep "${uuid}" /etc/systemd/system/"${systemd_mountpoint}".mount &>/dev/null; then
-        cat <<EOF
-${red}
-***
-Adding device ${device} to systemd.mount unit file
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
+    
+    sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
 [Unit]
 Description=Mount External SSD Drive ${device}
 
@@ -2015,25 +1708,13 @@ Options=defaults
 
 [Install]
 WantedBy=multi-user.target
-EOF"
-        # Mount filesystem
-        cat <<EOF
-${red}
-***
-Mounting ${device} to ${mountpoint}
-***
-${nc}
 EOF
-    fi
 
-    if $systemd_mount; then
-        sudo systemctl daemon-reload
-    fi
-
+    sudo systemctl daemon-reload
     sudo systemctl start --quiet "${systemd_mountpoint}".mount || return 1
     sudo systemctl enable --quiet "${systemd_mountpoint}".mount || return 1
-    # mount drive to ${mountpoint} using systemd.mount
 
+    _print_message "Mounted ${device} to ${mountpoint}"
 
     return 0
 }
@@ -2241,7 +1922,7 @@ EOF
     _create_dir "${ronin_data_dir}"
 
     sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
-        -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+        -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip_current}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
 
     touch "${ronin_data_dir}"/bisq.txt
 
@@ -2261,7 +1942,7 @@ ${nc}
 EOF
 
     sed -i -e '/-peerbloomfilters=1/d' \
-        -e "/-whitelist=bloomfilter@${ip}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+        -e "/-whitelist=bloomfilter@${ip_current}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
 
     rm "${ronin_data_dir}"/bisq.txt
     # Deletes bisq.txt file
@@ -2270,186 +1951,109 @@ EOF
 }
 
 #
-# Indexer data backup/restore
+# Indexer data restore
 #
-_dojo_data_indexer() {
+_dojo_data_indexer_restore() {
     _load_user_conf
 
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            restore)
-                if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
-                    cd "$dojo_path_my_dojo" || exit
-                    _dojo_check && _stop_dojo
+    if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
 
-                    _sleep
+        if sudo test -d "${docker_volume_indexer}"/_data/db; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db
+        fi
 
-                    if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                        sudo rm -rf "${docker_volume_indexer}"/_data/db
-                    fi
+        if sudo test -d "${dojo_backup_indexer}"/db; then
+            if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+                sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
+            fi
+            # if addrindexrs dir is found then move it.
+            sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
+        fi
 
-                    if sudo test -d "${dojo_backup_indexer}"/db; then
-                        sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-                    fi
+        _print_message "Indexer data restore completed..."
+        sudo rm -rf "${dojo_backup_indexer}"
+    fi
+}
 
-                    # changes to dojo path, otherwise exit
-                    # websearch "bash Logical OR (||)" for info
-                    # stops dojo and removes new data directories
-                    # then moves salvaged indexer data
+#
+# Indexer data backup
+#
+_dojo_data_indexer_backup() {
+    _load_user_conf
 
-                    cat <<EOF
-${red}
-***
-Indexer data restore completed...
-***
-${nc}
-EOF
-                    _sleep
+    test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
+    # check if salvage directory exist
 
-                    sudo rm -rf "${dojo_backup_indexer}"
-                    # remove old salvage directories
+    if sudo test -d "${docker_volume_indexer}"/_data/db; then
+        sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
+    fi
 
-                    cd "$dojo_path_my_dojo" || exit
-                    _source_dojo_conf
+    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
+        sudo mv "${docker_volume_indexer}"/_data/addrindexrs "${dojo_backup_indexer}"/
+    fi
+}
 
-                    cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                    # Start docker containers
-                    ./dojo.sh start
-                    # start dojo
-                fi
-                # check for indexer db data directory, if not found continue
+#
+# Bitcoin IBD restore
+#
+_dojo_data_bitcoind_restore() {
+    _load_user_conf
 
-                if ! _dojo_check; then
-                    cd "$dojo_path_my_dojo" || exit
-                    _source_dojo_conf
+    if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
+        _print_message "Blockchain data restore starting..."
 
-                    # Start docker containers
-                    ./dojo.sh start
-                    # start dojo
-                fi
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+                sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
+            fi
+        done
 
-                return 0
-                ;;
-            backup)
-                test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-                # check if salvage directory exist
+        for dir in blocks chainstate indexes; do
+            if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
+                sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
+            fi
+        done
 
-                if sudo test -d "${docker_volume_indexer}"/_data/db; then
-                    sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
-                fi
+        _print_message "Blockchain data restore completed..."
+        sudo rm -rf "${dojo_backup_bitcoind}"
+    fi
+}
 
-                # moves indexer data to ${dojo_backup_indexer} directory to be used by the dojo install script
-                return 0
-                ;;
-        esac
+#
+# Bitcoin IBD backup
+#
+_dojo_data_bitcoind_backup() {
+    _load_user_conf
+
+    test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
+
+    for dir in blocks chainstate indexes; do
+        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
+            sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
+        fi
     done
 }
 
 #
-# Bitcoin IBD backup/restore
+# Tor credentials backup
 #
-_dojo_data_bitcoind() {
-    _load_user_conf
+_tor_backup() {
+    test -d "${dojo_backup_tor}" || sudo mkdir -p "${dojo_backup_tor}"
 
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            restore)
-                if sudo test -d "${dojo_backup_bitcoind}/blocks" && sudo test -d "${docker_volume_bitcoind}"; then
-                    cat <<EOF
-${red}
-***
-Blockchain data restore starting...
-***
-${nc}
-EOF
-
-                    cd "$dojo_path_my_dojo" || exit
-                    _dojo_check && _stop_dojo
-
-                    _sleep
-
-                    for dir in blocks chainstate indexes; do
-                        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                            sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
-                        fi
-                    done
-
-                    for dir in blocks chainstate indexes; do
-                        if sudo test -d "${dojo_backup_bitcoind}"/"${dir}"; then
-                            sudo mv "${dojo_backup_bitcoind}"/"${dir}" "${docker_volume_bitcoind}"/_data/
-                        fi
-                    done
-                    # changes to dojo path, otherwise exit
-                    # websearch "bash Logical OR (||)" for info
-                    # stops dojo and removes new data directories
-                    # then moves salvaged block data
-
-                    cat <<EOF
-${red}
-***
-Blockchain data restore completed...
-***
-${nc}
-EOF
-                    _sleep
-
-                    sudo rm -rf "${dojo_backup_bitcoind}"
-                    # remove old salvage directories
-
-                    if ! "${dojo_data_indexer_backup}"; then
-                        cd "$dojo_path_my_dojo" || exit
-                        _source_dojo_conf
-
-                        cat <<EOF
-${red}
-***
-Starting all Docker containers...
-***
-${nc}
-EOF
-                        # Start docker containers
-                        ./dojo.sh start
-                        # start dojo
-                    fi
-                    # Only start dojo if no indexer restore is enabled
-                fi
-                # check for IBD data, if not found continue
-                return 0
-                ;;
-            backup)
-                test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
-                # check if salvage directory exist
-
-                for dir in blocks chainstate indexes; do
-                    if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-                        sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
-                    fi
-                done
-                # moves blockchain data to ${dojo_backup_bitcoind} to be used by the dojo install script
-                return 0
-                ;;
-        esac
-    done
+    if sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
+        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${dojo_backup_tor}"
+    fi
 }
 
 #
-# UFW rule add
+# Tor credentials restore
 #
-_ufw_rule_add(){
-    ip=$1
-    port=$2
+_tor_restore() {
+    if sudo test -d "${dojo_backup_tor}"/_data/hsv3dojo; then
+        sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
 
-    if ! sudo ufw status | grep "${port}" &>/dev/null; then
-        sudo ufw allow from "$ip" to any port "$port" &>/dev/null
-        sudo ufw reload
+        _print_message "Tor restore completed..."
+        sudo rm -rf "${dojo_backup_tor}"
     fi
 }
 
@@ -2712,7 +2316,7 @@ _uninstall_gpio() {
 # WARNING: These will have default values until _generate_dojo_credentials is ran.
 #
 _create_dojo_confs() {
-    for file in "${dojo_path_my_dojo}/conf/*.conf.tpl"; do
+    for file in ${dojo_path_my_dojo}/conf/*.conf.tpl; do
         cp "${file}" "${file:0:-4}"
     done
 }
@@ -2727,8 +2331,8 @@ _generate_dojo_credentials(){
 
     sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \
     -e "s/BITCOIND_RPC_PASSWORD=.*$/BITCOIND_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}/" \
-    "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 
-    
+    "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+
     sed -i -e "s/NODE_API_KEY=.*$/NODE_API_KEY=${NODE_API_KEY}/" \
     -e "s/NODE_ADMIN_KEY=.*$/NODE_ADMIN_KEY=${NODE_ADMIN_KEY}/" \
     -e "s/NODE_JWT_SECRET=.*$/NODE_JWT_SECRET=${NODE_JWT_SECRET}/" \
@@ -2737,7 +2341,7 @@ _generate_dojo_credentials(){
     sed -i -e "s/MYSQL_ROOT_PASSWORD=.*$/MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}/" \
     -e "s/MYSQL_USER=.*$/MYSQL_USER=${MYSQL_USER}/" \
     -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" \
-    "${dojo_path_my_dojo}"/conf/docker-mysql.conf.tpl
+    "${dojo_path_my_dojo}"/conf/docker-mysql.conf
 
     sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
     -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" \
@@ -2755,9 +2359,14 @@ _generate_dojo_credentials(){
 # Usage: Copys users dojo confs to SSD for easy restore if necessary
 #
 _backup_dojo_confs() {
-    sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    if [ ! -d ${dojo_backup_dir} ]; then
+        sudo mkdir -p ${dojo_backup_dir}
+    fi
+    if [ ! -w "${dojo_backup_dir}" ]; then
+        sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
+    fi
     _create_dir "${dojo_backup_conf}"
-    cp -p "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
+    sudo rsync -acp --quiet --delete-before "${dojo_path_my_dojo}"/conf/*.conf "${dojo_backup_conf}"
 }
 
 #
@@ -2765,17 +2374,57 @@ _backup_dojo_confs() {
 # Usage: restores/creates and backs up users dojo confs to SSD
 #
 _restore_or_create_dojo_confs() {
-    if [ -d "${dojo_backup_conf}" ]; then
+    if [ -d "${dojo_backup_conf}" ] && ! grep "BITCOIND_RPC_USER=dojorpc" "${dojo_backup_conf}"/docker-bitcoind.conf 1>/dev/null; then
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
-        cp -p "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
+        sudo rsync -acp --quiet --delete-before "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
     else
-        _print_message "No Backup credentials detected. Setting newly generated credentials..."
+        _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
         _generate_dojo_credentials
-        if "${dojo_conf_backup}"; then
+        if "${is_active_dojo_conf_backup}"; then
             _print_message "Backing up newly created credentials..."
             _backup_dojo_confs
         fi
     fi
+}
+
+#
+# Installs Network Check Service File
+# Usage: Creates a service file that will execute the network-check.sh and verify the system is still connected to the same network
+#
+_install_network_check_service() {
+    _load_user_conf
+
+    sudo tee "/etc/systemd/system/ronin.network.service" <<EOF >/dev/null
+[Unit]
+Description=Network Check
+After=multi-user.target
+After=network.target
+Requires=network.target
+
+[Service]
+User=root
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh ${ronin_data_dir}
+Restart=on-failure
+RestartSec=30
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable --now --quiet ronin.network
+}
+
+#
+# Removes Network Check Service File
+#
+_uninstall_network_check_service() {
+    sudo systemctl disable ronin.network
+    sudo systemctl stop ronin.network
+    sudo rm -f "/etc/systemd/system/ronin.network.service"
+    sudo systemctl daemon-reload
 }

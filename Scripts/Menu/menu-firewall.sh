@@ -138,86 +138,33 @@ EOF
             # reload firewall, press any key to return to menu
             ;;
         6)
-            cat <<EOF
-${red}
-***
-Obtain the IP address of any machine on the same local network as your RoninDojo...
-***
-${nc}
-EOF
+            _print_message "Obtain the IP address of any machine on the same local network as your RoninDojo..."
             _sleep
-
-            cat <<EOF
-${red}
-***
-The IP address entered will be adapted to end with .0/24 range...
-***
-${nc}
-EOF
+            _print_message "The IP address entered will be adapted to end with .0/24 range..."
             _sleep
-
-            cat <<EOF
-${red}
-***
-This will allow any machine on the same network to have SSH access...
-***
-${nc}
-EOF
+            _print_message "This will allow any machine on the same network to have SSH access..."
             _sleep
-
-            cat <<EOF
-${red}
-***
-Your IP address on the network may look like 192.168.4.21 or 12.34.56.78 depending on setup...
-***
-${nc}
-EOF
+            _print_message "Your IP address on the network may look like 192.168.4.21 or 12.34.56.78 depending on setup..."
             _sleep
-
-            cat <<EOF
-${red}
-***
-Enter the local IP address you wish to give SSH access now...
-***
-${nc}
-EOF
+            _print_message "Enter the local IP address you wish to give SSH access now..."
+            _sleep
 
             read -rp 'Local IP Address: ' ip_address
             sudo ufw allow from "$ip_address"/24 to any port 22 comment 'SSH access restricted to local network'
 
-            cat <<EOF
-${red}
-***
-Reloading...
-***
-${nc}
-EOF
+            _print_message "Reloading..."
             sudo ufw reload
-            # reload firewall
-
-            cat <<EOF
-${red}
-***
-Showing status...
-***
-${nc}
-EOF
+            
+            _print_message "Showing status..."
             _sleep
             sudo ufw status
-            # show firewall status
 
-            cat <<EOF
-${red}
-***
-Make sure that you see your new rule!
-***
-${nc}
-EOF
+            _print_message "Make sure that you see your new rule!"
             _sleep
 
             _pause return
             bash -c "${ronin_firewall_menu}"
-            # press any key to return to menu
+            exit
             ;;
         7)
             cat <<EOF

@@ -135,47 +135,6 @@ _update_07() {
     fi
 }
 
-# Create mnt-usb.mount if missing and system is already mounted.
-_update_08() {
-    local uuid tmp systemd_mountpoint fstype
-
-    if findmnt /mnt/usb 1>/dev/null && [ ! -f /etc/systemd/system/mnt-usb.mount ]; then
-        uuid=$(lsblk -no UUID "${primary_storage}")
-        tmp=${install_dir:1}                                    # Remove leading '/'
-        systemd_mountpoint=${tmp////-}                          # Replace / with -
-        fstype=$(blkid -o value -s TYPE "${primary_storage}")
-
-        cat <<EOF
-${red}
-***
-Adding missing systemd mount unit file for device ${primary_storage}...
-***
-${nc}
-EOF
-        sudo bash -c "cat <<EOF >/etc/systemd/system/${systemd_mountpoint}.mount
-[Unit]
-Description=Mount External SSD Drive ${primary_storage}
-
-[Mount]
-What=/dev/disk/by-uuid/${uuid}
-Where=${install_dir}
-Type=${fstype}
-Options=defaults
-
-[Install]
-WantedBy=multi-user.target
-EOF"
-        sudo systemctl enable --quiet mnt-usb.mount
-
-        _sleep 4 --msg "Restarting RoninDojo in"
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/08-"$(date +%m-%d-%Y)"
-
-        ronin
-    fi
-}
-
 # Migrate bitcoin ibd data to new backup directory
 _update_09() {
     if sudo test -d "${install_dir}"/bitcoin && sudo test -d "${install_dir}"/bitcoin/blocks; then
@@ -315,7 +274,7 @@ Migrating to nodejs-lts-fermium, please wait...
 ${nc}
 EOF
         sudo pacman -R --noconfirm --cascade nodejs-lts-erbium &>/dev/null
-        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium
+        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
 
         if _is_ronin_ui; then
             # Restart Ronin-UI
@@ -326,50 +285,6 @@ EOF
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Perform System Update
-_update_21() {
-    local _pacman
-    _pacman=false
-
-    if [ -d "${dojo_path}" ]; then
-        printf "%s\n***\nPerfoming a full system update...\n***\n%s" "${red}" "${nc}"
-
-         _pause continue
-
-        _dojo_check && _stop_dojo
-
-        # Modify pacman.conf and comment ignore packages line
-        if test -f "$HOME"/.config/RoninDojo/data/updates/06-*; then
-            sudo sed -i "s:^IgnorePkg   =.*$:#IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-            _pacman=true
-        fi
-
-        # Stopping docker
-        sudo systemctl stop --quiet docker
-
-        # Update system packages
-        sudo pacman -Syyu --noconfirm
-
-        # Uncomment IgnorePkg if necessary
-        ${_pacman} && sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-
-        if ! sudo systemctl start --quiet docker; then
-            printf "%s\n***\nRestarting system to finalize update...\n***\n%s" "${red}" "${nc}"
-
-            _pause reboot
-
-            sudo systemctl reboot
-        else
-            printf "%s\n***\nSystem packages update completed...\n***\n%s" "${red}" "${nc}"
-
-            _pause continue
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/21-"$(date +%m-%d-%Y)"
     fi
 }
 
@@ -487,9 +402,62 @@ EOF
 # Fix gpio
 _update_26() {
 
-    # Removes any existing setup, places a new setup
-    _install_gpio
-    
+    if [ -d "${ronin_ui_path}" ]; then
+        _install_gpio
+    fi
+
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/26-"$(date +%m-%d-%Y)"
+}
+
+# Fix Bitcoin DB Cache and Mempool Size for existing users:
+_update_27() {
+    if ! grep "BITCOIND_DB_CACHE=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
+        sed -i -e "s/BITCOIND_DB_CACHE=.*$/BITCOIND_DB_CACHE=${bitcoind_db_cache}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+    if ! grep "BITCOIND_MAX_MEMPOOL=1024" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf; then
+        sed -i -e "s/BITCOIND_MAX_MEMPOOL=.*$/BITCOIND_MAX_MEMPOOL=${bitcoind_mempool_size}/" "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/27-"$(date +%m-%d-%Y)"
+}
+
+# Fix users getting locked-out
+_update_28() {
+
+    # Configure faillock
+    # https://man.archlinux.org/man/faillock.conf.5
+    sudo tee "/etc/security/faillock.conf" <<EOF >/dev/null
+deny = 10
+fail_interval = 120
+unlock_time = 120
+EOF
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/28-"$(date +%m-%d-%Y)"
+}
+
+# Update Node.js and pnpm if necessary
+_update_29() {
+    sudo pacman -Syy --needed --noconfirm --noprogressbar nodejs-lts-fermium &>/dev/null
+    sudo npm i -g pnpm@7 &>/dev/null
+    pm2 restart "RoninUI" &>/dev/null
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/29-"$(date +%m-%d-%Y)"
+}
+
+# Add service to auto detect network change, for keeping UFW ruleset up to date
+_update_30() {
+
+    # Check if Network check is implemented. If not install and run it.
+    if ! -f /etc/systemd/system/ronin.network.service; then
+        _install_network_check_service
+    else
+        sudo systemctl restart ronin.network
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/30-"$(date +%m-%d-%Y)"
 }
