@@ -1,5 +1,10 @@
 Changelog
 
+RoninDojo v1.14.1 Change Log
+- Added editorconfig
+- Fixed unnecessary redirect to RoninDojo repo
+- Fix for upgrade scripts
+
 RoninDojo v1.14.0 Change Log
 - Dojo v1.14.0
 - Mempool Space v2.3.2
