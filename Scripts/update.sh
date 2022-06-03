@@ -461,3 +461,18 @@ _update_31() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
 }
+
+# Overwrite previous version of ronin.network.service with newer version
+_update_32() {
+
+    if [ -f /etc/systemd/system/ronin.network.service ]; then
+
+        sudo systemctl stop ronin.network
+
+        _install_network_check_service
+
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
+}

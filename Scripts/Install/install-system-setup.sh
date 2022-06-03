@@ -101,7 +101,7 @@ if ! -f /etc/systemd/system/ronin.network.service; then
 
     sudo ufw default deny incoming &>/dev/null
     sudo ufw default allow outgoing &>/dev/null
-    sudo ufw enable &>/dev/null
+    sudo ufw --force enable &>/dev/null
     sudo ufw reload &>/dev/null
 
     _install_network_check_service
