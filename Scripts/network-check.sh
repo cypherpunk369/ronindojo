@@ -1,4 +1,5 @@
 #!/bin/bash
+# shellcheck source=/dev/null disable=SC2154
 
 #check to see if the device is connected to the network
 ip route get 1 2>/dev/null || exit 1
