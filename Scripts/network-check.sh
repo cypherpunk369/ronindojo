@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 #check to see if the device is connected to the network
 ip route get 1 2>/dev/null || exit 1
