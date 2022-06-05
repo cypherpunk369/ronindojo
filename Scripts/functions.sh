@@ -124,7 +124,7 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
     test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
     test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
-    test -f "$HOME"/.config/RoninDojo/data/updates/30-* || _update_30 # Add service to auto detect network change, for keeping UFW ruleset up to date
+    test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
 }
 
 #
@@ -2392,6 +2392,7 @@ _restore_or_create_dojo_confs() {
 #
 # Installs Network Check Service File
 # Usage: Creates a service file that will execute the network-check.sh and verify the system is still connected to the same network
+# Note: do not edit without taking _update_32 into account.
 #
 _install_network_check_service() {
     _load_user_conf
@@ -2407,7 +2408,7 @@ Requires=network.target
 User=root
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh ${ronin_data_dir}
+ExecStart=/bin/bash ${ronin_scripts_dir}/network-check.sh ${ronin_data_dir} ${USER}
 Restart=on-failure
 RestartSec=30
 
