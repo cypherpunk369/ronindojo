@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
+# shellcheck source=./Scripts/defaults.sh disable=SC2034
 
 # RoninDojo Version tag
 if [ -d "$HOME"/RoninDojo/.git ]; then
