@@ -109,6 +109,12 @@ print_memory_usage() {
 #####################################################################
                          Memory Usage
 #####################################################################
+Total memory     :  $total_bc
+Used memory      :  $used_bc
+Free memory      :  $free_bc
+Total swap       :  $total_sbc
+Used swap        :  $used_sbc
+Free swap        :  $free_sbc
 EOF
 
 	# Need to fix output not displaying properly
