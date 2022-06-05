@@ -1691,7 +1691,7 @@ _create_fs() {
     _sleep 5
 
     # systemd.mount unit file creation
-    local uuid systemd_mount
+    local uuid
     uuid=$(lsblk -no UUID "${device}")      # UUID of device
     local tmp=${mountpoint:1}               # Remove leading '/'
     local systemd_mountpoint=${tmp////-}    # Replace / with -
