@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
+# shellcheck source=./Scripts/defaults.sh
 
 
 ####################

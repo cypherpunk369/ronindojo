@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck source=/dev/null
+# shellcheck source=./Scripts/defaults.sh
 
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
