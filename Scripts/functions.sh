@@ -2272,7 +2272,9 @@ EOF
 #
 _install_gpio() {
 
-    if [ ! _is_gpio_sytem ]; then
+    _is_gpio_sytem
+
+    if [ $? = 1  ]; then
         return 0
     fi
 
