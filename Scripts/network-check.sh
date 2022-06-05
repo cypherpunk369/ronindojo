@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 #check to see if the device is connected to the network
 ip route get 1 2>/dev/null || exit 1
@@ -7,10 +7,11 @@ ip_current=$(ip route get 1 | awk '{print $7}')
 interface_current=$(ip route get 1 | awk '{print $5}')
 network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
 ronin_data_dir=$1
+ronin_username=$2
 
 _backup_network_info(){
     echo -e "ip=${ip_current}\nnetwork=${network_current}\n" > "${ronin_data_dir}/ip.txt"
-    chown ronindojo:ronindojo "${ronin_data_dir}"/ip.txt
+    chown "${ronin_username}:${ronin_username}" "${ronin_data_dir}"/ip.txt
 }
 
 _set_uwf_rules() {
