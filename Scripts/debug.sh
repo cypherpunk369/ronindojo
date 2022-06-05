@@ -33,11 +33,11 @@ EOF
 	cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
 
 	echo "CURRENT USAGE:"
-	sar -P ALL -u ALL 1 1 | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	sar -P ALL -u ALL 1 1 | head "-`expr $cpus + 4`" | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
 	echo ""
 
 	echo "AVERAGE USAGE SINCE BOOT:"
-	mpstat -P ALL | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	mpstat -P ALL | head "-`expr $cpus + 4`" | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
 	echo ""
 	
     cat <<EOF
@@ -93,17 +93,17 @@ print_memory_usage() {
 	# Using bc to do all math operations, without bc all values will be integers 
 	# Also we use if to add zero before value if value less than 1024, and result of dividing will be less than 1
 	total_mem=$(free -m | head -2 | tail -1| awk '{print $2}')
-	total_bc=$(echo "scale=2;if("$total_mem"<1024 && "$total_mem" > 0) print 0;"$total_mem"/1024"| bc -l)
+	total_bc=$(echo "scale=2;if(${total_mem}<1024 && ${total_mem} > 0) print 0;${total_mem}/1024"| bc -l)
 	used_mem=$(free -m | head -2 | tail -1| awk '{print $3}')
-	used_bc=$(echo "scale=2;if("$used_mem"<1024 && "$used_mem" > 0) print 0;"$used_mem"/1024"|bc -l)
+	used_bc=$(echo "scale=2;if(${used_mem}<1024 && ${used_mem} > 0) print 0;${used_mem}/1024"|bc -l)
 	free_mem=$(free -m | head -2 | tail -1| awk '{print $4}')
-	free_bc=$(echo "scale=2;if("$free_mem"<1024 && "$free_mem" > 0) print 0;"$free_mem"/1024"|bc -l)
+	free_bc=$(echo "scale=2;if(${free_mem}<1024 && ${free_mem} > 0) print 0;${free_mem}/1024"|bc -l)
 	total_swap=$(free -m | tail -1| awk '{print $2}')
-	total_sbc=$(echo "scale=2;if("$total_swap"<1024 && "$total_swap" > 0) print 0;"$total_swap"/1024"| bc -l)
+	total_sbc=$(echo "scale=2;if(${total_swap}<1024 && ${total_swap} > 0) print 0;${total_swap}/1024"| bc -l)
 	used_swap=$(free -m | tail -1| awk '{print $3}')
-	used_sbc=$(echo "scale=2;if("$used_swap"<1024 && "$used_swap" > 0) print 0;"$used_swap"/1024"|bc -l)
+	used_sbc=$(echo "scale=2;if(${used_swap}<1024 && ${used_swap} > 0) print 0;${used_swap}/1024"|bc -l)
 	free_swap=$(free -m |  tail -1| awk '{print $4}')
-	free_sbc=$(echo "scale=2;if("$free_swap"<1024 && "$free_swap" > 0) print 0;"$free_swap"/1024"|bc -l)
+	free_sbc=$(echo "scale=2;if(${free_swap}<1024 && ${free_swap} > 0) print 0;$f{ree_swap}/1024"|bc -l)
 
 	cat <<EOF
 #####################################################################

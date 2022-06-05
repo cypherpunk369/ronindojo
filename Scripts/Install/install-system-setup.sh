@@ -97,7 +97,7 @@ EOF
 
 _print_message "Setting up UFW..."
 
-if ! -f /etc/systemd/system/ronin.network.service; then 
+if [ ! -f /etc/systemd/system/ronin.network.service ]; then 
 
     sudo ufw default deny incoming &>/dev/null
     sudo ufw default allow outgoing &>/dev/null
