@@ -22,7 +22,7 @@ if [ -d "$HOME"/dojo ]; then
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
     fi
     exit
-elif [ -f "${ronin_data_dir}"/system-install ]; then
+elif [ -f "${ronin_data_dir}"/system-install ] || [ -f /etc/systemd/system/ronin.network.service ]; then
     _print_message "Previous system install detected. Exiting script..."
     if [ $# -eq 0 ]; then
         _pause return
@@ -97,19 +97,14 @@ EOF
 
 _print_message "Setting up UFW..."
 
-if ! -f /etc/systemd/system/ronin.network.service; then 
+sudo ufw default deny incoming &>/dev/null
+sudo ufw default allow outgoing &>/dev/null
+sudo ufw --force enable &>/dev/null
+sudo ufw reload &>/dev/null
 
-    sudo ufw default deny incoming &>/dev/null
-    sudo ufw default allow outgoing &>/dev/null
-    sudo ufw --force enable &>/dev/null
-    sudo ufw reload &>/dev/null
+_install_network_check_service
 
-    _install_network_check_service
-
-    sudo systemctl enable --now --quiet ufw
-else
-    sudo systemctl restart ronin.network
-fi
+sudo systemctl enable --now --quiet ufw
 
 _print_message "Now that UFW is enabled, any computer connected to the same local network as your RoninDojo can access ports 22 (SSH) and 80 (HTTP)."
 _print_message "Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc."
