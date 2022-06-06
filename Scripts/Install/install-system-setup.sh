@@ -214,6 +214,27 @@ else
     fi
 fi
 
+####################################################
+# STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
+####################################################
+
+_print_message "Adding missing systemd mount unit file for device ${primary_storage}..."
+
+sudo tee "/etc/systemd/system/$(echo ${install_dir:1} | tr '/' '-').mount" <<EOF >/dev/null
+[Unit]
+Description=Mount primary storage ${primary_storage}
+
+[Mount]
+What=/dev/disk/by-uuid/$(lsblk -no UUID "${primary_storage}")
+Where=${install_dir}
+Type=$(blkid -o value -s TYPE "${primary_storage}")
+Options=defaults
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable --quiet mnt-usb.mount
 
 ###########################################
 # STORAGE DEVICES SETUP: USER INTERACTION #
