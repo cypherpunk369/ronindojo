@@ -173,7 +173,7 @@ if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
     _print_message "Moving to data backup"
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    sudo cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null
+    sudo bash -c 'cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null'
 
     _print_message "Tor data prepared for salvage!"
 fi
