@@ -70,7 +70,7 @@ _pacman_update_mirrors
 _print_message "Checking package dependencies. Please wait..."
 
 . "$HOME"/RoninDojo/Scripts/update.sh
-test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
+_update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
 
 for pkg in "${!package_dependencies[@]}"; do
     _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
