@@ -104,18 +104,8 @@ _call_update_scripts() {
 
     if [ -f "${ronin_data_dir}"/system-install ]; then
 
-        test -f "$HOME"/.config/RoninDojo/data/updates/01-* || _update_01 # Check for bridge-utils version update
-        test -f "$HOME"/.config/RoninDojo/data/updates/02-* || _update_02 # Migrate WST to new location and install method
-        test -f "$HOME"/.config/RoninDojo/data/updates/03-* || _update_03 # Add password less reboot/shutdown privileges
-        test -f "$HOME"/.config/RoninDojo/data/updates/04-* || _update_04 # Add password less for /usr/bin/{ufw,mount,umount,cat,grep,test,mkswap,swapon,swapoff} privileges
         _update_05 # Check on tor unit service
         test -f "$HOME"/.config/RoninDojo/data/updates/06-* || _update_06 # Modify pacman to Ignore specific packages
-        test -f "$HOME"/.config/RoninDojo/data/updates/07-* || _update_07 # Set user.conf in appropriate place
-        test -f "$HOME"/.config/RoninDojo/data/updates/09-* || _update_09 # Migrate bitcoin ibd data to new backup directory
-        test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10 # Migrate user.conf variables to lowercase
-        test -f "$HOME"/.config/RoninDojo/data/updates/11-* || _update_11 # Migrate to new ui backend tor location
-        test -f "$HOME"/.config/RoninDojo/data/updates/13-* || _update_13 # tag that system install has been installed already
-        test -f "$HOME"/.config/RoninDojo/data/updates/14-* || _update_14 # Remove user.config file if it exist
         test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
         test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
         test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
