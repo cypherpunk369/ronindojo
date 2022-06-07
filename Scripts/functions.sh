@@ -2341,11 +2341,11 @@ _generate_dojo_credentials(){
     -e "s/MYSQL_PASSWORD=.*$/MYSQL_PASSWORD=${MYSQL_PASSWORD}/" \
     "${dojo_path_my_dojo}"/conf/docker-mysql.conf
 
-    sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=${EXPLORER_INSTALL:-on}/" \
+    sed -i -e "s/EXPLORER_INSTALL=.*$/EXPLORER_INSTALL=on/" \
     -e "s/EXPLORER_KEY=.*$/EXPLORER_KEY=${EXPLORER_KEY}/" \
     "${dojo_path_my_dojo}"/conf/docker-explorer.conf
 
-    sed -i -e 's/MEMPOOL_INSTALL=.*$/MEMPOOL_INSTALL=on/' \
+    sed -i -e 's/MEMPOOL_INSTALL=.*$/MEMPOOL_INSTALL=off/' \
     -e "s/MEMPOOL_MYSQL_USER=.*$/MEMPOOL_MYSQL_USER=${MEMPOOL_MYSQL_USER}/" \
     -e "s/MEMPOOL_MYSQL_PASS=.*$/MEMPOOL_MYSQL_PASS=${MEMPOOL_MYSQL_PASS}/" \
     -e "s/MEMPOOL_MYSQL_ROOT_PASSWORD=.*$/MEMPOOL_MYSQL_ROOT_PASSWORD=${MEMPOOL_MYSQL_ROOT_PASSWORD}/" \
