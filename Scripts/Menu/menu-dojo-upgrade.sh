@@ -1,13 +1,17 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
 
 ####################
 # SOURCE FUNCTIONS #
 ####################
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
+
+# shellcheck source=./Scripts/update.sh
 . "$HOME"/RoninDojo/Scripts/update.sh
 
 

@@ -28,6 +28,6 @@ parse-test:
     - echo "the following files will be checked"
     - find ./ -name "*.sh"
     - echo -e "*************\nSTARTING TEST\n*************"
-    - find ./ -name "*.sh" | xargs shellcheck-stable/shellcheck -a --enable=all --severity=${SEVERITY}
-    - shellcheck-stable/shellcheck -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
+    - find ./ -name "*.sh" | xargs shellcheck-stable/shellcheck -x -a --enable=all --severity=${SEVERITY}
+    - shellcheck-stable/shellcheck -x -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
     - echo -e "*************\nTEST COMPLETE\n*************"

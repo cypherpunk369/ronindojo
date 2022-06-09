@@ -1,8 +1,10 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+# shellcheck source=./Scripts/dojo-defaults.sh
 . "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 if [ ! -d "${boltzmann_path}" ]; then

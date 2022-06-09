@@ -1,6 +1,6 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
 _load_user_conf

@@ -81,6 +81,7 @@ EOF
 }
 
 _call_update_scripts() {
+    # shellcheck source=./Scripts/update.sh
     . "$HOME"/RoninDojo/Scripts/update.sh
 
     if [ -f "${ronin_data_dir}"/system-install ]; then
@@ -520,6 +521,7 @@ _is_ronin_ui() {
 # Install Ronin UI
 #
 _ronin_ui_install() {
+    # shellcheck source=./Scripts/generated-credentials.sh
     . "${HOME}"/RoninDojo/Scripts/generated-credentials.sh
 
     _load_user_conf
@@ -990,6 +992,7 @@ _fetch_configured_indexer_type() {
 # Offer user choice of indexer
 #
 _indexer_prompt() {
+    # shellcheck source=./Scripts/defaults.sh
     . "$HOME"/RoninDojo/Scripts/defaults.sh
     
     _print_message "Preparing the Indexer Prompt..."
@@ -1079,6 +1082,7 @@ _is_mempool() {
 # Uninstall Mempool Space Visualizer
 #
 _mempool_uninstall() {
+    # shellcheck source=./Scripts/dojo-defaults.sh
     . "${HOME}"/RoninDojo/Scripts/dojo-defaults.sh
 
     _print_message "Uninstalling Mempool Space Visualizer ${_mempool_version}..."
@@ -1099,6 +1103,7 @@ _mempool_conf() {
         MEMPOOL_MYSQL_ROOT_PASSWORD=$(grep MYSQL_ROOT_PASSWORD "${dojo_path_my_dojo}"/conf/docker-mempool.conf | cut -d '=' -f2)
     else
         # Generate mempool MySQL credentials for a fresh install
+        # shellcheck source=./Scripts/generated-credentials.sh
         . "${HOME}"/RoninDojo/Scripts/generated-credentials.sh
     fi
 
@@ -1196,6 +1201,7 @@ _is_dojo_running() {
 #
 _source_dojo_conf() {
     for conf in conf/docker-{whirlpool,indexer,bitcoind,explorer,mempool}.conf .env; do
+        # fuck, i can't shellchecksource this
         test -f "${conf}" && . "${conf}"
     done
 
@@ -1550,6 +1556,7 @@ _is_bisq(){
 #
 _bisq_install(){
     _print_message "Enabling Bisq support..."
+    # shellcheck source=./Scripts/defaults.sh
     . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
     _create_dir "${ronin_data_dir}"
@@ -1995,6 +2002,7 @@ _create_dojo_confs() {
 #
 _generate_dojo_credentials(){
     _load_user_conf
+    # shellcheck source=./Scripts/generated-credentials.sh
     . "${HOME}"/RoninDojo/Scripts/generated-credentials.sh
 
     sed -i -e "s/BITCOIND_RPC_USER=.*$/BITCOIND_RPC_USER=${BITCOIND_RPC_USER}/" \

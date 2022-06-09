@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
 #
 # Dojo Configuration Values
