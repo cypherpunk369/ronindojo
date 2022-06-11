@@ -22,7 +22,7 @@ if [ -d "$HOME"/dojo ]; then
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
     fi
     exit
-elif [ -f "${ronin_data_dir}"/system-install ]; then
+elif [ -f "${ronin_data_dir}"/system-install ] || [ -f /etc/systemd/system/ronin.network.service ]; then
     _print_message "Previous system install detected. Exiting script..."
     if [ $# -eq 0 ]; then
         _pause return
@@ -70,7 +70,7 @@ _pacman_update_mirrors
 _print_message "Checking package dependencies. Please wait..."
 
 . "$HOME"/RoninDojo/Scripts/update.sh
-test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
+_update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
 
 for pkg in "${!package_dependencies[@]}"; do
     _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
@@ -97,19 +97,14 @@ EOF
 
 _print_message "Setting up UFW..."
 
-if [ ! -f /etc/systemd/system/ronin.network.service ]; then 
+sudo ufw default deny incoming &>/dev/null
+sudo ufw default allow outgoing &>/dev/null
+sudo ufw --force enable &>/dev/null
+sudo ufw reload &>/dev/null
 
-    sudo ufw default deny incoming &>/dev/null
-    sudo ufw default allow outgoing &>/dev/null
-    sudo ufw --force enable &>/dev/null
-    sudo ufw reload &>/dev/null
+_install_network_check_service
 
-    _install_network_check_service
-
-    sudo systemctl enable --now --quiet ufw
-else
-    sudo systemctl restart ronin.network
-fi
+sudo systemctl enable --now --quiet ufw
 
 _print_message "Now that UFW is enabled, any computer connected to the same local network as your RoninDojo can access ports 22 (SSH) and 80 (HTTP)."
 _print_message "Leaving this setting default is NOT RECOMMENDED for users who are connecting to something like University, Public Internet, Etc."
@@ -178,7 +173,7 @@ if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
     _print_message "Moving to data backup"
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    sudo cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null
+    sudo bash -c 'cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null'
 
     _print_message "Tor data prepared for salvage!"
 fi
@@ -214,6 +209,27 @@ else
     fi
 fi
 
+####################################################
+# STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
+####################################################
+
+_print_message "Adding missing systemd mount unit file for device ${primary_storage}..."
+
+sudo tee "/etc/systemd/system/$(echo ${install_dir:1} | tr '/' '-').mount" <<EOF >/dev/null
+[Unit]
+Description=Mount primary storage ${primary_storage}
+
+[Mount]
+What=/dev/disk/by-uuid/$(lsblk -no UUID "${primary_storage}")
+Where=${install_dir}
+Type=$(blkid -o value -s TYPE "${primary_storage}")
+Options=defaults
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl enable --quiet mnt-usb.mount
 
 ###########################################
 # STORAGE DEVICES SETUP: USER INTERACTION #
