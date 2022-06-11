@@ -51,7 +51,7 @@ case $CHOICE in
         bash -c "${ronin_system_menu}"
         # runs system menu script
         ;;
-    255|9)
+    *)
         _sleep 5 --msg "RoninDojo Exiting in"
         exit 0
         # exits Ronin
