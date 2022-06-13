@@ -2272,7 +2272,7 @@ _install_gpio() {
 
     _is_gpio_sytem
 
-    if [ $? = 1  ]; then
+    if [ $? = 1 ]; then
         return 0
     fi
 
