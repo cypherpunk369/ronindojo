@@ -10,12 +10,6 @@ test ! -d "$HOME"/.config/RoninDojo/data/updates && mkdir -p "$HOME"/.config/Ron
 
 ## Perform update checks ##
 
-# Remove update file from a previous upgrade
-test -f "$HOME"/.config/RoninDojo/data/updates/10-* && rm "$HOME"/.config/RoninDojo/data/updates/10-* &>/dev/null
-
-# Migrate user.conf variables to lowercase
-test -f "$HOME"/.config/RoninDojo/data/updates/10-* || _update_10
-
 # Uninstall bleeding edge Node.js and install LTS Node.js instead
 test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19
 
