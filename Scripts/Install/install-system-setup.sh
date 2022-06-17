@@ -219,11 +219,19 @@ else
     _print_message "No Blockchain data found for salvage..."
     _print_message "Formatting the SSD..."
 
-    if ! _create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
-        _print_error_message "Filesystem creation failed! Exiting now..."
-        _sleep 3
-        exit 1
+    if findmnt "${primary_storage}" 1>/dev/null; then
+        if ! sudo umount "${primary_storage}"; then
+            _print_error_message "Could not prepare device ${primary_storage} for formatting, was likely still in use"
+            _print_error_message "Filesystem creation failed!"
+            _pause return
+            exit 1
+        fi
     fi
+
+    sudo wipefs -a --force "${_device}" 1>/dev/null
+    sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
+    sudo mkfs.ext4 -q -F -L "main" "${primary_storage}" 1>/dev/null
+
 fi
 
 ####################################################
@@ -246,6 +254,8 @@ Options=defaults
 WantedBy=multi-user.target
 EOF
 
+sudo systemctl daemon-reload
+sudo systemctl start --quiet mnt-usb.mount
 sudo systemctl enable --quiet mnt-usb.mount
 
 ###########################################
