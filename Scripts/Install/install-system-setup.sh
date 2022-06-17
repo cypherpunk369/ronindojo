@@ -119,7 +119,7 @@ _print_message "All Dojo dependencies installed..."
 _nvme_check && _load_user_conf
 
 _print_message "Creating ${install_dir} directory..."
-test -d "${install_dir}" || sudo mkdir "${install_dir}"
+test -d "${install_dir}" || sudo mkdir -p "${install_dir}"
 
 if [[ "${primary_storage}" =~ "/dev/sd" ]]; then
     _device="${primary_storage%?}"
