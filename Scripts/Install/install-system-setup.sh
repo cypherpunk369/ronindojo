@@ -141,6 +141,14 @@ if [ ! -b "${_device}" ]; then
     exit 1
 fi
 
+####################################################
+# STORAGE DEVICES SETUP: PREPARING PARTITION TABLE #
+####################################################
+
+if [ ! -b "${primary_storage}" ]; then
+    _print_message "No partition table found, creating one ..."
+    sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
+fi
 
 ##################################
 # STORAGE DEVICES SETUP: SALVAGE #
