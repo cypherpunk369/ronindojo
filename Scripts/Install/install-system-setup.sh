@@ -238,7 +238,11 @@ fi
 # STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
 ####################################################
 
-_print_message "Adding missing systemd mount unit file for device ${primary_storage}..."
+_print_message "Writing systemd mount unit file for device ${primary_storage}..."
+
+#TODO: below, replace this by-uuid construct with a simple use of ${primary_storage}, gotta fix sda Vs sdb first though
+#USECASE: by-uuid construct doesn't survive wipefs and reformat, would require a remake of the mountfile
+#ALTERNATIVE: if the partition has always been labelled "main", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios
 
 sudo tee "/etc/systemd/system/$(echo ${install_dir:1} | tr '/' '-').mount" <<EOF >/dev/null
 [Unit]
