@@ -121,15 +121,24 @@ _nvme_check && _load_user_conf
 _print_message "Creating ${install_dir} directory..."
 test -d "${install_dir}" || sudo mkdir "${install_dir}"
 
+if [[ "${primary_storage}" =~ "/dev/sd" ]]; then
+    _device="${primary_storage%?}"
+elif [[ "${primary_storage}" =~ "/dev/nvme" ]]; then
+    _device="${primary_storage%??}"
+else
+    _print_error_message "Device type unrecognized: ${primary_storage}"
+    _pause return
+    exit 1
+fi
 
 #####################################
 # STORAGE DEVICES SETUP: ASSERTIONS #
 #####################################
 
-if [ ! -b "${primary_storage}" ]; then
-    _print_error_message "device ${primary_storage} not found!"
+if [ ! -b "${_device}" ]; then
+    _print_error_message "device ${_device} not found!"
     [ $# -eq 0 ] && _pause return
-    exit
+    exit 1
 fi
 
 
