@@ -244,7 +244,7 @@ _print_message "Writing systemd mount unit file for device ${primary_storage}...
 #USECASE: by-uuid construct doesn't survive wipefs and reformat, would require a remake of the mountfile
 #ALTERNATIVE: if the partition has always been labelled "main", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios
 
-sudo tee "/etc/systemd/system/$(echo ${install_dir:1} | tr '/' '-').mount" <<EOF >/dev/null
+sudo tee "/etc/systemd/system/$(echo "${install_dir:1}" | tr '/' '-').mount" <<EOF >/dev/null
 [Unit]
 Description=Mount primary storage ${primary_storage}
 
