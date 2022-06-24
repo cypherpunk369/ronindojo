@@ -8,7 +8,7 @@ if [ ! -d "$HOME"/Whirlpool-Stats-Tool ]; then
     _print_message "Installing Whirlpool Stat Tool..."
     _sleep
 
-    bash "$HOME"/RoninDojo/Scripts/Install/install-wst.sh
+    _install_wst
 fi
 
 _sleep
