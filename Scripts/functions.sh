@@ -120,7 +120,7 @@ _call_update_scripts() {
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 31); do
-            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
+            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
 }
