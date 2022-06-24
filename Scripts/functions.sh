@@ -127,6 +127,7 @@ _call_update_scripts() {
 
 #
 # Prints a message in the RoninDojo human messaging format
+# Usage: _print_message "The billboard message here" ["extra lines below the billboard here"[..]]
 #
 _print_message() {
     cat <<EOF
@@ -136,6 +137,10 @@ $1
 ***
 ${nc}
 EOF
+    while [ $# -gt 1 ]; do
+        echo $2
+        shift 1
+    done
 }
 
 #
