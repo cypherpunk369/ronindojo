@@ -30,25 +30,7 @@ _print_message "Type: 'quit' at anytime to exit the Whirlpool Statitics Tool."
 
 _pause continue
 
-if ! pipenv run python wst.py -w=/tmp 2>/dev/null; then
-    _check_pkg "pipenv" "python-pipenv"
-
-    cat <<EOF
-${red}
-***
-Checking for updates...
-***
-${nc}
-EOF
-    _sleep
-
-    cd .. || exit
-
-    pipenv update &>/dev/null
-
-    cd - &>/dev/null || exit
-    pipenv run python wst.py -w=/tmp
-fi
+pipenv run python wst.py -w=/tmp
 
 _pause return
 bash -c "${ronin_samourai_toolkit_menu}"
