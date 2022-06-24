@@ -15,12 +15,10 @@ EOF
     _sleep
 
     bash "$HOME"/RoninDojo/Scripts/Install/install-wst.sh
-else
-    _sleep
-    cd "$HOME"/Whirlpool-Stats-Tool/whirlpool_stats || exit
 fi
-# if "$HOME"/whirlpool_stats is not found then run install script
-# else inform user and launch
+
+_sleep
+cd "$HOME"/Whirlpool-Stats-Tool/whirlpool_stats || exit
 
 cat <<EOF
 ${red}
