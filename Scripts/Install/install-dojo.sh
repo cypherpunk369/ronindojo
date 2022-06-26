@@ -122,7 +122,7 @@ fi
 
 if findmnt "${backup_mount}" 1>/dev/null; then
     sudo umount "${backup_mount}"
-    sudo rmdir "${backup_mount}" &>/dev/null
+    sudo rm -rf "${backup_mount}" &>/dev/null
 fi
 
 ############
