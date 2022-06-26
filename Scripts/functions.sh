@@ -1959,7 +1959,7 @@ EOF
 _dojo_data_indexer_restore() {
     _load_user_conf
 
-    if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
+    if sudo test -d "${dojo_backup_indexer}"/db && sudo test -d "${docker_volume_indexer}"; then
 
         if sudo test -d "${docker_volume_indexer}"/_data/db; then
             sudo rm -rf "${docker_volume_indexer}"/_data/db
