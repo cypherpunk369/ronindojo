@@ -154,43 +154,43 @@ fi
 # STORAGE DEVICES SETUP: SALVAGE #
 ##################################
 
-_print_message "Creating ${storage_mount} directory..."
-test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+_print_message "Creating ${backup_mount} directory..."
+test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
-sudo mount "${primary_storage}" "${storage_mount}"
+sudo mount "${primary_storage}" "${backup_mount}"
 
-if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
+if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
 
     _print_message "Found Blockchain data for salvage!"
     _print_message "Moving to data backup"
     test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
 
-    sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
+    sudo mv -v "${backup_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
 
     _print_message "Blockchain data prepared for salvage!"
 fi
 
-if sudo test -d "${storage_mount}/${indexer_data_dir}/_data/db"; then
+if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/db"; then
 
     _print_message "Found Indexer data for salvage!"
     _print_message "Moving to data backup"
     test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
 
-    sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
-    if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
-        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
+    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
+    if [ -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
+        sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
     fi
 
     _print_message "Indexer data prepared for salvage!"
 fi
 
-if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
+if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then
 
     _print_message "Found Tor data for salvage!"
     _print_message "Moving to data backup"
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    sudo bash -c 'cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null'
+    sudo bash -c 'cp -rpv "${backup_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null'
 
     _print_message "Tor data prepared for salvage!"
 fi
@@ -200,10 +200,10 @@ fi
 # STORAGE DEVICES SETUP: SALVAGE CLEANUP #
 ##########################################
 
-if check_swap "${storage_mount}/swapfile"; then
-    test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
+if check_swap "${backup_mount}/swapfile"; then
+    test -f "${backup_mount}/swapfile" && sudo swapoff "${backup_mount}/swapfile" &>/dev/null
 fi
-sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
+sudo rm -rf "${backup_mount}"/{docker,tor,swapfile} &>/dev/null
 
 
 #######################################################

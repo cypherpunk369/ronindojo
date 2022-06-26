@@ -66,11 +66,11 @@ EOF
     # no drive detected, press any key to return to menu
 fi
 
-if ! findmnt "${storage_mount}" 1>/dev/null; then
+if ! findmnt "${backup_mount}" 1>/dev/null; then
     cat <<EOF
 ${red}
 ***
-Preparing to Mount ${secondary_storage} to ${storage_mount}...
+Preparing to Mount ${secondary_storage} to ${backup_mount}...
 ***
 ${nc}
 EOF
@@ -105,20 +105,20 @@ EOF
     done
     # ask user to proceed
 
-    test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+    test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
     # create mount directory if not available
 
     cat <<EOF
 ${red}
 ***
-Mounting ${secondary_storage} to ${storage_mount}...
+Mounting ${secondary_storage} to ${backup_mount}...
 ***
 ${nc}
 EOF
     _sleep
 
-    sudo mount "${secondary_storage}" "${storage_mount}"
-    # mount backup drive to ${storage_mount} directory
+    sudo mount "${secondary_storage}" "${backup_mount}"
+    # mount backup drive to ${backup_mount} directory
 fi
 
 cat <<EOF
@@ -158,7 +158,7 @@ elif sudo test -d "${docker_volume_bitcoind}"/_data/blocks; then
     sudo cp -av "${docker_volume_bitcoind}"/_data/{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"
     # use cp for initial fresh IBD copy
 else
-    sudo umount "${storage_mount}" && sudo rmdir "${storage_mount}"
+    sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
 
     cat <<EOF
 ${red}
@@ -197,7 +197,7 @@ EOF
 
 _sleep
 
-sudo umount "${storage_mount}" && sudo rmdir "${storage_mount}"
+sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
 # unmount backup drive and remove directory
 
 cat <<EOF

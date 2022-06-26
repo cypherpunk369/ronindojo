@@ -66,11 +66,11 @@ EOF
     # no drive detected, press any key to return to menu
 fi
 
-if ! findmnt "${storage_mount}" 1>/dev/null; then
+if ! findmnt "${backup_mount}" 1>/dev/null; then
     cat <<EOF
 ${red}
 ***
-Preparing to Mount ${secondary_storage} to ${storage_mount}...
+Preparing to Mount ${secondary_storage} to ${backup_mount}...
 ***
 ${nc}
 EOF
@@ -105,20 +105,20 @@ EOF
     done
     # ask user to proceed
 
-    test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+    test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
     # create mount directory if not available
 
     cat <<EOF
 ${red}
 ***
-Mounting ${secondary_storage} to ${storage_mount}...
+Mounting ${secondary_storage} to ${backup_mount}...
 ***
 ${nc}
 EOF
     _sleep 1
 
-    sudo mount "${secondary_storage}" "${storage_mount}"
-    # mount backup drive to ${storage_mount} directory
+    sudo mount "${secondary_storage}" "${backup_mount}"
+    # mount backup drive to ${backup_mount} directory
 fi
 
 cat <<EOF
@@ -152,16 +152,16 @@ for dir in blocks chainstate indexes; do
     fi
 done
 
-# Check to see if we have old legacy backup directory, if so rename to ${storage_mount}
-if sudo test -d "${storage_mount}"/system-setup-salvage; then
-    sudo mv "${storage_mount}"/system-setup-salvage "${bitcoin_ibd_backup_dir}" 1>/dev/null
+# Check to see if we have old legacy backup directory, if so rename to ${backup_mount}
+if sudo test -d "${backup_mount}"/system-setup-salvage; then
+    sudo mv "${backup_mount}"/system-setup-salvage "${bitcoin_ibd_backup_dir}" 1>/dev/null
 fi
 
 # Migrate from old $bitcoin_ibd_backup_dir path to new
-if sudo test -d "${storage_mount}"/bitcoin; then
+if sudo test -d "${backup_mount}"/bitcoin; then
     sudo test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
-    sudo mv "${storage_mount}"/bitcoin/* "${bitcoin_ibd_backup_dir}"/
-    sudo rm -rf "${storage_mount}"/bitcoin
+    sudo mv "${backup_mount}"/bitcoin/* "${bitcoin_ibd_backup_dir}"/
+    sudo rm -rf "${backup_mount}"/bitcoin
 fi
 
 cat <<EOF
@@ -178,7 +178,7 @@ if sudo test -d "${bitcoin_ibd_backup_dir}"/blocks; then
     # copy blockchain data from back up drive to dojo bitcoind data directory, will take a little bit
     sudo cp -av "${bitcoin_ibd_backup_dir}"/{blocks,chainstate,indexes} "${docker_volume_bitcoind}"/_data/
 else
-    sudo umount "${storage_mount}" && sudo rmdir "${storage_mount}"
+    sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
     cat <<BACKUP
 ${red}
 ***
@@ -215,7 +215,7 @@ ${nc}
 EOF
 _sleep
 
-sudo umount "${storage_mount}" && sudo rmdir "${storage_mount}"
+sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
 # unmount backup drive and remove directory
 
 cat <<EOF

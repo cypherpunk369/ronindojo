@@ -120,9 +120,9 @@ fi
 # CLEANING UP BACKUP #
 ######################
 
-if findmnt "${storage_mount}" 1>/dev/null; then
-    sudo umount "${storage_mount}"
-    sudo rmdir "${storage_mount}" &>/dev/null
+if findmnt "${backup_mount}" 1>/dev/null; then
+    sudo umount "${backup_mount}"
+    sudo rmdir "${backup_mount}" &>/dev/null
 fi
 
 ############

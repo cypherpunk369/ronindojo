@@ -128,11 +128,11 @@ ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 #
 primary_storage="/dev/sda1"
 secondary_storage="/dev/sdb1"
-storage_mount="/mnt/backup"
+backup_mount="/mnt/backup"
 
-bitcoin_ibd_backup_dir="${storage_mount}/backup/bitcoin"
-indexer_backup_dir="${storage_mount}/backup/indexer"
-tor_backup_dir="${storage_mount}/backup/tor"
+bitcoin_ibd_backup_dir="${backup_mount}/backup/bitcoin"
+indexer_backup_dir="${backup_mount}/backup/indexer"
+tor_backup_dir="${backup_mount}/backup/tor"
 
 install_dir="/mnt/usb"
 install_dir_tor="${install_dir}/tor"
