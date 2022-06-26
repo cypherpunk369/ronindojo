@@ -1960,19 +1960,14 @@ _dojo_data_indexer_restore() {
     _load_user_conf
 
     if sudo test -d "${dojo_backup_indexer}"/db && sudo test -d "${docker_volume_indexer}"; then
+        sudo rm -rf "${docker_volume_indexer}"/_data/
 
-        if sudo test -d "${docker_volume_indexer}"/_data/db; then
-            sudo rm -rf "${docker_volume_indexer}"/_data/db
+        if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+            sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
         fi
-
-        if sudo test -d "${dojo_backup_indexer}"/db; then
-            if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
-                sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
-            fi
-            # if addrindexrs dir is found then move it.
-            sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-        fi
-
+        # if addrindexrs dir is found then move it.
+        sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
+        
         _print_message "Indexer data restore completed..."
         sudo rm -rf "${dojo_backup_indexer}"
     fi
