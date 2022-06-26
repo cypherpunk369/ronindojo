@@ -154,7 +154,7 @@ dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
-indexer_data_dir="docker/volumes/my-dojo_data_indexer"
+indexer_data_dir="docker/volumes/my-dojo_data-indexer"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 
