@@ -1107,10 +1107,10 @@ _uninstall_electrs_indexer() {
 # Checks salvaged data for which indexer is used
 #
 _check_salvage_db() {     
-    if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
+    if sudo test -d "${dojo_backup_indexer}"/db/bitcoin; then
         return 0 
         # returns electrs prior install.
-    elif sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
+    elif sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
         return 1
         # returns addrindexrs prior install.
     else 
