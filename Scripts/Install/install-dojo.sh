@@ -69,7 +69,7 @@ _set_indexer
 if sudo test -d "${dojo_backup_indexer}"/db/bitcoin; then # Found electrs previous install.
     _print_message "Found indexer salvage to be of type electrs, setting it up..."
     bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo test -d "${dojo_backup_indexer}"/_data/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
+    sudo test -d "${dojo_backup_indexer}"/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
 
 elif sudo test -d "${dojo_backup_indexer}"/addrindexrs; then # Found addrindexrs previous install.
     _print_message "Found indexer salvage to be of type addrindexrs"
