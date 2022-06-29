@@ -2030,7 +2030,7 @@ _tor_backup() {
 # Tor credentials restore
 #
 _tor_restore() {
-    if sudo test -d "${dojo_backup_tor}"/_data/hsv3dojo; then
+    if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
         sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
 
         _print_message "Tor restore completed..."
