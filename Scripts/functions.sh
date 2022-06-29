@@ -1945,9 +1945,10 @@ _dojo_data_indexer_restore() {
     if sudo test -d "${dojo_backup_indexer}"/db && sudo test -d "${docker_volume_indexer}"; then
         _print_message "Indexer data restore starting..."
 
-        sudo rm -rf "${docker_volume_indexer}"/_data/
+        sudo rm -rf "${docker_volume_indexer}"/_data/db
 
         if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+            sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
             sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
         fi
         # if addrindexrs dir is found then move it.
