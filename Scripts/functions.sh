@@ -1943,6 +1943,8 @@ _dojo_data_indexer_restore() {
     _load_user_conf
 
     if sudo test -d "${dojo_backup_indexer}"/db && sudo test -d "${docker_volume_indexer}"; then
+        _print_message "Indexer data restore starting..."
+
         sudo rm -rf "${docker_volume_indexer}"/_data/
 
         if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
@@ -2031,9 +2033,11 @@ _tor_backup() {
 #
 _tor_restore() {
     if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
+        _print_message "Tor data restore starting..."
+        
         sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
 
-        _print_message "Tor restore completed..."
+        _print_message "Tor data restore completed..."
         sudo rm -rf "${dojo_backup_tor}"
     fi
 }
