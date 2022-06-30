@@ -2035,8 +2035,8 @@ _tor_backup() {
 _tor_restore() {
     if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
         _print_message "Tor data restore starting..."
-        
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
+
+        sudo bash -c "mv -v ${dojo_backup_tor}/* ${install_dir}/${tor_data_dir}/_data"
 
         _print_message "Tor data restore completed..."
         sudo rm -rf "${dojo_backup_tor}"
