@@ -1091,7 +1091,7 @@ _set_indexer() {
 #
 _uninstall_electrs_indexer() {
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
-    sudo test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db/*
+    sudo test -d "${docker_volume_indexer}"/_data/db && sudo bash -c "rm -rf ${docker_volume_indexer}/_data/*"
 
     cd "${dojo_path_my_dojo}" || exit
 
