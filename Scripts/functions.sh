@@ -2036,6 +2036,7 @@ _tor_restore() {
     if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
         _print_message "Tor data restore starting..."
 
+        sudo bash -c "rm -rf ${install_dir}/${tor_data_dir}/_data/*"
         sudo bash -c "mv -v ${dojo_backup_tor}/* ${install_dir}/${tor_data_dir}/_data"
 
         _print_message "Tor data restore completed..."
