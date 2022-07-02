@@ -176,8 +176,8 @@ if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/db"; then
     _print_message "Moving to data backup"
     test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
 
-    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
-    if [ -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
+    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/
+    if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
         sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/
     fi
 
