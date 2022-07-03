@@ -20,7 +20,7 @@ _set_uwf_rules() {
     ufw reload
 }
 
-if [ ! -f /mnt/usb/backup/ip.txt ]; then
+if [ ! -f "${ronin_data_dir}"/ip.txt ]; then
     _set_uwf_rules
     _backup_network_info
     exit
