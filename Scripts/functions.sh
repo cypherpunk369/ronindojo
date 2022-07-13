@@ -844,6 +844,7 @@ server {
         proxy_cache_bypass      \$http_upgrade;
         proxy_next_upstream     error timeout http_502 http_503 http_504;
         proxy_pass              http://127.0.0.1:8470;
+        send_timeout            180s;
     }
 }
 EOF"
@@ -1681,7 +1682,7 @@ _create_fs() {
     uuid=$(lsblk -no UUID "${device}")      # UUID of device
     local tmp=${mountpoint:1}               # Remove leading '/'
     local systemd_mountpoint=${tmp////-}    # Replace / with -
-    
+
     sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
 [Unit]
 Description=Mount External SSD Drive ${device}
@@ -1953,7 +1954,7 @@ _dojo_data_indexer_restore() {
         fi
         # if addrindexrs dir is found then move it.
         sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-        
+
         _print_message "Indexer data restore completed..."
         sudo rm -rf "${dojo_backup_indexer}"
     fi
