@@ -120,13 +120,14 @@ _call_update_scripts() {
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 31); do
-            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
+            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
 }
 
 #
 # Prints a message in the RoninDojo human messaging format
+# Usage: _print_message "The billboard message here" ["extra lines below the billboard here"[..]]
 #
 _print_message() {
     cat <<EOF
@@ -136,6 +137,10 @@ $1
 ***
 ${nc}
 EOF
+    while [ $# -gt 1 ]; do
+        echo $2
+        shift 1
+    done
 }
 
 #
@@ -1086,7 +1091,7 @@ _set_indexer() {
 #
 _uninstall_electrs_indexer() {
     test -f "${dojo_path_my_dojo}"/indexer/electrs.toml && rm "${dojo_path_my_dojo}"/indexer/electrs.toml
-    sudo test -d "${docker_volume_indexer}"/_data/db && sudo rm -rf "${docker_volume_indexer}"/_data/db/*
+    sudo test -d "${docker_volume_indexer}"/_data/db && sudo bash -c "rm -rf ${docker_volume_indexer}/_data/*"
 
     cd "${dojo_path_my_dojo}" || exit
 
@@ -1097,23 +1102,6 @@ _uninstall_electrs_indexer() {
 
     return 0
 }
-
-#
-# Checks salvaged data for which indexer is used
-#
-_check_salvage_db() {     
-    if sudo test -d "${dojo_backup_indexer}"/_data/db/bitcoin; then
-        return 0 
-        # returns electrs prior install.
-    elif sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
-        return 1
-        # returns addrindexrs prior install.
-    else 
-        return 2
-        # returns no prior install found
-    fi
-}
-
 
 #
 # Checks what indexer is set if any
@@ -1954,20 +1942,18 @@ EOF
 _dojo_data_indexer_restore() {
     _load_user_conf
 
-    if sudo test -d "${dojo_backup_indexer}/db" && sudo test -d "${docker_volume_indexer}"; then
+    if sudo test -d "${dojo_backup_indexer}"/db && sudo test -d "${docker_volume_indexer}"; then
+        _print_message "Indexer data restore starting..."
 
-        if sudo test -d "${docker_volume_indexer}"/_data/db; then
-            sudo rm -rf "${docker_volume_indexer}"/_data/db
+        sudo rm -rf "${docker_volume_indexer}"/_data/db
+
+        if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
+            sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
+            sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
         fi
-
-        if sudo test -d "${dojo_backup_indexer}"/db; then
-            if sudo test -d "${dojo_backup_indexer}"/addrindexrs; then
-                sudo mv "${dojo_backup_indexer}"/addrindexrs "${docker_volume_indexer}"/_data/
-            fi
-            # if addrindexrs dir is found then move it.
-            sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
-        fi
-
+        # if addrindexrs dir is found then move it.
+        sudo mv "${dojo_backup_indexer}"/db "${docker_volume_indexer}"/_data/
+        
         _print_message "Indexer data restore completed..."
         sudo rm -rf "${dojo_backup_indexer}"
     fi
@@ -2047,10 +2033,13 @@ _tor_backup() {
 # Tor credentials restore
 #
 _tor_restore() {
-    if sudo test -d "${dojo_backup_tor}"/_data/hsv3dojo; then
-        sudo rsync -ac --quiet --delete-before "${dojo_backup_tor}"/ "${install_dir}/${tor_data_dir}"/_data
+    if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
+        _print_message "Tor data restore starting..."
 
-        _print_message "Tor restore completed..."
+        sudo bash -c "rm -rf ${install_dir}/${tor_data_dir}/_data/*"
+        sudo bash -c "mv -v ${dojo_backup_tor}/* ${install_dir}/${tor_data_dir}/_data"
+
+        _print_message "Tor data restore completed..."
         sudo rm -rf "${dojo_backup_tor}"
     fi
 }

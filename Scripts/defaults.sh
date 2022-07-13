@@ -118,7 +118,7 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.14.0" # Tag release
+samourai_commitish="v1.14.1" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
@@ -128,11 +128,11 @@ ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 #
 primary_storage="/dev/sda1"
 secondary_storage="/dev/sdb1"
-storage_mount="/mnt/backup"
+backup_mount="/mnt/backup"
 
-bitcoin_ibd_backup_dir="${storage_mount}/backup/bitcoin"
-indexer_backup_dir="${storage_mount}/backup/indexer"
-tor_backup_dir="${storage_mount}/backup/tor"
+bitcoin_ibd_backup_dir="${backup_mount}/backup/bitcoin"
+indexer_backup_dir="${backup_mount}/backup/indexer"
+tor_backup_dir="${backup_mount}/backup/tor"
 
 install_dir="/mnt/usb"
 install_dir_tor="${install_dir}/tor"
@@ -154,7 +154,7 @@ dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
-indexer_data_dir="docker/volumes/my-dojo_data_indexer"
+indexer_data_dir="docker/volumes/my-dojo_data-indexer"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 

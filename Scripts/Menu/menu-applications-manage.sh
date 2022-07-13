@@ -77,6 +77,8 @@ EOF
         3)
             case "${indexer_name}" in
                 "Install Samourai Indexer")
+                    _stop_dojo
+
                     cat <<EOF
 ${red}
 ***
@@ -91,6 +93,8 @@ EOF
                     _set_indexer
                     ;;
                 "Install Electrum Indexer")
+                    _stop_dojo
+                    
                     cat <<EOF
 ${red}
 ***

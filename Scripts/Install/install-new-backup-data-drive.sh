@@ -68,7 +68,7 @@ fi
 cat <<EOF
 ${red}
 ***
-Preparing to Format and Mount ${secondary_storage} to ${storage_mount}...
+Preparing to Format and Mount ${secondary_storage} to ${backup_mount}...
 ***
 ${nc}
 EOF
@@ -124,7 +124,7 @@ _sleep
 # Check for sgdisk dependency
 _check_pkg "sgdisk" "gptfdisk" --update-mirrors
 
-if ! _create_fs --label "backup" --device "${secondary_storage}" --mountpoint "${storage_mount}"; then
+if ! _create_fs --label "backup" --device "${secondary_storage}" --mountpoint "${backup_mount}"; then
     printf "\n %sFilesystem creation failed! Exiting now...%s" "${red}" "${nc}"
     _sleep 3
     exit 1
