@@ -1,5 +1,24 @@
 Changelog
 
+RoninDojo v1.14.3 Change Log
+- Electrs version bump to 0.9.7
+- Bug fixes in salvage procedure
+- Bug fix in handling mounts in installation procedure
+- Bug fix in handling filesystems in installation procedure
+- Bug fixes regarding update migration scripts
+- Refactored menu-whirlpool-wst.sh
+- Bug fix in install cleanup
+- Bug fix in indexer swap procedure
+- Bug fix in ronin.network service
+
+RoninDojo v1.14.2 Change Log
+- Issue 114 - menu countdown during main menu exit
+- Issue 132 - SSD Drop off after reboot
+- Issue 133 - Mempool Space installing by default
+- Fixed running update migration scripts for a freshly installed system
+- Removed obsolete upgrate migration scripts from 1.9 and older
+- Simplified UFW setup procedure in install-system-setup.sh
+
 RoninDojo v1.14.1 Change Log
 - Added editorconfig
 - Fixed unnecessary redirect to RoninDojo repo

@@ -42,7 +42,7 @@ _sleep
         ;;
     2)
         bash "$HOME"/RoninDojo/Scripts/Install/install-new-backup-data-drive.sh
-        # formats ${secondary_storage} to ext 4 and mounts to ${storage_mount} for backing up data on "${primary_storage}" or ${install_dir}
+        # formats ${secondary_storage} to ext 4 and mounts to ${backup_mount} for backing up data on "${primary_storage}" or ${install_dir}
         ;;
     3)
         bash -c "${ronin_system_menu}"

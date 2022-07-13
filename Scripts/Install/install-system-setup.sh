@@ -119,61 +119,78 @@ _print_message "All Dojo dependencies installed..."
 _nvme_check && _load_user_conf
 
 _print_message "Creating ${install_dir} directory..."
-test -d "${install_dir}" || sudo mkdir "${install_dir}"
+test -d "${install_dir}" || sudo mkdir -p "${install_dir}"
 
+if [[ "${primary_storage}" =~ "/dev/sd" ]]; then
+    _device="${primary_storage%?}"
+elif [[ "${primary_storage}" =~ "/dev/nvme" ]]; then
+    _device="${primary_storage%??}"
+else
+    _print_error_message "Device type unrecognized: ${primary_storage}"
+    _pause return
+    exit 1
+fi
 
 #####################################
 # STORAGE DEVICES SETUP: ASSERTIONS #
 #####################################
 
-if [ ! -b "${primary_storage}" ]; then
-    _print_error_message "device ${primary_storage} not found!"
+if [ ! -b "${_device}" ]; then
+    _print_error_message "device ${_device} not found!"
     [ $# -eq 0 ] && _pause return
-    exit
+    exit 1
 fi
 
+####################################################
+# STORAGE DEVICES SETUP: PREPARING PARTITION TABLE #
+####################################################
+
+if [ ! -b "${primary_storage}" ]; then
+    _print_message "No partition table found, creating one ..."
+    sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
+fi
 
 ##################################
 # STORAGE DEVICES SETUP: SALVAGE #
 ##################################
 
-_print_message "Creating ${storage_mount} directory..."
-test ! -d "${storage_mount}" && sudo mkdir "${storage_mount}"
+_print_message "Creating ${backup_mount} directory..."
+test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
-sudo mount "${primary_storage}" "${storage_mount}"
+sudo mount "${primary_storage}" "${backup_mount}"
 
-if sudo test -d "${storage_mount}/${bitcoind_data_dir}/_data/blocks"; then
+if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
 
     _print_message "Found Blockchain data for salvage!"
     _print_message "Moving to data backup"
     test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
 
-    sudo mv -v "${storage_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/ 1>/dev/null
+    sudo mv -v "${backup_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/
 
     _print_message "Blockchain data prepared for salvage!"
 fi
 
-if sudo test -d "${storage_mount}/${indexer_data_dir}/_data/db"; then
+if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/db"; then
 
     _print_message "Found Indexer data for salvage!"
     _print_message "Moving to data backup"
     test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
 
-    sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/ 1>/dev/null
-    if [ -d "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" ]; then
-        sudo mv -v "${storage_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/ 1>/dev/null
+    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/
+    if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
+        sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/
     fi
 
     _print_message "Indexer data prepared for salvage!"
 fi
 
-if sudo test -d "${storage_mount}/${tor_data_dir}/_data/hsv3dojo"; then
+if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then
 
     _print_message "Found Tor data for salvage!"
     _print_message "Moving to data backup"
     test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
 
-    sudo bash -c 'cp -rpv "${storage_mount}/${tor_data_dir}/_data/hsv3"* "${tor_backup_dir}"/ 1>/dev/null'
+    sudo bash -c "mv -v ${backup_mount}/${tor_data_dir}/_data/hsv3* ${tor_backup_dir}/"
 
     _print_message "Tor data prepared for salvage!"
 fi
@@ -183,10 +200,10 @@ fi
 # STORAGE DEVICES SETUP: SALVAGE CLEANUP #
 ##########################################
 
-if check_swap "${storage_mount}/swapfile"; then
-    test -f "${storage_mount}/swapfile" && sudo swapoff "${storage_mount}/swapfile" &>/dev/null
+if check_swap "${backup_mount}/swapfile"; then
+    test -f "${backup_mount}/swapfile" && sudo swapoff "${backup_mount}/swapfile" &>/dev/null
 fi
-sudo rm -rf "${storage_mount}"/{docker,tor,swapfile} &>/dev/null
+sudo rm -rf "${backup_mount}"/{docker,tor,swapfile} &>/dev/null
 
 
 #######################################################
@@ -202,20 +219,32 @@ else
     _print_message "No Blockchain data found for salvage..."
     _print_message "Formatting the SSD..."
 
-    if ! _create_fs --label "main" --device "${primary_storage}" --mountpoint "${install_dir}"; then
-        _print_error_message "Filesystem creation failed! Exiting now..."
-        _sleep 3
-        exit 1
+    if findmnt "${primary_storage}" 1>/dev/null; then
+        if ! sudo umount "${primary_storage}"; then
+            _print_error_message "Could not prepare device ${primary_storage} for formatting, was likely still in use"
+            _print_error_message "Filesystem creation failed!"
+            _pause return
+            exit 1
+        fi
     fi
+
+    sudo wipefs -a --force "${_device}" 1>/dev/null
+    sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
+    sudo mkfs.ext4 -q -F -L "main" "${primary_storage}" 1>/dev/null
+
 fi
 
 ####################################################
 # STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
 ####################################################
 
-_print_message "Adding missing systemd mount unit file for device ${primary_storage}..."
+_print_message "Writing systemd mount unit file for device ${primary_storage}..."
 
-sudo tee "/etc/systemd/system/$(echo ${install_dir:1} | tr '/' '-').mount" <<EOF >/dev/null
+#TODO: below, replace this by-uuid construct with a simple use of ${primary_storage}, gotta fix sda Vs sdb first though
+#USECASE: by-uuid construct doesn't survive wipefs and reformat, would require a remake of the mountfile
+#ALTERNATIVE: if the partition has always been labelled "main", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios
+
+sudo tee "/etc/systemd/system/$(echo "${install_dir:1}" | tr '/' '-').mount" <<EOF >/dev/null
 [Unit]
 Description=Mount primary storage ${primary_storage}
 
@@ -229,6 +258,8 @@ Options=defaults
 WantedBy=multi-user.target
 EOF
 
+sudo systemctl daemon-reload
+sudo systemctl start --quiet mnt-usb.mount
 sudo systemctl enable --quiet mnt-usb.mount
 
 ###########################################
