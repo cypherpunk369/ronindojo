@@ -127,6 +127,13 @@ if findmnt "${backup_mount}" 1>/dev/null; then
     sudo rm -rf "${backup_mount}" &>/dev/null
 fi
 
+#####################
+# INSTALL BOLTZMANN #
+####################
+
+_print_message "Installing Boltzmann Calculator..."
+_install_boltzmann
+
 ############
 # FINALIZE #
 ############
