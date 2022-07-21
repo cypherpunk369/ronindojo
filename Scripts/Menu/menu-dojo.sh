@@ -61,7 +61,7 @@ EOF
             # press any key to return to menu
             ;;
         2)
-            _dojo_check && _stop_dojo
+            _stop_dojo
             _pause return
 
             bash -c "${ronin_dojo_menu}"
@@ -80,7 +80,6 @@ Restarting Dojo...
 ${nc}
 EOF
                 _sleep
-                cd "${dojo_path_my_dojo}" || exit
 
                 cat <<DOJO
 ${red}
@@ -90,7 +89,7 @@ Stopping Dojo...
 ${nc}
 DOJO
                 # Check if db container running before stopping all containers
-                _dojo_check && _stop_dojo
+                _stop_dojo
                 cat <<DOJO
 ${red}
 ***
@@ -98,7 +97,8 @@ Starting Dojo...
 ***
 ${nc}
 DOJO
-
+                
+                cd "${dojo_path_my_dojo}" || exit
                 # Start docker containers
                 ./dojo.sh start
                 # restart dojo

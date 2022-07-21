@@ -140,7 +140,7 @@ EOF
         _print_message "Use Ctrl+C to exit if needed!"
         _sleep 10 --msg "Updating in"
 
-        _dojo_check && _stop_dojo
+        _stop_dojo
         
         _print_message "Perfoming a full system update..."
         sudo pacman -Syyu --noconfirm
