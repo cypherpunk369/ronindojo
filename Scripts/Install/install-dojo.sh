@@ -129,7 +129,7 @@ fi
 
 #####################
 # INSTALL BOLTZMANN #
-####################
+#####################
 
 _print_message "Installing Boltzmann Calculator..."
 _install_boltzmann
