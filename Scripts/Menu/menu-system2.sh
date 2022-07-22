@@ -97,8 +97,7 @@ ${nc}
 EOF
         _sleep 10 --msg "Uninstalling in"
 
-        cd "$dojo_path_my_dojo" || exit
-        _dojo_check && _stop_dojo
+        _stop_dojo
         # stop dojo
 
         # Backup Bitcoin Blockchain Data

@@ -1340,9 +1340,9 @@ Performing Dojo upgrade to finalize changes...
 ${nc}
 EOF
 
-    _dojo_check && _stop_dojo
+    _stop_dojo
+    
     cd "${dojo_path_my_dojo}" || exit
-
     _check_indexer
     ret=$?
 
@@ -1370,26 +1370,13 @@ EOF
 _dojo_check() {
     _load_user_conf
 
-    # Check that ${install_dir} is mounted
     if ! findmnt "${install_dir}" 1>/dev/null; then
-        cat <<EOF
-${red}
-***
-Missing drive mount at ${install_dir}!
-***
-${nc}
-EOF
+        _print_error_message "Missing drive mount at ${install_dir}!"
         _sleep 3
-
-        cat <<EOF
-${red}
-***
-Please contact support for assistance...
-***
-${nc}
-EOF
+        _print_message "Please contact support for assistance..."
         _sleep 5 --msg "Returning to main menu in"
         ronin
+        exit
     fi
 
     _is_active docker
@@ -1416,44 +1403,14 @@ _source_dojo_conf() {
 # Stop Samourai Dojo containers
 #
 _stop_dojo() {
-    if [ ! -d "${dojo_path}" ]; then
-        cat <<EOF
-${red}
-***
-Missing ${dojo_path} directory!
-***
-${nc}
-EOF
-        _pause return
-        bash -c "$ronin_dojo_menu"
-        exit 1
-    fi
-    # is dojo installed?
-
-    if docker inspect --format="{{.State.Running}}" db 1>/dev/null; then
-        # checks if dojo is running (check the db container), if not running, tells user dojo is alredy stopped
-
-        cd "${dojo_path_my_dojo}" || exit
-    else
-        cat <<EOF
-${red}
-***
-Dojo is already stopped!
-***
-${nc}
-EOF
+    if ! _dojo_check; then
         return 1
     fi
 
-    cat <<EOF
-${red}
-***
-Shutting down Dojo...
-***
-${nc}
-EOF
-_sleep
+    _print_message "Shutting down Dojo..."
+    _sleep
 
+    cd "${dojo_path_my_dojo}" || exit
     ./dojo.sh stop
 
     return 0
@@ -1581,16 +1538,14 @@ EOF
 _check_dojo_perms() {
     local dojo_path_my_dojo="${1}"
 
-    cd "${dojo_path_my_dojo}" || exit
-
     if find "${dojo_path}" -user root | grep -q '.'; then
-        _dojo_check && _stop_dojo
+        _stop_dojo
 
         # Change ownership so that we don't
         # need to use sudo ./dojo.sh
         sudo chown -R "${ronindojo_user}:${ronindojo_user}" "${dojo_path}"
     else
-        _dojo_check && _stop_dojo
+        _stop_dojo
     fi
 
     return 0

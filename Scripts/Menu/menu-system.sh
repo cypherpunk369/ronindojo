@@ -38,8 +38,7 @@ Shutting down Dojo if running...
 ***
 ${nc}
 EOF
-            cd "${dojo_path_my_dojo}" || exit
-            _dojo_check && _stop_dojo
+            _stop_dojo
             # stop dojo
 
             cat <<EOF
@@ -80,9 +79,8 @@ Shutting down Dojo if running...
 ***
 ${nc}
 EOF
-            cd "${dojo_path_my_dojo}" || exit
 
-            _dojo_check && _stop_dojo
+            _stop_dojo
             # stop dojo
 
             cat <<EOF

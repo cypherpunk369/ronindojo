@@ -131,9 +131,7 @@ EOF
 
 _sleep
 
-cd "${dojo_path_my_dojo}" || exit
-_dojo_check && _stop_dojo
-# stop dojo
+_stop_dojo
 
 cat <<EOF
 ${red}
