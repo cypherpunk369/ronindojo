@@ -3,6 +3,7 @@ default:
 
 stages:
   - compile
+  - test
 
 report:
   stage: .pre
@@ -14,8 +15,8 @@ report:
     - ls -la
 
 parse-test:
-  stage:  compile
   image: registry.ronindojo.io/ronin-devops-shellcheck:latest
+  stage: compile
   only:
     refs:
       - branches
@@ -24,7 +25,21 @@ parse-test:
   script:
     - echo "the following files will be checked"
     - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo")
-    
+
     - echo -e "*************\nSTARTING TEST\n*************"
-    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo") | xargs shellcheck -x -a --enable=all --severity=${SEVERITY}
+    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo") | xargs shellcheck -a --enable=all --severity=${SEVERITY}
+    - shellcheck -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
+    - echo -e "*************\nTEST COMPLETE\n*************"
+
+unit-test:
+  stage: test
+  image: registry.ronindojo.io/ronin-devops-shunit2:latest
+  only:
+    refs:
+      - branches
+  script:
+
+    #- pacman -Syyuq --noconfirm python python-pip
+    - echo -e "*************\nSTARTING TEST\n*************"
+    - ./Tests/run-tests.sh
     - echo -e "*************\nTEST COMPLETE\n*************"
