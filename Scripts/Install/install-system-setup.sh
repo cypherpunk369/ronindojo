@@ -293,12 +293,6 @@ _print_message "Installing Ronin UI..."
 _ronin_ui_install
 _install_gpio
 
-_print_message "Installing Boltzmann Calculator..."
-_install_boltzmann
-_print_message "Installing Whirlpool Stat Tool..."
-_install_wst
-
-
 #######################
 # INSTALLING FINALIZE #
 #######################
