@@ -1129,14 +1129,6 @@ _dojo_update() {
 _dojo_upgrade() {
     _print_message "Performing Dojo upgrade"
     _stop_dojo
-    _check_indexer
-    ret=$?
-
-    if ((ret==0)); then # Electrs enabled
-        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
-            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
-        fi
-    fi
 
     . dojo.sh upgrade --nolog --auto
 
@@ -1618,29 +1610,29 @@ _bisq_uninstall() {
 _dojo_data_indexer_restore() {
     _load_user_conf
 
-    if sudo test -d "${dojo_backup_indexer}/_data" && sudo test -d "${docker_volume_indexer}/_data"; then
+    if sudo test -d "${dojo_backup_indexer}"/_data && sudo test -d "${docker_volume_indexer}"/_data; then
         _print_message "Addrindexrs data restore starting..."
 
         sudo rm -rf "${docker_volume_indexer}"/_data
-        sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"/
+        sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"
 
         _print_message "Addrindexrs data restore completed..."
         sudo rm -rf "${dojo_backup_indexer}"
 
-    elif sudo test -d "${dojo_backup_electrs}/_data" && sudo test -d "${docker_volume_electrs}/_data"; then
+    elif sudo test -d "${dojo_backup_electrs}"/_data && sudo test -d "${docker_volume_electrs}"/_data; then
         _print_message "Electrs data restore starting..."
 
         sudo rm -rf "${docker_volume_electrs}"/_data
-        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"/
+        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
 
         _print_message "Electrs data restore completed..."
         sudo rm -rf "${dojo_backup_electrs}"
 
-    elif sudo test -d "${dojo_backup_fulcrum}/_data" && sudo test -d "${docker_volume_indexer}/_data"; then
+    elif sudo test -d "${dojo_backup_fulcrum}"/_data && sudo test -d "${docker_volume_indexer}"/_data; then
         _print_message "Fulcrum data restore starting..."
 
         sudo rm -rf "${docker_volume_fulcrum}"/_data
-        sudo mv "${dojo_backup_fulcrum}"/_data "${docker_volume_fulcrum}"/
+        sudo mv "${dojo_backup_fulcrum}"/_data "${docker_volume_fulcrum}"
 
         _print_message "Fulcrum data restore completed..."
         sudo rm -rf "${dojo_backup_fulcrum}"
@@ -1661,11 +1653,11 @@ _dojo_data_indexer_backup() {
     
     # determine which indexer is in use and backup accordingly
     if sudo test -d "${docker_volume_electrs}"; then
-        sudo mv "${docker_volume_electrs}"/_data/db "${dojo_backup_electrs}"/
+        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_electrs}"
     elif sudo test -d "${docker_volume_indexer}"; then
-        sudo mv "${docker_volume_indexer}"/_data/db "${dojo_backup_indexer}"/
+        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"
     elif sudo test -d "${docker_volume_fulcrum}"; then
-        sudo mv "${docker_volume_electrs}"/_data/fulcrum "${dojo_backup_fulcrum}"/
+        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"
     fi
 }
 

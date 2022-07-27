@@ -40,7 +40,7 @@ display_creds_fulcrum() {
 }
 
 display_creds_electrs() {
-    if _is_fulcrum; then
+    if _is_electrs; then
         _print_message "Electrs Credentials" "Tor Address             =   http://${tor_addr_electrs}"
         _print_message "Check the RoninDojo Wiki for pairing information at https://wiki.ronindojo.io"
     fi
