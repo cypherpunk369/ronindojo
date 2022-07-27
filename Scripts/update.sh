@@ -139,16 +139,6 @@ _update_22() {
     fi
 }
 
-# Update reference from old development branch to develop branch in user.conf
-_update_23() {
-    if grep -q "^ronin_dojo_branch=\"origin/development"\" "$HOME"/.config/RoninDojo/user.conf; then
-        sed -i 's:origin/development:origin/develop:' "$HOME"/.config/RoninDojo/user.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/23-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Fix hosts file
 _update_24() {
     hostsfile="/etc/hosts"
@@ -300,22 +290,12 @@ _update_31() {
     touch "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
 }
 
-# Migrate the legacy indexer data location to the new indexer backup location
+# Migrate the electrs data to the new electrs backup data location
 _update_32() {
-    test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
     test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
     
-    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then
-        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"/
-        # addrindexrs is installed
-    elif sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then
+    if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then
         sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
-        # electrs (0.9.x) is installed
-    fi
-
-    if sudo test -d "${dojo_backup_indexer}"/_data/addrindexrs; then
-        _set_addrindexrs
-    else
         _set_electrs
     fi
 
@@ -323,20 +303,15 @@ _update_32() {
     touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
 }
 
-# Restore legacy indexer data to new docker volume location
+# Restore indexer backup data to new docker volume location
 _update_33(){
-    _stop_dojo
-    _check_salvage_db
+    _fetch_configured_indexer_type
     ret=$?
     
     if ((ret==0)); then
+        _stop_dojo
         sudo rm -rf "${docker_volume_electrs}"/_data
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
-        # restore electrs
-    elif ((ret==1)); then
-        sudo rm -rf "${docker_volume_indexer}"/_data
-        sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"
-        # restore addrindexrs
     fi
 
     # Finalize
