@@ -295,8 +295,14 @@ _update_32() {
     test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
     
     if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then
-        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
+        
         _set_electrs
+
+        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
+            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
+        fi
+
+        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
     fi
 
     # Finalize
