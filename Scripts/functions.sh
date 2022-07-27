@@ -468,6 +468,17 @@ _is_fulcrum() {
 }
 
 #
+# Is Electrs Server Installed
+#
+_is_electrs() {
+    if ! grep "INDEXER_TYPE=electrs" "${dojo_path_my_dojo}"/conf/docker-indexer.conf 1>/dev/null; then
+        return 1
+    fi
+
+    return 0
+}
+
+#
 # Ronin UI torrc
 #
 _ronin_ui_setup_tor() {

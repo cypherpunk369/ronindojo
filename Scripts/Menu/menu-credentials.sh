@@ -39,6 +39,13 @@ display_creds_fulcrum() {
     fi
 }
 
+display_creds_electrs() {
+    if _is_fulcrum; then
+        _print_message "Electrs Credentials" "Tor Address             =   http://${tor_addr_electrs}"
+        _print_message "Check the RoninDojo Wiki for pairing information at https://wiki.ronindojo.io"
+    fi
+}
+
 display_creds_mempool() {
     if _is_mempool ; then
         _print_message "Mempool Space Visualizer Credentials" "Tor Address             =   http://${tor_addr_mempool}"
@@ -70,7 +77,7 @@ display_creds_bitcoin() {
 
 OPTIONS=(1 "Dojo"
          2 "Whirlpool"
-         3 "Fulcrum"
+         3 "Indexer"
          4 "Mempool"
          5 "Ronin UI"
          6 "Bitcoind"
@@ -94,10 +101,17 @@ case $CHOICE in
             ;;
         3)
             if _is_fulcrum; then
-                display_creds_fulcrum
-            else
-                _print_message "Fulcrum is not installed..."
+                _print_message "Fulcrum is installed..."
+                _print_message "If you want to switch indexers..."
                 _print_message "Install using the manage applications menu..."
+                sleep 3
+                display_creds_fulcrum
+            elif _is_electrs; then
+                _print_message "Electrs is installed..."
+                _print_message "If you want to switch indexers..."
+                _print_message "Install using the manage applications menu..."
+                sleep 3
+                display_creds_electrs
             fi
             ;;
         4)
