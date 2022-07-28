@@ -1613,28 +1613,25 @@ _dojo_data_indexer_restore() {
         _print_message "Addrindexrs data restore starting..."
 
         sudo rm -rf "${docker_volume_indexer}"/_data
-        sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"
+        sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"/
 
         _print_message "Addrindexrs data restore completed..."
-        sudo rm -rf "${dojo_backup_indexer}"
 
     elif sudo test -d "${dojo_backup_electrs}"/_data && sudo test -d "${docker_volume_electrs}"/_data; then
         _print_message "Electrs data restore starting..."
 
         sudo rm -rf "${docker_volume_electrs}"/_data
-        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
+        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"/
 
         _print_message "Electrs data restore completed..."
-        sudo rm -rf "${dojo_backup_electrs}"
 
     elif sudo test -d "${dojo_backup_fulcrum}"/_data && sudo test -d "${docker_volume_indexer}"/_data; then
         _print_message "Fulcrum data restore starting..."
 
         sudo rm -rf "${docker_volume_fulcrum}"/_data
-        sudo mv "${dojo_backup_fulcrum}"/_data "${docker_volume_fulcrum}"
+        sudo mv "${dojo_backup_fulcrum}"/_data "${docker_volume_fulcrum}"/
 
         _print_message "Fulcrum data restore completed..."
-        sudo rm -rf "${dojo_backup_fulcrum}"
 
     fi
 }

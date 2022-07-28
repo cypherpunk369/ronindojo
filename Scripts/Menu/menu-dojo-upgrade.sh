@@ -30,9 +30,6 @@ test ! -d "$HOME"/.config/RoninDojo/data/updates && mkdir -p "$HOME"/.config/Ron
 # Remove any existing docker-mempool.conf in favor of new tpl for v2 during upgrade
 test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22
 
-# Migrate the electrs data to the new electrs backup data location
-test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
-
 
 ##################
 # LOAD VARIABLES #
@@ -112,6 +109,9 @@ fi
 # MANUALLY MIGRATE INDEXERS #
 #############################
 
+
+# Migrate the electrs data to the new electrs backup data location. Must be done AFTER dojo repo has been updated
+test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
 
 # TODO: remove this code block
 

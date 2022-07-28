@@ -294,15 +294,11 @@ _update_31() {
 _update_32() {
     test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
     
-    if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then
-        
+    if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then  # checks for 0.9.x electrs data only  
         _set_electrs
-
-        if [ -d "${docker_volume_indexer}"/_data/db/mainnet ]; then
-            sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
-        fi
-
         sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
+    elif sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then # checks for addrindexrs and sets new conf otherwise would be set to electrs by default
+        _set_addrindexrs
     fi
 
     # Finalize
@@ -320,6 +316,9 @@ _update_33(){
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
     fi
 
+    # start dojo after salvage (this is executed only during menu-upgrade once)
+    ./dojo.sh start
+    
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
 }
