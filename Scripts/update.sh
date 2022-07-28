@@ -312,12 +312,12 @@ _update_33(){
     
     if ((ret==0)); then
         _stop_dojo
+        
         sudo rm -rf "${docker_volume_electrs}"/_data
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
-    fi
 
-    # start dojo after salvage (this is executed only during menu-upgrade once)
-    ./dojo.sh start
+        ./dojo.sh start
+    fi
     
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
