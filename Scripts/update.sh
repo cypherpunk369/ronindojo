@@ -310,9 +310,9 @@ _update_33(){
     _fetch_configured_indexer_type
     ret=$?
     
-    if ((ret==0)); then
+    if ((ret==0)) && sudo test -d "${dojo_backup_electrs}"/_data ; then
         _stop_dojo
-        
+
         sudo rm -rf "${docker_volume_electrs}"/_data
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
 
