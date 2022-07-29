@@ -170,16 +170,41 @@ if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
     _print_message "Blockchain data prepared for salvage!"
 fi
 
-if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/db"; then
+# Addrindexrs
 
-    _print_message "Found Indexer data for salvage!"
+if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
+
+    _print_message "Found Addrindexrs data for salvage!"
     _print_message "Moving to data backup"
-    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
 
-    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/
-    if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
-        sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/
-    fi
+    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
+
+    _print_message "Addrindexrs data prepared for salvage!"
+fi
+
+# Electrs
+
+if sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then
+
+    _print_message "Found Electrs data for salvage!"
+    _print_message "Moving to data backup"
+
+    test -d "${electrs_backup_dir}" || sudo mkdir -p "${electrs_backup_dir}"
+    sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
+
+    _print_message "Electrs data prepared for salvage!"
+fi
+
+# Fulcrum
+
+if sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then
+
+    _print_message "Found Addrindexrs data for salvage!"
+    _print_message "Moving to data backup"
+    
+    test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
+    sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
 
     _print_message "Indexer data prepared for salvage!"
 fi

@@ -132,6 +132,8 @@ backup_mount="/mnt/backup"
 
 bitcoin_ibd_backup_dir="${backup_mount}/backup/bitcoin"
 indexer_backup_dir="${backup_mount}/backup/indexer"
+electrs_backup_dir="${backup_mount}/backup/electrs"
+fulcrum_backup_dir="${backup_mount}/backup/fulcrum"
 tor_backup_dir="${backup_mount}/backup/tor"
 
 install_dir="/mnt/usb"
