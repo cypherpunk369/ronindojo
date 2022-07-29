@@ -1191,6 +1191,21 @@ _stop_dojo() {
 }
 
 #
+# Start Samourai Dojo containers
+#
+_start_dojo() {
+    if _dojo_check; then
+        return 1
+    fi
+
+    cd "${dojo_path_my_dojo}" || exit
+    ./dojo.sh start
+
+    return 0
+}
+
+
+#
 # Remove old fstab entries in favor of systemd.mount.
 #
 _remove_fstab() {
@@ -1615,7 +1630,7 @@ _dojo_data_indexer_restore() {
         sudo rm -rf "${docker_volume_indexer}"/_data
         sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"/
         sudo rm -rf "${dojo_backup_indexer}"
-        
+
         _print_message "Addrindexrs data restore completed..."
 
     elif sudo test -d "${dojo_backup_electrs}"/_data && sudo test -d "${docker_volume_electrs}"/_data; then

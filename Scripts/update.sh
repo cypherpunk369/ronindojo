@@ -316,7 +316,7 @@ _update_33(){
         sudo rm -rf "${docker_volume_electrs}"/_data
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
 
-        ./dojo.sh start
+        _start_dojo
     fi
     
     # Finalize

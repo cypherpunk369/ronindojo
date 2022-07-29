@@ -117,6 +117,7 @@ test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
 
 cd "${dojo_path_my_dojo}" || exit
 
+# TODO: remove this code block
 # Re-enable the indexer
 _fetch_configured_indexer_type
 ret=$?
