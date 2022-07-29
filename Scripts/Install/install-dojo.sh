@@ -64,8 +64,6 @@ _restore_or_create_dojo_confs
 # SETTING UP INDEXER #
 ######################
 
-# NOTE: this is the same as _dojo_data_indexer_restore #
-
 if sudo test -d "${dojo_backup_indexer}"/_data; then # Found addrindexrs previous install.
     _print_message "Found indexer salvage to be of type addrindexrs"
     _set_addrindexrs
@@ -115,7 +113,7 @@ if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
     $dojo_data_indexer_backup && _dojo_data_indexer_restore
     $tor_backup && _tor_restore
 
-    ./dojo.sh start
+    _start_dojo
 
 fi
 
