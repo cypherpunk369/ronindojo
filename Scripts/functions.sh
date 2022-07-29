@@ -1614,7 +1614,8 @@ _dojo_data_indexer_restore() {
 
         sudo rm -rf "${docker_volume_indexer}"/_data
         sudo mv "${dojo_backup_indexer}"/_data "${docker_volume_indexer}"/
-
+        sudo rm -rf "${dojo_backup_indexer}"
+        
         _print_message "Addrindexrs data restore completed..."
 
     elif sudo test -d "${dojo_backup_electrs}"/_data && sudo test -d "${docker_volume_electrs}"/_data; then
@@ -1622,6 +1623,7 @@ _dojo_data_indexer_restore() {
 
         sudo rm -rf "${docker_volume_electrs}"/_data
         sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"/
+        sudo rm -rf "${dojo_backup_electrs}"
 
         _print_message "Electrs data restore completed..."
 
@@ -1630,6 +1632,7 @@ _dojo_data_indexer_restore() {
 
         sudo rm -rf "${docker_volume_fulcrum}"/_data
         sudo mv "${dojo_backup_fulcrum}"/_data "${docker_volume_fulcrum}"/
+        sudo rm -rf "${dojo_backup_fulcrum}"
 
         _print_message "Fulcrum data restore completed..."
 
@@ -1642,17 +1645,15 @@ _dojo_data_indexer_restore() {
 _dojo_data_indexer_backup() {
     _load_user_conf
 
-    # check if salvage directories exist
-    test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-    test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
-    test ! -d "${dojo_backup_fulcrum}" && sudo mkdir "${dojo_backup_fulcrum}"
-    
     # determine which indexer is in use and backup accordingly
     if sudo test -d "${docker_volume_electrs}"; then
+        test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
         sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_electrs}"
     elif sudo test -d "${docker_volume_indexer}"; then
+        test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
         sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"
     elif sudo test -d "${docker_volume_fulcrum}"; then
+        test ! -d "${dojo_backup_fulcrum}" && sudo mkdir "${dojo_backup_fulcrum}"
         sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"
     fi
 }
