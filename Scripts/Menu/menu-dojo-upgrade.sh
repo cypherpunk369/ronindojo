@@ -105,9 +105,9 @@ if _is_bisq ; then
 fi
 
 
-#############################
-# MANUALLY MIGRATE INDEXERS #
-#############################
+###########################
+# MIGRATE LEGACY INDEXERS #
+###########################
 
 
 # Migrate the electrs data to the new electrs backup data location. Must be done AFTER dojo repo has been updated
@@ -116,25 +116,6 @@ test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
 # TODO: remove this code block
 
 cd "${dojo_path_my_dojo}" || exit
-
-# TODO: remove this code block
-# Re-enable the indexer
-_fetch_configured_indexer_type
-ret=$?
-
-if ((ret==0)); then
-    _set_electrs
-    # keep electrs
-elif ((ret==1)); then
-    _set_addrindexrs
-    # keep addrindexrs
-elif ((ret==2)); then
-    _set_fulcrum
-    # keep fulcrum
-else
-    _set_electrs
-    # sets default to electrs
-fi
 
 
 #######################
