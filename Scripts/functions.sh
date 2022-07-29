@@ -1194,11 +1194,11 @@ _stop_dojo() {
 # Start Samourai Dojo containers
 #
 _start_dojo() {
-    if _dojo_check; then
+    if ! _dojo_check; then
         return 1
     fi
 
-    cd "${dojo_path_my_dojo}" || exit
+    cd "${dojo_path_my_dojo}" || exit 1
     ./dojo.sh start
 
     return 0
