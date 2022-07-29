@@ -64,20 +64,22 @@ _restore_or_create_dojo_confs
 # SETTING UP INDEXER #
 ######################
 
-_set_indexer
+# NOTE: this is the same as _dojo_data_indexer_restore #
 
-if sudo test -d "${dojo_backup_indexer}"/db/bitcoin; then # Found electrs previous install.
-    _print_message "Found indexer salvage to be of type electrs, setting it up..."
-    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo test -d "${dojo_backup_indexer}"/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
-
-elif sudo test -d "${dojo_backup_indexer}"/addrindexrs; then # Found addrindexrs previous install.
+if sudo test -d "${dojo_backup_indexer}"/_data; then # Found addrindexrs previous install.
     _print_message "Found indexer salvage to be of type addrindexrs"
+    _set_addrindexrs
+
+elif sudo test -d "${dojo_backup_electrs}"/_data; then # Found electrs previous install.
+    _print_message "Found indexer salvage to be of type electrs, setting it up..."
+
+elif sudo test -d "${dojo_backup_fulcrum}"/_data; then # Found fulcrum previous install.
+    _print_message "Found indexer salvage to be of type fulcrum, setting it up..."
+    _set_fulcrum
 
 else # No indexer found or fresh install
     _print_message "Found no indexer salvage, setting indexer to default (electrs)..."
-    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo rm -rf "${dojo_backup_indexer}"
+    _set_electrs
 fi
 
 ###################
