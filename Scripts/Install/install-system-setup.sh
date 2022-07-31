@@ -159,7 +159,7 @@ test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
 sudo mount "${primary_storage}" "${backup_mount}"
 
-if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
+if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then #bitcoind
 
     _print_message "Found Blockchain data for salvage!"
     _print_message "Moving to data backup"
@@ -170,9 +170,7 @@ if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
     _print_message "Blockchain data prepared for salvage!"
 fi
 
-# Addrindexrs
-
-if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
+if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # Addrindexrs
 
     _print_message "Found Addrindexrs data for salvage!"
     _print_message "Moving to data backup"
@@ -181,11 +179,8 @@ if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
     sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
 
     _print_message "Addrindexrs data prepared for salvage!"
-fi
 
-# Electrs
-
-if sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then
+elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
 
     _print_message "Found Electrs data for salvage!"
     _print_message "Moving to data backup"
@@ -194,11 +189,8 @@ if sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then
     sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
 
     _print_message "Electrs data prepared for salvage!"
-fi
 
-# Fulcrum
-
-if sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then
+elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
 
     _print_message "Found Addrindexrs data for salvage!"
     _print_message "Moving to data backup"
@@ -209,7 +201,7 @@ if sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then
     _print_message "Indexer data prepared for salvage!"
 fi
 
-if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then
+if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor
 
     _print_message "Found Tor data for salvage!"
     _print_message "Moving to data backup"
