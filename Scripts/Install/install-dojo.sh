@@ -70,6 +70,7 @@ if sudo test -d "${dojo_backup_indexer}"/_data; then # Found addrindexrs previou
 
 elif sudo test -d "${dojo_backup_electrs}"/_data; then # Found electrs previous install.
     _print_message "Found indexer salvage to be of type electrs, setting it up..."
+    _set_electrs
 
 elif sudo test -d "${dojo_backup_fulcrum}"/_data; then # Found fulcrum previous install.
     _print_message "Found indexer salvage to be of type fulcrum, setting it up..."
