@@ -141,14 +141,6 @@ install_dir_tor="${install_dir}/tor"
 install_dir_swap="${install_dir}/swapfile"
 install_dir_docker="${install_dir}/docker"
 
-docker_volumes="${install_dir_docker}/volumes"
-docker_volume_tor="${docker_volumes}/my-dojo_data-tor"
-docker_volume_wp="${docker_volumes}/my-dojo_data-whirlpool"
-docker_volume_bitcoind="${docker_volumes}/my-dojo_data-bitcoind"
-docker_volume_indexer="${docker_volumes}/my-dojo_data-indexer"
-docker_volume_fulcrum="${docker_volumes}/my-dojo_data-fulcrum"
-docker_volume_electrs="${docker_volumes}/my-dojo_data-electrs"
-
 # Dojo Related Backup Paths
 dojo_backup_bitcoind="${install_dir}/backup/bitcoin"
 dojo_backup_indexer="${install_dir}/backup/indexer"
@@ -158,10 +150,19 @@ dojo_backup_conf="${install_dir}/backup/dojo/conf"
 dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
+wp_data_dir="docker/volumes/my-dojo_data-whirlpool"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
 indexer_data_dir="docker/volumes/my-dojo_data-indexer"
 fulcrum_data_dir="docker/volumes/my-dojo_data-fulcrum"
 electrs_data_dir="docker/volumes/my-dojo_data-electrs"
+
+#Deprecated, use the above variables
+docker_volume_tor="${install_dir}/${tor_data_dir}"
+docker_volume_wp="${install_dir}/${wp_data_dir}"
+docker_volume_bitcoind="${install_dir}/${bitcoind_data_dir}"
+docker_volume_indexer="${install_dir}/${indexer_data_dir}"
+docker_volume_fulcrum="${install_dir}/${fulcrum_data_dir}"
+docker_volume_electrs="${install_dir}/${electrs_data_dir}"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 
