@@ -159,9 +159,9 @@ dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
-indexer_data_dir="docker/volumes/my-dojo_data_indexer"
-fulcrum_data_dir="docker/volumes/my-dojo_data_fulcrum"
-electrs_data_dir="docker/volumes/my-dojo_data_electrs"
+indexer_data_dir="docker/volumes/my-dojo_data-indexer"
+fulcrum_data_dir="docker/volumes/my-dojo_data-fulcrum"
+electrs_data_dir="docker/volumes/my-dojo_data-electrs"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 
