@@ -138,6 +138,7 @@ case $CHOICE in
             display_creds_bitcoin
             display_creds_mempool
             display_creds_fulcrum
+            display_creds_electrs
             ;;
         8)
             ronin
