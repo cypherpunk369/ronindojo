@@ -62,10 +62,10 @@ case $CHOICE in
                 ./dojo.sh logs indexer -n 500 | grep -i 'error'
 
             elif ((indexer==0)); then
-                _print_message "Electrs server is no longer supported"
+                _print_message "Electrs is your current Indexer..."
                 _sleep
-                _print_message "Upgrade dojo first"
-                _sleep
+
+                ./dojo.sh logs electrs -n 500 | grep -i 'error'
 
             else
                 _print_message "Something went wrong! Contact support..."
