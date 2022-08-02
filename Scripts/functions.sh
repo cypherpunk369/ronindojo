@@ -1664,13 +1664,13 @@ _dojo_data_indexer_backup() {
     # determine which indexer is in use and backup accordingly
     if sudo test -d "${docker_volume_electrs}"; then
         test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
-        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_electrs}"
+        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_electrs}"/
     elif sudo test -d "${docker_volume_indexer}"; then
         test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"
+        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"/
     elif sudo test -d "${docker_volume_fulcrum}"; then
         test ! -d "${dojo_backup_fulcrum}" && sudo mkdir "${dojo_backup_fulcrum}"
-        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"
+        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"/
     fi
 }
 
