@@ -129,8 +129,11 @@ case $CHOICE in
             display_creds_roninui
             display_creds_bitcoin
             display_creds_mempool
-            display_creds_fulcrum
-            display_creds_electrs
+            if _is_fulcrum; then
+                display_creds_fulcrum
+            elif _is_electrs; then
+                display_creds_electrs
+            fi
             ;;
         8)
             ronin
