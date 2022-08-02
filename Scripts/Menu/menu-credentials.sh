@@ -101,16 +101,8 @@ case $CHOICE in
             ;;
         3)
             if _is_fulcrum; then
-                _print_message "Fulcrum is installed..."
-                _print_message "If you want to switch indexers..."
-                _print_message "Install using the manage applications menu..."
-                sleep 3
                 display_creds_fulcrum
             elif _is_electrs; then
-                _print_message "Electrs is installed..."
-                _print_message "If you want to switch indexers..."
-                _print_message "Install using the manage applications menu..."
-                sleep 3
                 display_creds_electrs
             fi
             ;;
