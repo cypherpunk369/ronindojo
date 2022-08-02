@@ -946,6 +946,7 @@ _set_electrs() {
 
 _set_no_indexer() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_bitcoind/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
