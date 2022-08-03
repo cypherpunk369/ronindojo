@@ -61,6 +61,14 @@
 # Default swap overrides create_swap creation. Set only in user.conf
 # swapfile_size=2096 # Use only 2G of swap
 
+#########################
+# Dojo Indexer Override #
+#########################
+#dojo_indexer=""
+
+# Default is set to "fulcrum".
+# Value: addrindexrs | fulcrum | electrs
+
 ##############################
 # Samourai Dojo Credentials  #
 ##############################

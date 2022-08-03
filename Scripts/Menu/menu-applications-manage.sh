@@ -27,15 +27,21 @@ else
 fi
 
 # Set Indexer Install State
-_check_indexer
+_fetch_configured_indexer_type
 ret=$?
 
 if ((ret==0)); then
-    indexer_name="Install Samourai Indexer"
+    indexer="Electrs"
+    indexer_name="Swap Indexer"
 elif ((ret==1)); then
-    indexer_name="Install Electrum Indexer"
+    indexer="SW Addrindexrs"
+    indexer_name="Swap Indexer"
 elif ((ret==2)); then
-    indexer_name="Install Indexer"
+    indexer="Fulcrum"
+    indexer_name="Swap Indexer"
+elif ((ret==3)); then
+    indexer="No Indexer"
+    indexer_name="Install an Indexer"
 fi
 
 cmd=(dialog --title "RoninDojo" --separate-output --checklist "Use Mouse Click or Spacebar to select:" 22 76 16)
@@ -49,18 +55,11 @@ do
     case $choice in
         1)
             if ! "${is_mempool_installed}" ; then
-                cat <<EOF
-${red}
-***
-Installing Mempool Space Visualizer ${_mempool_version}...
-***
-${nc}
-EOF
+                _print_message "Installing Mempool Space Visualizer ${_mempool_version}..."
                 _mempool_conf
             else
                 _mempool_uninstall || exit
             fi
-            # Checks for mempool, then installs
 
             upgrade=true
             volume_prune=true
@@ -75,53 +74,14 @@ EOF
             upgrade=true
             ;;
         3)
-            case "${indexer_name}" in
-                "Install Samourai Indexer")
-                    _stop_dojo
-
-                    cat <<EOF
-${red}
-***
-Switching to Samourai indexer...
-***
-${nc}
-EOF
-                    _sleep
-
-                    _uninstall_electrs_indexer
-
-                    _set_indexer
-                    ;;
-                "Install Electrum Indexer")
-                    _stop_dojo
-                    
-                    cat <<EOF
-${red}
-***
-Installing Electrum Rust Server...
-***
-${nc}
-EOF
-                    _sleep
-
-                    bash -c "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-                    sudo test -d "${docker_volume_indexer}"/_data/db/mainnet && sudo rm -rf "${docker_volume_indexer}"/_data/db/mainnet
-                    sudo test -d "${docker_volume_indexer}"/_data/addrindexrs && sudo rm -rf "${docker_volume_indexer}"/_data/addrindexrs
-                    ;;
-                "Install Indexer")
-                    cat <<EOF
-${red}
-***
-Select an indexer to use with RoninDojo...
-***
-${nc}
-EOF
-                    _indexer_prompt
-                    # check for addrindexrs or electrs, if no indexer ask if they want to install
-                    ;;
-            esac
+            _print_message "You currently have $indexer installed..."
+            _sleep
+            _print_message "Select an indexer to use with RoninDojo..."
+            _sleep
+            _indexer_prompt
 
             upgrade=true
+            ;;
     esac
 done
 
@@ -134,8 +94,8 @@ if $upgrade; then
     else
         _dojo_upgrade
     fi
-else
-    bash -c "${ronin_applications_menu}"
 fi
+
+bash -c "${ronin_applications_menu}"
 
 exit

@@ -34,9 +34,14 @@ if sudo test -d "${docker_volume_tor}"/_data/hsv3dojo; then
     tor_addr_dojo_api=$(sudo cat "${docker_volume_tor}"/_data/hsv3dojo/hostname)
 fi
 
-# Electrum Server
+# Electrum Server (will use same hostname per tor/restart.sh)
 if sudo test -d "${docker_volume_tor}"/_data/hsv3electrs; then
     tor_addr_electrs=$(sudo cat "${docker_volume_tor}"/_data/hsv3electrs/hostname)
+fi
+
+# Fulcrum Server (will use same hostname per tor/restart.sh)
+if sudo test -d "${docker_volume_tor}"/_data/hsv3fulcrum; then
+    tor_addr_fulcrum=$(sudo cat "${docker_volume_tor}"/_data/hsv3fulcrum/hostname)
 fi
 
 # Whirlpool

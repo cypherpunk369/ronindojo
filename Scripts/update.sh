@@ -11,7 +11,7 @@ _update_05() {
         sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
+        _start_service_if_inactive tor
     fi
 
     # Some systems have issue with tor not starting unless User=tor is enabled. Here we check both directions as it takes care of edge cases where
@@ -21,13 +21,13 @@ _update_05() {
             -e '/Type=notify/a\User=tor' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
+        _start_service_if_inactive tor
     elif findmnt /mnt/usb 1>/dev/null && ! systemctl is-active --quiet tor && grep "User=tor" /usr/lib/systemd/system/tor.service 1>/dev/null; then
         sudo sed -i -e 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' \
             -e '/User=tor/d' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
+        _start_service_if_inactive tor
     fi
 }
 
@@ -136,16 +136,6 @@ _update_22() {
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/22-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Update reference from old development branch to develop branch in user.conf
-_update_23() {
-    if grep -q "^ronin_dojo_branch=\"origin/development"\" "$HOME"/.config/RoninDojo/user.conf; then
-        sed -i 's:origin/development:origin/develop:' "$HOME"/.config/RoninDojo/user.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/23-"$(date +%m-%d-%Y)"
     fi
 }
 
@@ -298,4 +288,37 @@ _update_31() {
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
+}
+
+# Migrate the electrs data to the new electrs backup data location
+_update_32() {
+    test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
+    
+    if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then  # checks for 0.9.x electrs data only  
+        _set_electrs
+        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
+    elif sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then # checks for addrindexrs and sets new conf otherwise would be set to electrs by default
+        _set_addrindexrs
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
+}
+
+# Restore indexer backup data to new docker volume location
+_update_33(){
+    _fetch_configured_indexer_type
+    ret=$?
+    
+    if ((ret==0)) && sudo test -d "${dojo_backup_electrs}"/_data ; then
+        _stop_dojo
+
+        sudo rm -rf "${docker_volume_electrs}"/_data
+        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
+
+        _start_dojo
+    fi
+    
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
 }

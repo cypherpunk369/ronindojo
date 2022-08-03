@@ -5,11 +5,10 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Mempool Space Visualizer"
-         2 "Electrum Server"
-         3 "Bisq Connection Status"
-         4 "Fan Control"
-         5 "Manage Applications"
-         6 "Go Back")
+         2 "Bisq Connection Status"
+         3 "Fan Control"
+         4 "Manage Applications"
+         5 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -47,16 +46,6 @@ EOF
         fi
         ;;
     2)
-        if ! _is_electrs; then
-            bash -c "${ronin_applications_menu}"
-            exit 1
-        fi
-        # check if electrs is already installed
-
-        bash -c "${ronin_electrs_menu}"
-        # runs electrs menu script
-        ;;
-    3)
         cat <<EOF
 ${red}
 ***
@@ -106,14 +95,9 @@ EOF
         fi
         # Bisq check
         ;;
-    4)
-        if ! which_sbc rockpro64; then
-            cat <<EOF
-${red}
-***
-No supported single-board computer detected for fan control...
-***
-EOF
+    3)
+        if ! _has_fan_control; then
+            _print_message "No supported single-board computer detected for fan control..."
             _sleep
             cat <<EOF
 ${red}
@@ -186,11 +170,11 @@ EOF
 
         bash -c "${ronin_applications_menu}"
         ;;
-    5)
+    4)
         bash -c "${ronin_applications_manage_menu}"
         # Manage applications menu
         ;;
-    6)
+    5)
         ronin
         # returns to main menu
         ;;
