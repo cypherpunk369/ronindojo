@@ -107,8 +107,8 @@ _call_update_scripts() {
     # _update_33 is executred as part of dojo upgrade script
     test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
     test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
-    test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
-    test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
+    test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support
+    test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter
     test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
     test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
     test -f "$HOME"/.config/RoninDojo/data/updates/40-* || _update_40 # The last 1.x update ever
@@ -161,7 +161,7 @@ EOF
 # Update package listings
 #
 _apt_update() {
-    sudo apt-get -y update 
+    sudo apt-get -y update
     return 0
 }
 
@@ -386,7 +386,7 @@ _setup_tor() {
 
     # Check for ownership
     if ! [ "$(stat -c "%U" "${install_dir_tor}")" = "tor" ]; then
-        sudo chown -R tor:tor "${install_dir_tor}" 
+        sudo chown -R tor:tor "${install_dir_tor}"
     fi
 
     # Check for proper torrc settings.
@@ -394,7 +394,7 @@ _setup_tor() {
         sudo sed -i '$a\User tor\nDataDirectory /mnt/usb/tor' /etc/tor/torrc
     fi
 
-    #checks if the proper tor.service, otherwise replace with ours. 
+    #checks if the proper tor.service, otherwise replace with ours.
     ##TODO: Determine if this revents on upgrades.
     if ! grep "/usr/bin/tor -f /etc/tor/torrc --verify-config" /usr/lib/systemd/system/tor.service 1>/dev/null; then
         sudo cp "${ronin_dir}"/example.tor.service /usr/lib/systemd/system/tor.service
@@ -490,7 +490,7 @@ _pm2_setup(){
 }
 
 _ronin_debian_ui() {
-    
+
     cd "${ronin_ui_path}" || exit
 
     _print_message "Performing pnpm install, please wait..."
@@ -498,14 +498,14 @@ _ronin_debian_ui() {
     pnpm install --prod  || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
     _print_message "Performing Next start, please wait..."
-    
+
     _pm2_setup
 
     # restart tor to ensure the backend is up and ready
     sudo systemctl restart tor
 
     # give tor time to rest and get set properly
-    sleep 10s 
+    sleep 10s
 
     if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
         sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
@@ -514,9 +514,9 @@ _ronin_debian_ui() {
     fi
 
     _ronin_ui_vhost
-  
+
     sudo systemctl restart nginx
-    
+
     cd - || exit
 }
 
@@ -537,7 +537,7 @@ _ronin_ui_install() {
     _install_pkg_if_missing "nginx"
     _install_pkg_if_missing "avahi-daemon"
 
-    sudo npm i -g pnpm@7 
+    sudo npm i -g pnpm@7
 
     sudo npm install pm2 -g
 
@@ -555,7 +555,7 @@ _ronin_ui_install() {
         _bad_shasum=$(sha256sum ${_file})
         _print_error_message "Ronin UI archive verification failed! Valid sum is ${_shasum}, got ${_bad_shasum} instead..."
     fi
-      
+
     tar xzf "$_file"
 
     rm "$_file" /tmp/version.json
@@ -586,7 +586,7 @@ _ronin_ui_install() {
     _ronin_ui_vhost
 
     _ronin_ui_avahi_service
-    
+
     sudo systemctl restart nginx
 
     cd - || exit
@@ -774,7 +774,7 @@ _ronin_ui_uninstall() {
     fi
 
     # Delete app from process list
-    pm2 delete "RoninUI" 
+    pm2 delete "RoninUI"
 
     # dump all processes for resurrecting them later
     pm2 save 1>/dev/null
@@ -970,21 +970,13 @@ _set_electrs() {
     return 0
 }
 
-_set_no_indexer() {
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_bitcoind/' "${dojo_path_my_dojo}"/conf/docker-node.conf
-
-    return 0
-}
-
 #
 # Checks what indexer is set if any
 #
 _fetch_configured_indexer_type() {
     if ! grep "NODE_ACTIVE_INDEXER=local_indexer" "${dojo_path_my_dojo}"/conf/docker-node.conf 1>/dev/null; then
         return 3
-        # No indexer      
+        # No indexer
     elif ! grep "INDEXER_INSTALL=on" "${dojo_path_my_dojo}"/conf/docker-indexer.conf 1>/dev/null; then
         return 3
         # No indexer
@@ -1006,7 +998,7 @@ _fetch_configured_indexer_type() {
 _indexer_prompt() {
     # shellcheck source=./Scripts/defaults.sh
     . "$HOME"/RoninDojo/Scripts/defaults.sh
-    
+
     _print_message "Preparing the Indexer Prompt..."
     _sleep 3
 
@@ -1027,7 +1019,7 @@ _indexer_prompt() {
     _sleep
 
     while true; do
-        select indexer in "Samourai Indexer" "Fulcrum" "Electrs" "No Indexer"; do
+        select indexer in "Samourai Indexer" "Fulcrum" "Electrs"; do
             case $indexer in
                 "Samourai Indexer")
                     _print_message "Selected Samourai Indexer..."
@@ -1045,12 +1037,6 @@ _indexer_prompt() {
                     _print_message "Selected Electrs..."
                     _sleep
                     _set_electrs
-                    return
-                    ;;
-                "No Indexer")
-                    _print_message "Selected No Indexer...Removing any other indexer data"
-                    _sleep
-                    _set_no_indexer
                     return
                     ;;
                 *)
@@ -1163,7 +1149,7 @@ _dojo_upgrade() {
 
     # get rid of orphan volumes
     if [ "${1}" = "prune" ]; then
-        docker volume prune -f 
+        docker volume prune -f
     fi
 
     _pause return
@@ -1223,7 +1209,7 @@ _source_dojo_conf() {
 # Stop Samourai Dojo containers
 #
 _stop_dojo() {
-    
+
     _assert_dojo_is_installed
 
     _print_message "Shutting down Dojo..."
@@ -1579,8 +1565,8 @@ _install_wst(){
 
     cd Whirlpool-Stats-Tool || exit
 
-    pip install setuptools 
-    pipenv install -r requirements.txt 
+    pip install setuptools
+    pipenv install -r requirements.txt
     # Change to whirlpool stats directory, otherwise exit
     # install whirlpool stat tool
     # install WST
@@ -1604,8 +1590,8 @@ _install_boltzmann(){
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
-    pip install setuptools 
-    pipenv install -r requirements.txt  
+    pip install setuptools
+    pipenv install -r requirements.txt
 }
 
 _is_bisq(){
