@@ -29,32 +29,50 @@ _backup_network_info(){
 _set_uwf_rules() {
     ufw allow from "${network_current}" to any port "80" >/dev/null
     ufw allow from "${network_current}" to any port "22" >/dev/null
+    ufw allow from "${network_current}" to any port "50002" >/dev/null
     ufw reload
 }
 
-#################
-# THE PROCEDURE #
-#################
+###############
+# PREPARATION #
+###############
 
+# First time run
 if [ ! -f "${ronin_data_dir}"/ip.txt ]; then
     _set_uwf_rules
     _backup_network_info
     exit
 fi
 
-. "${ronin_data_dir}"/ip.txt
-
-# shellcheck disable=SC2154
-if [ "${network}" = "${network_current}" ]; then
-    exit
-elif ufw status | head -n 1 | grep "Status: active" >/dev/null; then
-    # uncomment if you want rules from previous network to be removed
-    #while ufw status | grep "${network}"; do
-    #    ufw status numbered | grep "${network}" | head -n 1 | sed -E 's/\[\s*([0-9]+)\].*/\1/' | xargs -n 1 ufw --force delete
-    #done
-    _set_uwf_rules
-    _backup_network_info
-else 
+# Failure state
+if ufw status | head -n 1 | grep "Status: active" >/dev/null; then
     echo "UFW found to be not active!"
     exit 1
 fi
+
+# Redundancy check
+. "${ronin_data_dir}"/ip.txt
+# shellcheck disable=SC2154
+if [ "${network}" = "${network_current}" ]; then
+    echo "No changes found since last run."
+    exit
+fi
+
+#################
+# THE PROCEDURE #
+#################
+
+# Uncomment if you want rules from previous network to be removed
+#while ufw status | grep "${network}"; do
+#    ufw status numbered | grep "${network}" | head -n 1 | sed -E 's/\[\s*([0-9]+)\].*/\1/' | xargs -n 1 ufw --force delete
+#done
+_set_uwf_rules
+
+# keeping dojo's administration in order
+sudo sed -i 's/INDEXER_EXTERNAL_IP=.*$/INDEXER_EXTERNAL_IP='"${ip_current}"'/' "/home/ronindojo/dojo/docker/my-dojo/conf/docker-indexer.conf"
+# TODO: figure out if this happens before docker starts
+
+# Saving the state is the last step on purpose, in case the procedure gets killed for whatever reason before every alteration is completed.
+_backup_network_info
+
+echo "Completed updating network settings"
