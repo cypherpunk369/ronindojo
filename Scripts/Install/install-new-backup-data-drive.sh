@@ -68,6 +68,29 @@ _print_message "Installing dependencies..."
 _install_pkg_if_missing --update-mirrors "sgdisk" "gptfdisk" 
 
 
+#####################
+# SETUP DIRECTORIES #
+#####################
+
+
+if findmnt "${backup_mount}" 1>/dev/null; then
+    sudo umount "${backup_mount}"
+    sudo rm -rf "${backup_mount}" &>/dev/null
+fi
+
+if [ -d "${backup_mount}" ]; then
+    _print_error_message "Directory of mountpoint ${backup_mount} still exists after attempt to remove."
+    _pause "to return"
+    return
+fi
+
+if ! sudo mkdir -p "${backup_mount}"; then
+    _print_error_message "Could not create ${backup_mount} directory..."
+    _pause "to return"
+    return
+fi
+
+
 ##########################
 # PRE-EMPT THE PROCEDURE #
 ##########################
@@ -81,6 +104,7 @@ if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}")" ]; then
     _pause return
     return
 fi
+
 _print_message "WARNING: Any existing data on this backup drive will be lost!"
 _print_message "Are you sure?"
 
@@ -94,23 +118,6 @@ while true; do
             ;;
     esac
 done
-
-
-#####################
-# SETUP DIRECTORIES #
-#####################
-
-
-if findmnt "${backup_mount}" 1>/dev/null; then
-    sudo umount "${backup_mount}"
-    sudo rm -rf "${backup_mount}" &>/dev/null
-fi
-
-if [ ! -d "${backup_mount}" ] && ! sudo mkdir -p "${backup_mount}"; then
-    _print_error_message "Could not create ${backup_mount} directory..."
-    _pause "to return"
-    return
-fi
 
 
 #######################################
