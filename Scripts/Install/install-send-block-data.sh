@@ -38,7 +38,7 @@ install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}")
 
 
 if ! sudo test -d "${docker_volume_bitcoind}"/_data; then
-    _print_message "Blockchain data not found! Did you forget to install RoninDojo?"
+    _print_error_message "Blockchain data not found! Did you forget to install RoninDojo?"
     _pause return
     bash -c "${ronin_dojo_menu2}"
     exit
@@ -59,7 +59,7 @@ if [ -z ${backup_storage_partition} ]; then
 fi
 
 if [ ! -b ${backup_storage_partition} ]; then
-    _print_message "Backup storage partition missing, if you haven't connected the device please do and retry, otherwise please go to the menu System and then the menu Disk Storage to Format & Mount New Backup Drive!"
+    _print_error_message "Backup storage partition missing, if you haven't connected the device please do and retry, otherwise please go to the menu System and then the menu Disk Storage to Format & Mount New Backup Drive!"
     _pause return
     bash -c "${ronin_dojo_menu2}"
     exit
