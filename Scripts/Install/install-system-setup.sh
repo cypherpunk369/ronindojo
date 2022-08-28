@@ -249,6 +249,8 @@ else
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
     sudo mkfs.ext4 -q -F -L "main" "${primary_storage}" 1>/dev/null
 
+    _sleep 5 # kernel doesn't pick up on changes immediately, giving it some time
+
 fi
 
 ####################################################
