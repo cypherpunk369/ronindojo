@@ -136,9 +136,9 @@ else
 fi
 
 
-#####################################
-# STORAGE DEVICES SETUP: FORMAT NEW #
-#####################################
+###############################################
+# STORAGE DEVICES SETUP: FORMAT NEW AND MOUNT #
+###############################################
 
 
 _print_message "Formatting the Backup Data Partition..."
@@ -147,38 +147,7 @@ _sleep
 sudo wipefs -a --force "${_device}" 1>/dev/null
 sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
-
-
-####################################################
-# STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
-####################################################
-
-
-_print_message "Writing systemd mount unit file for device ${blockdata_storage_partition}..."
-
-#TODO: below, replace this by-uuid construct with a simple use of ${backup_storage_partition}, gotta fix sda Vs sdb first though
-#USECASE: by-uuid construct doesn't survive wipefs and reformat, would require a remake of the mountfile
-#ALTERNATIVE: if the partition has always been labelled "backup", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios from being a problem
-
-mountUnitName="$(echo "${backup_mount:1}" | tr '/' '-').mount"
-
-sudo tee "/etc/systemd/system/${mountUnitName}" <<EOF >/dev/null
-[Unit]
-Description=Mount External SSD Drive ${backup_storage_partition}
-
-[Mount]
-What=/dev/disk/by-uuid/$(lsblk -no UUID "${backup_storage_partition}")
-Where=${backup_mount}
-Type=$(blkid -o value -s TYPE "${backup_mount}")
-Options=defaults
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-sudo systemctl daemon-reload
-sudo systemctl start --quiet "${mountUnitName}"
-sudo systemctl enable --quiet "${mountUnitName}"
+sudo mount "${backup_storage_partition}" "${backup_mount}"
 
 _print_message "Mounted ${backup_storage_partition} to ${backup_mount}"
 _print_message "Filesystem creation succes!"
