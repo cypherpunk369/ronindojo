@@ -113,6 +113,7 @@ if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
     [ $# -eq 0 ] && _pause continue
 
     _stop_dojo
+    _sleep 3
 
     $dojo_data_bitcoind_backup && _dojo_data_bitcoind_restore
     $dojo_data_indexer_backup && _dojo_data_indexer_restore
