@@ -576,6 +576,12 @@ _ronin_ui_install() {
     pm2 save &>/dev/null
     pm2 startup &>/dev/null
 
+    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "${ronindojo_user}" --hp "$HOME" &>/dev/null
+
+    _ronin_ui_setup_tor
+
+    _ronin_ui_vhost
+
     _ronin_ui_avahi_service
     
 }
