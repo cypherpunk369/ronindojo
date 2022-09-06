@@ -1153,8 +1153,8 @@ _dojo_check() {
     _load_user_conf
 
     if ! findmnt "${install_dir}" 1>/dev/null; then
-        _print_message "Missing drive mount at ${install_dir}!"
-        _print_message "Please contact support for assistance..."
+        _print_error_message "Missing drive mount at ${install_dir}!"
+        _print_error_message "Please contact support for assistance..."
         _sleep 5 --msg "Returning to main menu in"
         ronin
         exit
@@ -1202,6 +1202,7 @@ _stop_dojo() {
 #
 _start_dojo() {
     if ! _dojo_check; then
+        _print_error_message "Attempt to start dojo but failed dojo check!"
         return 1
     fi
 
