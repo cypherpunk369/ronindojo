@@ -216,6 +216,10 @@ EOF
 
 print_docker_status() {
 
+	if [ ! -d "${dojo_path}" ]; then
+		return
+	fi
+
 	cat <<EOF
 #####################################################################
                       Docker Container Status
@@ -226,64 +230,47 @@ EOF
 
 	printf "\n"
 
-	# checks if dojo is running (check the db container)
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           Bitcoind Logs
 #####################################################################
 EOF
 
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs bitcoind -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs bitcoind -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           Tor Logs
 #####################################################################
 EOF
     
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs tor -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs tor -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           MariaDB Logs
 #####################################################################
 EOF
     
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs db -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs db -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+    cat <<EOF
 #####################################################################
                           Indexer Logs
 #####################################################################
 EOF
 
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs indexer -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs indexer -n 25
 
 }
 
