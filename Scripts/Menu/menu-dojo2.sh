@@ -22,8 +22,8 @@ case $CHOICE in
         1)
             if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
-            # is dojo installed?
 
             cat <<EOF
 ${red}
@@ -43,8 +43,8 @@ EOF
         2)
             if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
-            # is dojo installed?
 
             cat <<EOF
 ${red}
@@ -65,6 +65,7 @@ EOF
         3)
             if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
             # is dojo installed?
 
@@ -74,6 +75,7 @@ EOF
         4)
             if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
             # is dojo installed?
 

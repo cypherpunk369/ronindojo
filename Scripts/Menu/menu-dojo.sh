@@ -119,14 +119,14 @@ DOJO
             fi
 
             bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
-            # go to dojo logs menu
+            exit
             ;;
         5)
             bash -c "${ronin_dojo_menu2}"
-            # takes you to ronin dojo menu2
+            exit
             ;;
         6)
             ronin
-            # return to main ronin menu
+            exit
             ;;
 esac

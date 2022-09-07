@@ -85,6 +85,7 @@ EOF
     6)
         if [ ! -d "${dojo_path}" ]; then
             _is_dojo "${ronin_system_menu2}"
+            exit
         fi
             # is dojo installed?
 

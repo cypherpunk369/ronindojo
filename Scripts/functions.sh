@@ -1044,7 +1044,7 @@ _indexer_prompt() {
 }
 
 #
-# Check if my-dojo directory is missing
+# Check if dojo directory is missing
 #
 _is_dojo() {
     local menu
@@ -1241,6 +1241,9 @@ _stop_dojo() {
 _start_dojo() {
 
     _assert_dojo_is_installed
+
+    _print_message "Starting Dojo..."
+    _sleep
 
     cd "${dojo_path_my_dojo}" || exit 1
     ./dojo.sh start
