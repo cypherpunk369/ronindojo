@@ -35,8 +35,10 @@ EOF
                 _pause return
                 bash -c "${ronin_dojo_menu}"
             else
-                _is_dojo "${ronin_dojo_menu}"
-                # is dojo installed?
+                if [ ! -d "${dojo_path}" ]; then
+                    _is_dojo "${ronin_dojo_menu}"
+                    exit
+                fi
 
                 cat <<EOF
 ${red}
@@ -68,8 +70,10 @@ EOF
             # press any key to return to menu
             ;;
         3)
-            _is_dojo "${ronin_dojo_menu}"
-            # is dojo installed?
+            if [ ! -d "${dojo_path}" ]; then
+                _is_dojo "${ronin_dojo_menu}"
+                exit
+            fi
 
             if [ -d "${dojo_path}" ]; then
                 cat <<EOF
@@ -109,8 +113,10 @@ DOJO
             fi
             ;;
         4)
-            _is_dojo "${ronin_dojo_menu}"
-            # is dojo installed?
+            if [ ! -d "${dojo_path}" ]; then
+                _is_dojo "${ronin_dojo_menu}"
+                exit
+            fi
 
             bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
             # go to dojo logs menu
