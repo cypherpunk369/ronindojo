@@ -1147,29 +1147,6 @@ _dojo_upgrade() {
 }
 
 #
-# Checks if dojo db container.
-#
-_dojo_check() {
-    _load_user_conf
-
-    if ! findmnt "${install_dir}" 1>/dev/null; then
-        _print_error_message "Missing drive mount at ${install_dir}!"
-        _print_error_message "Please contact support for assistance..."
-        _sleep 5 --msg "Returning to main menu in"
-        ronin
-        exit
-    fi
-
-    _start_service_if_inactive docker
-
-    if [ -d "${dojo_path}" ] && [ "$(docker inspect --format='{{.State.Running}}' db 2>/dev/null)" = "true" ]; then
-        return 0
-    else
-        return 1
-    fi
-}
-
-#
 # Asserts dojo to be installed
 #
 _assert_dojo_is_installed() {
