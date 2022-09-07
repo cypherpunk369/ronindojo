@@ -1170,6 +1170,34 @@ _dojo_check() {
 }
 
 #
+# Asserts dojo to be installed
+#
+_assert_dojo_is_installed() {
+    _load_user_conf
+
+    if ! findmnt "${install_dir}" 1>/dev/null; then
+        _print_error_message "Missing drive mount at ${install_dir}!"
+        _print_error_message "Please contact support for assistance..."
+        _pause exit
+        exit
+    fi
+
+    if ! _is_active docker; then
+        _print_error_message "Expected docker to be running, but it wasn't!"
+        _print_error_message "Please contact support for assistance..."
+        _pause exit
+        exit
+    fi
+
+    if [ ! -d "${dojo_path}" ]; then
+        _print_error_message "Expected dojo to be installed, but it wasn't!"
+        _print_error_message "Please contact support for assistance..."
+        _pause exit
+        exit
+    fi
+}
+
+#
 # Returns whether or not dojo is running
 #
 _is_dojo_running() {
