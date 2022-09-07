@@ -23,7 +23,7 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1)
-            if _dojo_check; then
+            if _is_dojo_running; then
                 cat <<EOF
 ${red}
 ***

@@ -24,7 +24,7 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1|2|3|4|5|6|8)
-            if ! _dojo_check; then
+            if ! _is_dojo_running; then
                 _print_message "Please start Dojo first!"
                 _sleep 5
                 bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
