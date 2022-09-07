@@ -84,7 +84,7 @@ EOF
         ;;
     6)
         if ! _dojo_check; then
-            _is_dojo bash -c "${ronin_system_menu2}"
+            _is_dojo "${ronin_system_menu2}"
         fi
             # is dojo installed?
 
