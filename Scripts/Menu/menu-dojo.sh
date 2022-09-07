@@ -75,26 +75,25 @@ EOF
                 exit
             fi
 
-            if [ -d "${dojo_path}" ]; then
-                cat <<EOF
+            cat <<EOF
 ${red}
 ***
 Restarting Dojo...
 ***
 ${nc}
 EOF
-                _sleep
+            _sleep
 
-                cat <<DOJO
+            cat <<DOJO
 ${red}
 ***
 Stopping Dojo...
 ***
 ${nc}
 DOJO
-                # Check if db container running before stopping all containers
-                _stop_dojo
-                cat <<DOJO
+            # Check if db container running before stopping all containers
+            _stop_dojo
+            cat <<DOJO
 ${red}
 ***
 Starting Dojo...
@@ -102,15 +101,15 @@ Starting Dojo...
 ${nc}
 DOJO
                 
-                cd "${dojo_path_my_dojo}" || exit
-                # Start docker containers
-                ./dojo.sh start
-                # restart dojo
+            cd "${dojo_path_my_dojo}" || exit
+            # Start docker containers
+            ./dojo.sh start
+            # restart dojo
 
-                _pause return
-                bash -c "${ronin_dojo_menu}"
-                # press any key to return to menu
-            fi
+            _pause return
+            bash -c "${ronin_dojo_menu}"
+            # press any key to return to menu
+
             ;;
         4)
             if [ ! -d "${dojo_path}" ]; then
