@@ -63,24 +63,22 @@ EOF
         ;;
 
     3)
-        if ! _dojo_check; then
-            if [ ! -d "${dojo_path}" ]; then
-                cat <<EOF
+        if [ ! -d "${dojo_path}" ]; then
+            cat <<EOF
 ${red}
 ***
 Missing ${dojo_path} directory, aborting update...
 ***
 ${nc}
 EOF
-                _sleep
+            _sleep
 
-                _pause return
+            _pause return
 
-                bash -c "${ronin_system_update}"
-                exit 1
-            fi
+            bash -c "${ronin_system_update}"
+            exit 1
         fi
-        # is dojo installed?
+    # is dojo installed?
 
         cat <<EOF
 ${red}

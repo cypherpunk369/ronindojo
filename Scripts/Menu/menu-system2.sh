@@ -83,7 +83,7 @@ EOF
         # uses passwd to unlock root user, returns to menu
         ;;
     6)
-        if ! _dojo_check; then
+        if [ ! -d "${dojo_path}" ]; then
             _is_dojo "${ronin_system_menu2}"
         fi
             # is dojo installed?
