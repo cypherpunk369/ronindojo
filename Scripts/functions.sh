@@ -1170,6 +1170,17 @@ _dojo_check() {
 }
 
 #
+# Returns whether or not dojo is running
+#
+_is_dojo_running() {
+    if [ "$(docker inspect --format='{{.State.Running}}' db 2>/dev/null)" = "true" ]; then
+        return 0
+    fi
+
+    return 1
+}
+
+#
 # Source DOJO confs
 #
 _source_dojo_conf() {
