@@ -1223,9 +1223,8 @@ _source_dojo_conf() {
 # Stop Samourai Dojo containers
 #
 _stop_dojo() {
-    if ! _dojo_check; then
-        return 1
-    fi
+    
+    _assert_dojo_is_installed
 
     _print_message "Shutting down Dojo..."
     _sleep
@@ -1240,10 +1239,8 @@ _stop_dojo() {
 # Start Samourai Dojo containers
 #
 _start_dojo() {
-    if ! _dojo_check; then
-        _print_error_message "Attempt to start dojo but failed dojo check!"
-        return 1
-    fi
+
+    _assert_dojo_is_installed
 
     cd "${dojo_path_my_dojo}" || exit 1
     ./dojo.sh start
