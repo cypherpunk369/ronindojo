@@ -928,7 +928,7 @@ _fan_control_upgrade() {
 
 _set_addrindexrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_TYPE=addrindexrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=addrindexrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
@@ -936,7 +936,7 @@ _set_addrindexrs() {
 
 _set_fulcrum() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_TYPE=fulcrum/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=fulcrum/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
@@ -944,7 +944,7 @@ _set_fulcrum() {
 
 _set_electrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
@@ -952,7 +952,7 @@ _set_electrs() {
 
 _set_no_indexer() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
-    sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_bitcoind/' "${dojo_path_my_dojo}"/conf/docker-node.conf
 
     return 0
