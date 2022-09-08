@@ -31,16 +31,6 @@ _update_05() {
     fi
 }
 
-# Modify pacman.conf and add ignore packages
-_update_06() {
-    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
-        sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/06-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Remove duplicate bisq integration changes
 _update_15() {
     if _is_bisq; then
@@ -321,4 +311,14 @@ _update_33(){
     
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
+}
+
+# Modify pacman.conf and add ignore packages
+_update_34() {
+    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+        sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
 }

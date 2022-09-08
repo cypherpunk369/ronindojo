@@ -87,7 +87,6 @@ _call_update_scripts() {
     if [ -f "${ronin_data_dir}"/system-install ]; then
 
         _update_05 # Check on tor unit service
-        test -f "$HOME"/.config/RoninDojo/data/updates/06-* || _update_06 # Modify pacman to Ignore specific packages
         test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
         test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
         test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
@@ -100,6 +99,7 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
         test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
         # updates 32 and 33 are to be executed during dojo upgrade
+        test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Modify pacman to Ignore specific packages
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 9); do

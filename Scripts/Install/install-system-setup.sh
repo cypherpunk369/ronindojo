@@ -65,6 +65,10 @@ fi
 # FIXING DEPENDENCIES #
 #######################
 
+if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+    sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
+fi
+
 _pacman_update_mirrors
 
 _print_message "Checking package dependencies. Please wait..."
