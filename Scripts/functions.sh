@@ -102,7 +102,10 @@ _call_update_scripts() {
         # updates 32 and 33 are to be executed during dojo upgrade
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
-        for i in $(seq 1 33); do
+        for i in $(seq 1 9); do
+            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
+        done
+        for i in $(seq 10 33); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
