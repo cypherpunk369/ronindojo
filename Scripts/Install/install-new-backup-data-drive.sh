@@ -150,7 +150,7 @@ sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
 sudo mount "${backup_storage_partition}" "${backup_mount}"
 
 _print_message "Mounted ${backup_storage_partition} to ${backup_mount}"
-_print_message "Filesystem creation succes!"
+_print_message "Filesystem creation success!"
 
 
 ##############
