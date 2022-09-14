@@ -40,11 +40,12 @@ _sleep
 
         _pause return
         bash -c "${ronin_system_storage}"
-        # press any key to return to menu
+        exit
         ;;
     2)
         bash "$HOME"/RoninDojo/Scripts/Install/install-new-backup-data-drive.sh
-        # formats ${backup_storage_partition} to ext 4 and mounts to ${backup_mount} for backing up data on "${blockdata_storage_partition}" or ${install_dir}
+        bash -c "${ronin_system_storage}"
+        exit
         ;;
     3)
         bash -c "${ronin_system_menu}"
