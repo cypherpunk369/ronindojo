@@ -36,20 +36,20 @@ if [ -z ${backup_storage_partition} ]; then
     if [ -z ${backup_storage_partition} ]; then
         _print_error_message "No backup storage device found"
         _pause return
-        return
+        exit
     fi
 fi
 
 if [[ "${blockdata_storage_partition}" != "${install_dir_partition}" ]]; then
     _print_error_message "${install_dir} is not mounted to the prescribed partition ${blockdata_storage_partition}, instead found to be mounted to ${install_dir_partition}"
     _pause return
-    return
+    exit
 fi
 
 if [[ "${install_dir_partition_uuid}" == "${backup_storage_partition_uuid}" ]]; then
     _print_error_message "Backup drive unusable, conflicts with drive mounted to /mnt/usb"
     _pause return
-    return
+    exit
 fi
 
 
