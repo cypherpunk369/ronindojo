@@ -40,12 +40,6 @@ if [ -z ${backup_storage_partition} ]; then
     fi
 fi
 
-if [ ! -b ${backup_storage_partition} ]; then
-    _print_message "Backup storage partition missing, please reconfigure to find new backup storage device!"
-    _pause return
-    return
-fi
-
 if [[ "${blockdata_storage_partition}" != "${install_dir_partition}" ]]; then
     _print_error_message "${install_dir} is not mounted to the prescribed partition ${blockdata_storage_partition}, instead found to be mounted to ${install_dir_partition}"
     _pause return
