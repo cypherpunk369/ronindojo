@@ -26,7 +26,7 @@ _install_pkg_if_missing --update-mirrors rsync
 #######################################
 
 
-backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}")
+backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}" 2> /dev/null)
 install_dir_partition=$(findmnt -n -o SOURCE --target "${install_dir}")
 install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}")
 
