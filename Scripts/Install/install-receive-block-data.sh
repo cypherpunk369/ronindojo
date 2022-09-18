@@ -1,19 +1,17 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
-_print_message "Preparing to copy data from your Backup Data Drive now..."
-_sleep 3
-
-
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
-
 
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
+
+_print_message "Preparing to copy data from your Backup Data Drive now..."
+_sleep
 
 
 #######################################

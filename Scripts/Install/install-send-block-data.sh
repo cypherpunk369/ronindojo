@@ -1,9 +1,6 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
-_print_message "Preparing to copy data to your Backup Data Drive now..."
-_sleep
-
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
@@ -13,6 +10,8 @@ _sleep
 
 _load_user_conf
 
+_print_message "Preparing to copy data to your Backup Data Drive now..."
+_sleep
 
 #######################
 # FIXING DEPENDENCIES #
