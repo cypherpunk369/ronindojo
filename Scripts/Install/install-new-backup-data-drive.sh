@@ -17,10 +17,10 @@ _load_user_conf
 ################
 
 
-install_dir_partition=$(findmnt -n -o SOURCE --target "${install_dir}")
-install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}")
+install_dir_partition=$(findmnt -n -o SOURCE --target "${install_dir}" 2> /dev/null)
+install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}" 2> /dev/null)
 
-backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}")
+backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}" 2> /dev/null)
 
 
 ##############
@@ -91,7 +91,7 @@ fi
 
 _print_message "Preparing to format ${backup_storage_partition} partition and mount it to ${backup_mount}..."
 
-if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}")" ]; then
+if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}" 2> /dev/null)" ]; then
     _print_message "Assigned backup partition ${backup_storage_partition} has a filesystem already"
     _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINTS $backup_storage_partition | tail -1)"
     _print_error_message "Please fix this and try again"
