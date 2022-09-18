@@ -68,7 +68,7 @@ _install_pkg_if_missing --update-mirrors "sgdisk" "gptfdisk"
 
 
 if findmnt "${backup_mount}" 1>/dev/null; then
-    sudo umount "${backup_mount}"
+    sudo umount -f "${backup_mount}"
     sudo rm -rf "${backup_mount}" &>/dev/null
 fi
 
