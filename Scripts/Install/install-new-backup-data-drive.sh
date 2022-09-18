@@ -94,9 +94,6 @@ _print_message "Preparing to format ${backup_storage_partition} partition and mo
 if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}" 2> /dev/null)" ]; then
     _print_message "Assigned backup partition ${backup_storage_partition} has a filesystem already"
     _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINTS $backup_storage_partition | tail -1)"
-    _print_error_message "Please fix this and try again"
-    _pause return
-    return
 fi
 
 _print_message "WARNING: Any existing data on this backup drive will be lost!"
@@ -138,6 +135,7 @@ fi
 _print_message "Formatting the Backup Data Partition..."
 _sleep
 
+sudo umount -f "${backup_storage_partition}"
 sudo wipefs -a --force "${_device}" 1>/dev/null
 sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
