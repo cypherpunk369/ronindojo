@@ -105,7 +105,7 @@ _call_update_scripts() {
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 33); do
+        for i in $(seq 10 34); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
