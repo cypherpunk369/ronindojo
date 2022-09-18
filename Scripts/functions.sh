@@ -100,7 +100,7 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
         test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
         # _update_33 is executred as part of dojo upgrade script
-        test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_34 # Call _setup_storage_config to set the files
+        test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 9); do
