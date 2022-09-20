@@ -69,8 +69,9 @@ _install_pkg_if_missing --update-mirrors "sgdisk" "gptfdisk"
 
 if findmnt "${backup_mount}" 1>/dev/null; then
     sudo umount -f "${backup_mount}"
-    sudo rm -rf "${backup_mount}" &>/dev/null
 fi
+
+sudo rm -rf "${backup_mount}" &>/dev/null
 
 if [ -d "${backup_mount}" ]; then
     _print_error_message "Directory of mountpoint ${backup_mount} still exists after attempt to remove."
