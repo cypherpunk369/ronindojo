@@ -75,13 +75,13 @@ fi
 if [ -d "${backup_mount}" ]; then
     _print_error_message "Directory of mountpoint ${backup_mount} still exists after attempt to remove."
     _pause "to return"
-    return
+    exit
 fi
 
 if ! sudo mkdir -p "${backup_mount}"; then
     _print_error_message "Could not create ${backup_mount} directory..."
     _pause "to return"
-    return
+    exit
 fi
 
 
