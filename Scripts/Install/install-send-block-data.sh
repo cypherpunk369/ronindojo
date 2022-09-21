@@ -84,7 +84,7 @@ fi
 ###################################
 
 
-sudo test -d "${backup_mount}" || sudo mkdir -p"${backup_mount}"
+sudo test -d "${backup_mount}" || sudo mkdir -p "${backup_mount}"
 
 if ! findmnt "${backup_mount}" 1>/dev/null; then
     _print_message "Mounting the backup storage mount ${backup_mount}..."
