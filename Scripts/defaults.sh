@@ -190,7 +190,7 @@ declare -a backup_dojo_data=(
 )
 
 # RoninUI defaults
-roninui_version_staging=false
+roninui_version_staging=true
 roninui_version_file="https://ronindojo.io/downloads/RoninUI/version.json"
 if [ "$roninui_version_staging" = true ]; then
     roninui_version_file="https://ronindojo.io/downloads/RoninUI/version-staging.json"
