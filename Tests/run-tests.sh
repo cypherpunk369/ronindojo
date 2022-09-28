@@ -1,21 +1,11 @@
 #! /bin/bash
 # shellcheck source=/dev/null disable=SC3030,SC3024,SC3054
 
-#############
-# FUNCTIONS #
-#############
+###########
+# IMPORTS #
+###########
 
-_print_banner() {
-    charCount=$(expr length "$1" + 4)
-    printf '#%.0s' $(seq 1 $charCount) 
-    echo ""
-    echo "# ${1} #"
-    printf '#%.0s' $(seq 1 $charCount) 
-    echo ""
-    echo ""
-}
-
-
+. ./Tests/test-functions.sh
 
 #########################
 # TEST SCRIPT EXECUTION #

@@ -20,10 +20,9 @@ _install_wst() {
     fi
 
     git clone -q "${whirlpool_stats_repo}" "${whirlpool_local_repo_dir_name}"
+    cd "${whirlpool_path}" || exit 1
 
     _install_pkg_if_missing "${whirlpool_pkg_dependencies[@]}"
-
-    cd "${whirlpool_path}" || exit 1
 
     if pipenv --venv 2>/dev/null; then
         echo "Previous wst installation found, please remove it first."
