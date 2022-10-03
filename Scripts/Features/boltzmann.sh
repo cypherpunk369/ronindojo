@@ -14,10 +14,20 @@ boltzmann_path="$HOME/boltzmann"
 _install_boltzmann() {
     cd "$HOME" || exit 1
 
+    if test -e "${boltzmann_path}"; then
+        echo "Previous boltzmann installation found, please remove it first."
+        exit 1
+    fi
+
     git clone -q "${boltzmann_repo}" "${boltzmann_local_repo_dir_name}"
     cd "${boltzmann_local_repo_dir_name}" || exit 1
 
     _install_pkg_if_missing "${boltzmann_pkg_dependencies[@]}"
+
+    if pipenv --venv 2>/dev/null; then
+        echo "Previous boltzmann installation found, please remove it first."
+        exit 1
+    fi
 
     pipenv install -r requirements.txt
     pipenv install sympy numpy
