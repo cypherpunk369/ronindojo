@@ -35,7 +35,7 @@ tearDown() {
 	    pipenv --rm
 	    cd -
 
-		# pipenv --venv && fail "pipenv still had a virtualenv for ${wst_path}"
+		! pipenv --venv || fail "pipenv still had a virtualenv for ${wst_path}"
 		rm -rf "${wst_path}"
 		! test -e "${wst_path}" || fail "tearDown couldn't clean up, ${wst_path} still exists"
 	fi
@@ -86,7 +86,7 @@ testRunScriptUninstall1() {
 
 	printTestProgress "running assertions"
 	! test -e "${wst_path}" || fail "file ${wst_path} still exists after calling ${wst_install_script} uninstall"
-	# pipenv --venv && fail "pipenv still had a virtualenv for ${wst_path}"
+	! pipenv --venv || fail "pipenv still had a virtualenv for ${wst_path}"
 	printTestProgress "assertions completed."
 }
 
