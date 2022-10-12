@@ -1,15 +1,27 @@
 #!/bin/bash
 # shellcheck source=Scripts/Features/wst.sh
 
+###########
+# IMPORTS #
+###########
+
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
 . $SCRIPTPATH/../Functions/packages.sh
 
+#############
+# CONSTANTS #
+#############
+
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 whirlpool_local_repo_dir_name="Whirlpool-Stats-Tool"
 whirlpool_pkg_dependencies=("python" "python-pipenv")
 whirlpool_path="${HOME}/${whirlpool_local_repo_dir_name}"
+
+#############
+# FUNCTIONS #
+#############
 
 _install_wst() {
     cd "${HOME}" || exit 1
@@ -41,6 +53,9 @@ _uninstall_wst() {
     rm -rf "${whirlpool_path}"
 }
 
+####################
+# SCRIPT EXECUTION #
+####################
 
 case $1 in
     install)

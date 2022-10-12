@@ -1,15 +1,27 @@
 #!/bin/bash
 # shellcheck source=Scripts/Features/boltzmann.sh
 
+###########
+# IMPORTS #
+###########
+
 SCRIPT=$(readlink -f "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 
 . $SCRIPTPATH/../Functions/packages.sh
 
+#############
+# CONSTANTS #
+#############
+
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 boltzmann_pkg_dependencies=("python" "python-pipenv")
 boltzmann_local_repo_dir_name='boltzmann'
 boltzmann_path="$HOME/boltzmann"
+
+#############
+# FUNCTIONS #
+#############
 
 _install_boltzmann() {
     cd "$HOME" || exit 1
@@ -37,6 +49,10 @@ _uninstall_boltzmann() {
     cd "$HOME" || exit
     rm -rf "$boltzmann_path"
 }
+
+####################
+# SCRIPT EXECUTION #
+####################
 
 
 case $1 in

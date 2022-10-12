@@ -1,11 +1,19 @@
 #!/bin/bash
 # shellcheck source=Scripts/Features/bisq.sh
 
+#############
+# CONSTANTS #
+#############
+
 ronin_data_dir="$HOME/.config/RoninDojo/data"
 bisq_install_proof="${ronin_data_dir}/bisq.txt"
 ip_current=$(ip route get 1 | awk '{print $7}')
 dojo_path_my_dojo="$HOME/dojo/docker/my-dojo"
 bitcoind_restart_sh="${dojo_path_my_dojo}/bitcoin/restart.sh"
+
+#############
+# FUNCTIONS #
+#############
 
 _bisq_install(){
     mkdir -p "${ronin_data_dir}"
@@ -36,6 +44,10 @@ _bisq_uninstall() {
 
     rm "${bisq_install_proof}"
 }
+
+####################
+# SCRIPT EXECUTION #
+####################
 
 case $1 in
     install)
