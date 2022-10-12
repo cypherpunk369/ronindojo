@@ -22,16 +22,20 @@ samourai_path="${HOME}/dojo"
 #############
 
 _download_dojo() {
-	cd "$HOME" || exit
-	git clone -q "${samourai_repo}" dojo 2>/dev/null
-	cd -
+	cd "$HOME" || exit 1
+	git clone -q "${samourai_repo}" dojo
+	cd - || exit 1
 
 	# cd "${samourai_path}" || exit
 	# git checkout -q -f "${samourai_commitish}"
 }
 
+_initialize_dojo() {
+	
+}
+
 _remove_dojo() {
-	rm -rf samourai_path
+	rm -rf "${samourai_path}"
 }
 
 ####################
@@ -42,8 +46,11 @@ case $1 in
     download)
         _download_dojo
     ;;
+    initialize)
+		_initialize_dojo
+	;;
     _remove_dojo)
-        _uninstall_wst
+        _remove_dojo
     ;;
     *)
         echo "Unknown option '$1'"

@@ -15,6 +15,7 @@ set -e
 #########################
 
 bisq_install_script="Scripts/Features/bisq.sh"
+dojo_install_script="Scripts/Features/samourai-dojo.sh"
 
 dojo_path_my_dojo="$HOME/dojo/docker/my-dojo"
 ronin_data_dir="$HOME/.config/RoninDojo/data"
@@ -23,30 +24,35 @@ dojo_path_bitcoin_restart_sh="${dojo_path_my_dojo}/bitcoin/restart.sh"
 
 #ip_current=$(ip route get 1 | awk '{print $7}')
 
-setUp() {
+oneTimeSetUp() {
 	printTestProgress "doing oneTimeSetUp"
 
-	! grep -c "\-peerbloomfilters=1" "${dojo_path_bitcoin_restart_sh}" || fail "Found the peerbloomfilters argument set to 1."
-	! grep -c "\-whitelist=bloomfilter" "${dojo_path_bitcoin_restart_sh}" || fail "Found a whitelist argument set for the bloomfilter."
+	! test -e "${bisq_install_proof}" || fail "Found installation proof before tests even ran."
+	! test -e "${dojo_path_bitcoin_restart_sh}" || fail "Found the dojo downloaded before tests even ran."
 
 	printTestProgress "completed oneTimeSetUp"
+}
+
+setUp() {
+	printTestProgress "doing setUp"
+	bash -c "${dojo_install_script} download" || fail "calling ${dojo_install_script} download returned false"
+	printTestProgress "completed setUp"
 }
 
 tearDown() {
     [ "${_shunit_name_}" = 'EXIT' ] && return 0 #SHUNIT2 BUG WORKAROUND, PREVENTS ERRONEOUS CALL ON TEST FRAMEWORK EXIT
 
 	printTestProgress "doing tearDown"
-
-	! test -e "${bisq_install_proof}" || fail "Installation not properly cleaned up."
-
+	rm -f "${bisq_install_proof}" || fail "removing ${bisq_install_proof} returned false"
+	bash -c "${dojo_install_script} remove" || fail "calling ${dojo_install_script} download returned false"
 	printTestProgress "completed tearDown"
 }
 
 oneTimeTearDown() {
 	printTestProgress "doing oneTimeTearDown"
 
-	! grep -c "\-peerbloomfilters=1" "${dojo_path_bitcoin_restart_sh}" || fail "Found the peerbloomfilters argument set to 1."
-	! grep -c "\-whitelist=bloomfilter" "${dojo_path_bitcoin_restart_sh}" || fail "Found a whitelist argument set for the bloomfilter."
+	! test -e "${bisq_install_proof}" || fail "Found installation proof after all tests have run."
+	! test -e "${dojo_path_bitcoin_restart_sh}" || fail "Found the dojo downloaded after all tests have run."
 
 	printTestProgress "completed oneTimeTearDown"
 }
