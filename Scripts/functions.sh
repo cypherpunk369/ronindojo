@@ -992,7 +992,7 @@ _indexer_prompt() {
     _print_message "Preparing the Indexer Prompt..."
     _sleep 3
 
-    _print_message "Samourai Indexer is recommended for Samourai only users as it helps with querying balances..."
+    _print_message "Samourai Indexer is only recommended for light wallet use. Do not use if you have been a long time user of Whirlpool..."
     _sleep 3
 
     _print_message "Fulcrum Server is recommended for Wallets with heavy use, Hardware Wallets, Multisig, and other Electrum features..."
