@@ -303,11 +303,14 @@ create_output_logs() {
 
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
+	journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
 
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	  --trust-model always -a "${ronin_debug_dir}/journal.txt"
 }
 
 cleanup_output_logs() {
@@ -326,26 +329,19 @@ upload_logs() {
 EOF
 
 
-    # Upload to termbin
-    cat <<EOF
-${red}
-***
-Please wait while URLs are generated...
-***
-${nc}
-EOF
-_sleep 2
+    _print_message "Please wait while URLs are generated..."
+	_sleep 2
 
-	    cat <<EOF
-***
-PGP Encrypted Logs URLs:
-***
-EOF
+	_print_message "PGP Encrypted Logs URLs:"
+
 	printf "health file: "
 	cat "${ronin_debug_dir}"/health.txt.asc | nc termbin.com 9999
 	printf "\n"
 	printf "dmesg file: "
 	cat "${ronin_debug_dir}"/dmesg.txt.asc | nc termbin.com 9999
+	printf "\n"
+	printf "journal file: "
+	cat "${ronin_debug_dir}"/journal.txt.asc | nc termbin.com 9999
 }
 
 # execute the scripts
