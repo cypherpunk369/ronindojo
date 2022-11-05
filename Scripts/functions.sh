@@ -2091,6 +2091,17 @@ _restore_or_create_dojo_confs() {
         _print_message "Credentials backup detected and restored..."
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         sudo rsync -acp --quiet --delete-before "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
+
+        update_config_file "${dojo_path_my_dojo}/conf/docker-common.conf" "${dojo_path_my_dojo}/conf/docker-common.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-bitcoind.conf" "${dojo_path_my_dojo}/conf/docker-bitcoind.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-mysql.conf" "${dojo_path_my_dojo}/conf/docker-mysql.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-node.conf" "${dojo_path_my_dojo}/conf/docker-node.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-explorer.conf" "${dojo_path_my_dojo}/conf/docker-explorer.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-tor.conf" "${dojo_path_my_dojo}/conf/docker-tor.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-indexer.conf" "${dojo_path_my_dojo}/conf/docker-indexer.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-whirlpool.conf" "${dojo_path_my_dojo}/conf/docker-whirlpool.conf.tpl"
+        update_config_file "${dojo_path_my_dojo}/conf/docker-mempool.conf" "${dojo_path_my_dojo}/conf/docker-mempool.conf.tpl"
+
     else
         _print_message "No unique backup credentials detected. Setting newly generated credentials..."
         _create_dojo_confs
@@ -2141,4 +2152,32 @@ _uninstall_network_check_service() {
     sudo systemctl stop ronin.network
     sudo rm -f "/etc/systemd/system/ronin.network.service"
     sudo systemctl daemon-reload
+}
+
+
+#
+# Update a configuration file from template
+# Function name and body copied from SamouraiWallet's dojo repo, file /docker/my-dojo/install/upgrade-script.sh
+#
+update_config_file() {
+  if [ -f $1 ]; then
+    sed "s/^#.*//g;s/=.*//g;/^$/d" $1 > ./original.keys.raw
+    grep -f ./original.keys.raw $1 > ./original.lines.raw
+
+    cp -p $1 "$1.save"
+    cp -p $2 $1
+
+    while IFS='=' read -r key val ; do
+      if [[ $OSTYPE == darwin* ]]; then
+        sed -i "" "s~$key=.*~$key=$val~g" "$1"
+      else
+        sed -i "s~$key=.*~$key=$val~g" "$1"
+      fi
+    done < ./original.lines.raw
+
+    rm ./original.keys.raw
+    rm ./original.lines.raw
+  else
+    cp $2 $1
+  fi
 }

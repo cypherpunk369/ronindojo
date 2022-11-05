@@ -11,6 +11,14 @@
 . "$HOME"/RoninDojo/Scripts/update.sh
 
 
+####################
+# BACKUP THE CONFS #
+####################
+
+
+_backup_dojo_confs
+
+
 #############
 # STOP DOJO #
 #############
@@ -134,14 +142,6 @@ cd "${dojo_path_my_dojo}" || exit
 
 # Restore indexer backup data to new docker volume location
 test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
-
-
-########################
-# BACKUP THE NEW CONFS #
-########################
-
-
-_backup_dojo_confs
 
 
 ##########
