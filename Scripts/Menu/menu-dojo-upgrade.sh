@@ -136,6 +136,14 @@ cd "${dojo_path_my_dojo}" || exit
 test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
 
 
+########################
+# BACKUP THE NEW CONFS #
+########################
+
+
+_backup_dojo_confs
+
+
 ##########
 # RETURN #
 ##########
