@@ -1669,7 +1669,7 @@ _dojo_data_indexer_restore() {
 
         _print_message "Addrindexrs data restore completed..."
 
-    elif sudo test -d "${dojo_backup_fulcrum}"/_data && sudo test -d "${docker_volume_indexer}"/_data; then
+    elif sudo test -d "${dojo_backup_fulcrum}"/_data && sudo test -d "${docker_volume_fulcrum}"/_data; then
         _print_message "Fulcrum data restore starting..."
 
         sudo rm -rf "${docker_volume_fulcrum}"/_data
