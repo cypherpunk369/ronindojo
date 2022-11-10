@@ -113,35 +113,13 @@ if _is_bisq ; then
 fi
 
 
-###########################
-# MIGRATE LEGACY INDEXERS #
-###########################
-
-
-# Migrate the electrs data to the new electrs backup data location. Must be done AFTER dojo repo has been updated
-test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32
-
-# TODO: remove this code block
-
-cd "${dojo_path_my_dojo}" || exit
-
-
 #######################
 # EXECUTE THE UPGRADE #
 #######################
 
 
-# run upgrade
+cd "${dojo_path_my_dojo}" || exit
 ./dojo.sh upgrade --nolog --auto
-
-
-########################
-# POST UPGRADE UPDATES #
-########################
-
-
-# Restore indexer backup data to new docker volume location
-test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
 
 
 ##########

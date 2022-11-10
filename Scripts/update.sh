@@ -280,41 +280,8 @@ _update_31() {
     touch "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
 }
 
-# Migrate the electrs data to the new electrs backup data location
-_update_32() {
-    test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
-    
-    if sudo test -d "${docker_volume_indexer}"/_data/db/bitcoin; then  # checks for 0.9.x electrs data only  
-        _set_electrs
-        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_electrs}"/
-    elif sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then # checks for addrindexrs and sets new conf otherwise would be set to electrs by default
-        _set_addrindexrs
-    fi
-
-    # Finalize
-    touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
-}
-
-# Restore indexer backup data to new docker volume location
-_update_33(){
-    _fetch_configured_indexer_type
-    ret=$?
-    
-    if ((ret==0)) && sudo test -d "${dojo_backup_electrs}"/_data ; then
-        _stop_dojo
-
-        sudo rm -rf "${docker_volume_electrs}"/_data
-        sudo mv "${dojo_backup_electrs}"/_data "${docker_volume_electrs}"
-
-        _start_dojo
-    fi
-    
-    # Finalize
-    touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
-}
-
 # Modify pacman.conf and add ignore packages
-_update_34() {
+_update_32() {
     if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
         sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
     fi
