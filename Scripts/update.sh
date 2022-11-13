@@ -289,3 +289,14 @@ _update_32() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
 }
+
+# Set the addrindexrs option explicitly, otherwise migration ends up with defaults meaning electrs
+_update_33() {
+
+    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then # checks for addrindexrs and sets new conf otherwise would be set to electrs by default
+        _set_addrindexrs
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
+}

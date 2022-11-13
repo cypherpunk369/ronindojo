@@ -80,6 +80,8 @@ if _is_mempool; then
     _mempool_conf || exit
 fi
 
+test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
+
 
 #######################
 # MANUALLY MIGRATE WP #
