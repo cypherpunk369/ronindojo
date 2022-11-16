@@ -2092,15 +2092,7 @@ _restore_or_create_dojo_confs() {
         sudo chown -R "$USER":"$USER" "${dojo_backup_dir}"
         sudo rsync -acp --quiet --delete-before "${dojo_backup_conf}"/*.conf "${dojo_path_my_dojo}"/conf/
 
-        update_config_file "${dojo_path_my_dojo}/conf/docker-common.conf" "${dojo_path_my_dojo}/conf/docker-common.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-bitcoind.conf" "${dojo_path_my_dojo}/conf/docker-bitcoind.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-mysql.conf" "${dojo_path_my_dojo}/conf/docker-mysql.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-node.conf" "${dojo_path_my_dojo}/conf/docker-node.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-explorer.conf" "${dojo_path_my_dojo}/conf/docker-explorer.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-tor.conf" "${dojo_path_my_dojo}/conf/docker-tor.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-indexer.conf" "${dojo_path_my_dojo}/conf/docker-indexer.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-whirlpool.conf" "${dojo_path_my_dojo}/conf/docker-whirlpool.conf.tpl"
-        update_config_file "${dojo_path_my_dojo}/conf/docker-mempool.conf" "${dojo_path_my_dojo}/conf/docker-mempool.conf.tpl"
+        update_all_config_files
 
     else
         _print_message "No unique backup credentials detected. Setting newly generated credentials..."
@@ -2180,4 +2172,16 @@ update_config_file() {
   else
     cp $2 $1
   fi
+}
+
+update_all_config_files() {
+    update_config_file "${dojo_path_my_dojo}/conf/docker-common.conf" "${dojo_path_my_dojo}/conf/docker-common.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-bitcoind.conf" "${dojo_path_my_dojo}/conf/docker-bitcoind.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-mysql.conf" "${dojo_path_my_dojo}/conf/docker-mysql.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-node.conf" "${dojo_path_my_dojo}/conf/docker-node.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-explorer.conf" "${dojo_path_my_dojo}/conf/docker-explorer.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-tor.conf" "${dojo_path_my_dojo}/conf/docker-tor.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-indexer.conf" "${dojo_path_my_dojo}/conf/docker-indexer.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-whirlpool.conf" "${dojo_path_my_dojo}/conf/docker-whirlpool.conf.tpl"
+    update_config_file "${dojo_path_my_dojo}/conf/docker-mempool.conf" "${dojo_path_my_dojo}/conf/docker-mempool.conf.tpl"
 }

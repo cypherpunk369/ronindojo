@@ -73,13 +73,13 @@ cd "${HOME}" || exit
 # UPDATE THE CONFS #
 ####################
 
-
-# TODO: remove this code block
+update_all_config_files
 
 if _is_mempool; then
     _mempool_conf || exit
 fi
 
+# Set the addrindexrs option explicitly, otherwise migration ends up with defaults meaning electrs
 test -f "$HOME"/.config/RoninDojo/data/updates/33-* || _update_33
 
 
