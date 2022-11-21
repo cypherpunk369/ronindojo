@@ -1,5 +1,8 @@
 Changelog
 
+RoninDojo v1.14.4 Change Log
+- Electrs version bump to 0.9.9
+
 RoninDojo v1.14.3 Change Log
 - Electrs version bump to 0.9.7
 - Bug fixes in salvage procedure
