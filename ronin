@@ -5,7 +5,7 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 # Run system checks
-_main
+_main || exit 1
 
 test -f "$HOME"/.dialogrc || cp "$HOME"/RoninDojo/Scripts/.dialogrc "$HOME"/.dialogrc
 # config file for dialog color

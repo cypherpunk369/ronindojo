@@ -1,160 +1,162 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
+##############################
+# LOADING VARS AND FUNCTIONS #
+##############################
+
+
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
 
-if [ -b "${secondary_storage}" ]; then
-    # Make sure /mnt/usb UUID is not same as $secondary_storage
-    if [[ $(lsblk -no UUID "$(findmnt -n -o SOURCE --target "${install_dir}")") != $(lsblk -no UUID "${secondary_storage}") ]]; then
-        cat <<EOF
-${red}
-***
-Your new backup drive has been detected...
-***
-${nc}
-EOF
-        _sleep
-        # checks for ${secondary_storage}
-    else
-        cat <<EOF
-${red}
-***
-Possible drive rearrangement occured. Checking if ${primary_storage} is available to format...
-***
-${nc}
-EOF
-        # Make sure device does not contain an existing filesystem
-        if [ -b "${primary_storage}" ] && [ -n "$(lsblk -no FSTYPE "${primary_storage}")" ]; then
-            # Drive got rearranged
-            secondary_storage="${primary_storage}"
-        elif [ -b "${primary_storage}" ] && [ -z "$(lsblk -no FSTYPE "${primary_storage}")" ]; then
-            if ! "${backup_format}"; then
-                cat <<EOF
-${red}
-***
-${primary_storage} contains an existing filesystem and cannot be formatted. If you wish to use this drive
-for backup purposes. Set backup_format=true in ${HOME}/.config/RoninDojo/user.conf
-***
-${nc}
-EOF
-                _pause return
 
-                # press any key to return to menu-system-storage.sh
-                bash -c "${ronin_system_storage}"
-            else
-                # Available to format
-                secondary_storage="${primary_storage}"
-            fi
-        fi
+################
+# LOADING VARS #
+################
+
+
+install_dir_partition=$(findmnt -n -o SOURCE --target "${install_dir}" 2> /dev/null)
+install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}" 2> /dev/null)
+
+backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}" 2> /dev/null)
+
+
+##############
+# ASSERTIONS #
+##############
+
+if [ -z ${backup_storage_partition} ]; then
+
+    _setup_storage_config
+
+    . "${HOME}"/RoninDojo/Scripts/defaults.sh
+
+    if [ -z ${backup_storage_partition} ]; then
+        _print_error_message "No backup storage device found"
+        _pause return
+        exit
     fi
-else
-    cat <<EOF
-${red}
-***
-No backup drive detected! Please make sure it is plugged in and has power if needed...
-***
-${nc}
-EOF
-    _sleep 5
-
-    _pause return
-    bash -c "${ronin_system_storage}"
-    # no drive detected, press any key to return to menu
 fi
 
-cat <<EOF
-${red}
-***
-Preparing to Format and Mount ${secondary_storage} to ${backup_mount}...
-***
-${nc}
-EOF
-_sleep
+if [[ "${blockdata_storage_partition}" != "${install_dir_partition}" ]]; then
+    _print_error_message "${install_dir} is not mounted to the prescribed partition ${blockdata_storage_partition}, instead found to be mounted to ${install_dir_partition}"
+    _pause return
+    exit
+fi
 
-cat <<EOF
-${red}
-***
-WARNING: Any pre-existing data on this backup drive will be lost!
-***
-${nc}
-EOF
-_sleep
+if [[ "${install_dir_partition_uuid}" == "${backup_storage_partition_uuid}" ]]; then
+    _print_error_message "Backup drive unusable, conflicts with drive mounted to /mnt/usb"
+    _pause return
+    exit
+fi
 
-cat <<EOF
-${red}
-***
-Are you sure?
-***
-${nc}
-EOF
+
+#######################
+# FIXING DEPENDENCIES #
+#######################
+
+
+_print_message "Installing dependencies..."
+_install_pkg_if_missing --update-mirrors "gptfdisk" 
+
+
+#####################
+# SETUP DIRECTORIES #
+#####################
+
+
+if findmnt "${backup_mount}" 1>/dev/null; then
+    sudo umount -f "${backup_mount}"
+fi
+
+sudo rm -rf "${backup_mount}" &>/dev/null
+
+if [ -d "${backup_mount}" ]; then
+    _print_error_message "Directory of mountpoint ${backup_mount} still exists after attempt to remove."
+    _pause "to return"
+    exit
+fi
+
+if ! sudo mkdir -p "${backup_mount}"; then
+    _print_error_message "Could not create ${backup_mount} directory..."
+    _pause "to return"
+    exit
+fi
+
+
+##########################
+# PRE-EMPT THE PROCEDURE #
+##########################
+
+_print_message "Preparing to format ${backup_storage_partition} partition and mount it to ${backup_mount}..."
+
+if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}" 2> /dev/null)" ]; then
+    _print_message "Assigned backup partition ${backup_storage_partition} has a filesystem already"
+    _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINTS $backup_storage_partition | tail -1)"
+fi
+
+_print_message "WARNING: Any existing data on this backup drive will be lost!"
+_print_message "Are you sure?"
 
 while true; do
     read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
     case $answer in
         [yY][eE][sS]|[yY]) break;;
-        [nN][oO]|[Nn])
-          bash -c "${ronin_system_storage}"
-          exit
-          ;;
+        [nN][oO]|[nN]) return;;
         * )
-          cat <<EOF
-${red}
-***
-Invalid answer! Enter Y or N
-***
-${nc}
-EOF
-          ;;
+            _print_message "Invalid answer! Enter Y or N"
+            ;;
     esac
 done
-# ask user to proceed
 
-cat <<EOF
-${red}
-***
-Formatting the Backup Data Drive...
-***
-${nc}
-EOF
-_sleep
 
-# Check for sgdisk dependency
-_check_pkg "sgdisk" "gptfdisk" --update-mirrors
+#######################################
+# STORAGE DEVICES SETUP: LOADING VARS #
+#######################################
 
-if ! _create_fs --label "backup" --device "${secondary_storage}" --mountpoint "${backup_mount}"; then
-    printf "\n %sFilesystem creation failed! Exiting now...%s" "${red}" "${nc}"
-    _sleep 3
-    exit 1
+
+if [[ "${backup_storage_partition}" =~ "/dev/sd" ]]; then
+    _device="${backup_storage_partition%?}"
+elif [[ "${backup_storage_partition}" =~ "/dev/nvme" ]]; then
+    _device="${backup_storage_partition%??}"
+else
+    _print_error_message "Device type unrecognized: ${backup_storage_partition}"
+    _pause return
+    return
 fi
-# format partition, see create_fs in functions.sh
 
-cat <<EOF
-${red}
-***
-Displaying the name on the external disk...
-***
-${nc}
-EOF
 
-lsblk -o NAME,SIZE,LABEL "${secondary_storage}"
+###############################################
+# STORAGE DEVICES SETUP: FORMAT NEW AND MOUNT #
+###############################################
+
+
+_print_message "Formatting the Backup Data Partition..."
 _sleep
-# double-check that "${secondary_storage}" exists, and that its storage capacity is what you expected
 
-cat <<EOF
-${red}
-***
-Check output for ${secondary_storage} and make sure everything looks ok...
-***
-${nc}
-EOF
+sudo umount -f "${backup_storage_partition}"
+sudo wipefs -a --force "${_device}" 1>/dev/null
+sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
+sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
+sudo mount "${backup_storage_partition}" "${backup_mount}"
 
-df -h "${secondary_storage}"
+_print_message "Mounted ${backup_storage_partition} to ${backup_mount}"
+_print_message "Filesystem creation success!"
+
+
+##############
+# AFTER CARE #
+##############
+
+
+_print_message "Displaying the name on the external disk..."
+lsblk -o NAME,SIZE,LABEL "${backup_storage_partition}"
 _sleep
-# checks disk info
+
+_print_message "Check the output for ${backup_storage_partition} and make sure everything looks ok..."
+df -h "${backup_storage_partition}"
+_sleep
 
 _pause return
-bash -c "${ronin_system_storage}"
-# press any key to return to menu-system-storage.sh

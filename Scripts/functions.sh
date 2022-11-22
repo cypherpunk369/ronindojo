@@ -1,5 +1,5 @@
 #!/bin/bash
-# shellcheck disable=SC2221,SC2222,1004,SC2154 source=/dev/null
+# shellcheck disable=SC2221,SC2222,1004,SC2154,SC2120 source=/dev/null
 
 . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
@@ -100,12 +100,13 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
         test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
         # _update_33 is executred as part of dojo upgrade script
+        test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
     else
         # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 33); do
+        for i in $(seq 10 34); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
@@ -1380,79 +1381,6 @@ _disable_bluetooth() {
 }
 
 #
-# Create fs
-#
-_create_fs() {
-    local fstype="ext4"
-
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --label|-L)
-                local label="$2"
-                shift 2
-                ;;
-            --device|-d)
-                local device="$2"
-                shift 2
-                ;;
-            --mountpoint)
-                local mountpoint="$2"
-                shift 2
-                ;;
-            *) # unsupported flags
-                echo "Error: Unsupported argument $1" >&2
-                exit 1
-                ;;
-        esac
-    done
-
-    if [ ! -d "${mountpoint}" ]; then
-        sudo mkdir -p "${mountpoint}" || return 1
-    elif findmnt "${device}" 1>/dev/null; then
-        if ! sudo umount "${device}"; then
-            _print_error_message "Could not prepare device ${device} for formatting, was likely still in use"
-            exit
-        fi
-    fi
-
-    [[ "${device}" =~ "sd" ]] && _device="${device%?}" || _device="${device%??}"
-    sudo wipefs -a --force "${_device}" 1>/dev/null
-    sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
-    sudo mkfs."${fstype}" -q -F -L "${label}" "${device}" 1>/dev/null || return 1
-
-    # Sleep here ONLY, don't ask me why ask likewhoa!
-    _sleep 5
-
-    # systemd.mount unit file creation
-    local uuid
-    uuid=$(lsblk -no UUID "${device}")      # UUID of device
-    local tmp=${mountpoint:1}               # Remove leading '/'
-    local systemd_mountpoint=${tmp////-}    # Replace / with -
-
-    sudo tee "/etc/systemd/system/${systemd_mountpoint}.mount" <<EOF >/dev/null
-[Unit]
-Description=Mount External SSD Drive ${device}
-
-[Mount]
-What=/dev/disk/by-uuid/${uuid}
-Where=${mountpoint}
-Type=${fstype}
-Options=defaults
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-    sudo systemctl daemon-reload
-    sudo systemctl start --quiet "${systemd_mountpoint}".mount || return 1
-    sudo systemctl enable --quiet "${systemd_mountpoint}".mount || return 1
-
-    _print_message "Mounted ${device} to ${mountpoint}"
-
-    return 0
-}
-
-#
 # Makes sure we don't already have swapfile enabled
 #
 check_swap() {
@@ -1909,20 +1837,6 @@ EOF
 }
 
 #
-# Check if nvme drive available
-#
-_nvme_check() {
-    if test -b /dev/nvme0n1; then
-        sudo sed -i 's:#primary_storage="":primary_storage="/dev/nvme0n1p1":' "$HOME"/.config/RoninDojo/user.conf
-        sudo sed -i 's:#secondary_storage="":secondary_storage="/dev/sda1":' "$HOME"/.config/RoninDojo/user.conf
-        return 0
-    fi
-
-    return 1
-}
-
-
-#
 # returns true/false on whether the host has a gpio system
 #
 _is_gpio_sytem() {
@@ -2021,6 +1935,42 @@ _uninstall_gpio_service() {
 _uninstall_gpio() {
     _remove_GPIO_datadir
     _uninstall_gpio_service
+}
+
+#
+# Set storage config in ronin's data folder.
+# Current pitfalls:
+# - having installed with sda1 as install_dir and then adding an nvme
+# - having installed with nvme0n1p1 as install_dir and then adding multiple sd, the supposed backup device not being sda
+# - having installed with sda1 as install_dir and then adding multiple sd, the supposed backup device not being sdb
+#
+_setup_storage_config() {
+
+    local blockdata_storage_partition backup_storage_partition
+
+    if test -b /dev/nvme0n1; then
+        blockdata_storage_partition="/dev/nvme0n1p1"
+        if test -b /dev/sda; then
+            backup_storage_partition="/dev/sda1"
+        fi
+    elif test -b /dev/sda; then
+        blockdata_storage_partition="/dev/sda1"
+        if test -b /dev/sdb; then
+            backup_storage_partition="/dev/sdb1"
+        fi
+    else
+        return 1
+    fi
+
+    rm -f "${ronin_data_dir}"/blockdata_storage_partition
+    echo "blockdata_storage_partition=${blockdata_storage_partition}" > "${ronin_data_dir}"/blockdata_storage_partition
+    chmod +x "${ronin_data_dir}"/blockdata_storage_partition
+
+    rm -f "${ronin_data_dir}"/backup_storage_partition
+    if [ -n "$backup_storage_partition" ]; then
+        echo "backup_storage_partition=${backup_storage_partition}" > "${ronin_data_dir}"/backup_storage_partition
+        chmod +x "${ronin_data_dir}"/backup_storage_partition
+    fi
 }
 
 #

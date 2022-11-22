@@ -126,10 +126,14 @@ ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 #
 # Filesystem Defaults
 #
-primary_storage="/dev/sda1"
-secondary_storage="/dev/sdb1"
-backup_mount="/mnt/backup"
+if test -f "${ronin_data_dir}"/blockdata_storage_partition; then
+    . "${ronin_data_dir}"/blockdata_storage_partition
+fi
+if test -f "${ronin_data_dir}"/backup_storage_partition; then
+    . "${ronin_data_dir}"/backup_storage_partition
+fi
 
+backup_mount="/mnt/backup"
 bitcoin_ibd_backup_dir="${backup_mount}/backup/bitcoin"
 indexer_backup_dir="${backup_mount}/backup/indexer"
 electrs_backup_dir="${backup_mount}/backup/electrs"
