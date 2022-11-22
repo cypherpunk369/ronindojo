@@ -1551,8 +1551,9 @@ _bisq_install(){
 
     _create_dir "${ronin_data_dir}"
 
-    sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
-        -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip_current}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+    sed -i \
+      -e "s/BITCOIND_BLOOM_FILTERS=off$/BITCOIND_BLOOM_FILTERS=on/"\
+      "${dojo_path_my_dojo}/conf/docker-bitcoind.conf"
 
     touch "${ronin_data_dir}"/bisq.txt
 
@@ -1564,11 +1565,12 @@ _bisq_install(){
 #
 _bisq_uninstall() {
     _print_message "Disabling Bisq Support..."
-    sed -i -e '/-peerbloomfilters=1/d' \
-        -e "/-whitelist=bloomfilter@${ip_current}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
+
+    sed -i \
+      -e "s/BITCOIND_BLOOM_FILTERS=on$/BITCOIND_BLOOM_FILTERS=off/"\
+      "${dojo_path_my_dojo}/conf/docker-bitcoind.conf"
 
     rm "${ronin_data_dir}"/bisq.txt
-    # Deletes bisq.txt file
 
     return 0
 }

@@ -31,22 +31,6 @@ _update_05() {
     fi
 }
 
-# Remove duplicate bisq integration changes
-_update_15() {
-    if _is_bisq; then
-        if (($(grep -c "\-peerbloomfilters=1" "${dojo_path_my_dojo}"/bitcoin/restart.sh)>1)); then
-            sed -i -e '/-peerbloomfilters=1/d' \
-                -e "/-whitelist=bloomfilter@${ip}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
-
-            sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
-                -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/15-"$(date +%m-%d-%Y)"
-    fi
-}
-
 # Uninstall legacy Ronin UI
 _update_17() {
     if [ -d "$HOME"/Ronin-UI-Backend ]; then
