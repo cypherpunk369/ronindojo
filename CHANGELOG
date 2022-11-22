@@ -1,5 +1,21 @@
 Changelog
 
+RoninDojo v1.15.0 Change Log
+- Fixed backup drive feature
+- Fixed salvage for indexers and tor data
+- Fixed bisq installation
+- Fixed mempool
+- added conf backup script in case an upgrade goes wrong
+- debug script now also generates a link for the PnP installation procedure journal logs
+- Dojo updated to upstream v1.17.0
+- Bitcoind updated to 0.23.0
+- Electrs updated to 0.9.9
+- Tor updated to 0.4.7.8 and its OBFS4 to 0.0.13
+- Whirlpool updated to 0.10.15 and its tor to 0.4.7.8
+- Electrs is now a separately defined container, no longer reusing addrindexrs' container
+- Added Fulcrum indexer option, version 1.7.0
+- Credits: dammkewl, BTCxZelko, s2l1, PavelTheCoder, BrotherRabbit, KYC3, Numbers, OrangedMike
+
 RoninDojo v1.14.4 Change Log
 - Electrs version bump to 0.9.9
 
