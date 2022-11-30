@@ -131,6 +131,8 @@ if ! _setup_storage_config; then
     exit
 fi
 
+. "${ronin_data_dir}/blockdata_storage_partition"
+
 if [[ "${blockdata_storage_partition}" =~ "/dev/sd" ]]; then
     _device="${blockdata_storage_partition%?}"
 elif [[ "${blockdata_storage_partition}" =~ "/dev/nvme" ]]; then
