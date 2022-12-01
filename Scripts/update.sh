@@ -134,7 +134,7 @@ _update_24() {
         fi
     else
         #append the missing entry
-        echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}"
+        echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}" > /dev/null
     fi
 }
 
