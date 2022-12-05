@@ -1237,7 +1237,7 @@ _start_dojo() {
 # Remove old fstab entries in favor of systemd.mount.
 #
 _remove_fstab() {
-    if grep -E '(^UUID=.* \/mnt\/(usb1?|backup) ext4)' /etc/fstab 1>/dev/null; then
+    if grep -E '(^UUID=.* /mnt/(usb1?|backup) ext4)' /etc/fstab 1>/dev/null; then
         sudo sed -i '/\/mnt\/usb\|backup ext4/d' /etc/fstab
         return 1
     fi
