@@ -103,7 +103,7 @@ print_memory_usage() {
 	used_swap=$(free -m | tail -1| awk '{print $3}')
 	used_sbc=$(echo "scale=2;if(${used_swap}<1024 && ${used_swap} > 0) print 0;${used_swap}/1024"|bc -l)
 	free_swap=$(free -m |  tail -1| awk '{print $4}')
-	free_sbc=$(echo "scale=2;if(${free_swap}<1024 && ${free_swap} > 0) print 0;$f{ree_swap}/1024"|bc -l)
+	free_sbc=$(echo "scale=2;if(${free_swap}<1024 && ${free_swap} > 0) print 0;${free_swap}/1024"|bc -l)
 
 	cat <<EOF
 #####################################################################
