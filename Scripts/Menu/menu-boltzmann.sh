@@ -6,16 +6,11 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 if [ ! -d "${boltzmann_path}" ]; then
-    cat <<EOF
-${red}
-***
-Installing Boltzmann...
-***
-${nc}
-EOF
+    _print_message "Installing Boltzmann..."
+
     _sleep
 
-    bash -c "$HOME"/RoninDojo/Scripts/Install/install-boltzmann.sh
+    _install_boltzmann
 fi
 
 # checks if ${HOME}/boltzmann dir exists, if so kick back to menu
@@ -29,7 +24,7 @@ A python script computing the entropy of Bitcoin transactions
     and the linkability of their inputs and outputs.
 
 EOF
-
+    
 cat <<EOF
 Example Usage:
 
@@ -59,24 +54,11 @@ do
   read -r txids
 
   if [[ ! "$txids" =~ (Q|Quit) ]]; then
-    if ! pipenv run python ludwig.py --rpc --txids="${txids}" 2>/dev/null; then
-      _check_pkg "pipenv" "python-pipenv"
-
-      cat <<EOF
-${red}
-***
-Checking for updates...
-***
-${nc}
-EOF
-      _sleep
-
-      cd .. || exit
-
-      # Upgrade dependencies
-      pipenv update &>/dev/null
+    if ! pipenv run python ludwig.py --rpc --txids="${txids}"; then
+        echo "Could not get tx information"
     fi
   else
     bash -c "${ronin_samourai_toolkit_menu}"
+    exit
   fi
 done

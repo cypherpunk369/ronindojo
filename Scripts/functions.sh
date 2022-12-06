@@ -1530,8 +1530,8 @@ _install_boltzmann(){
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
-    pipenv install -r requirements.txt &>/dev/null
-    pipenv install sympy numpy &>/dev/null
+    pip install setuptools &>/dev/null
+    pipenv install -r requirements.txt  &>/dev/null
 }
 
 _is_bisq(){
