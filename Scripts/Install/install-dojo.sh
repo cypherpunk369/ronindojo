@@ -38,6 +38,13 @@ _print_message "Running RoninDojo install..."
 _print_message "Use Ctrl+C to exit now if needed!"
 _sleep 3 --msg "Installing in"
 
+#######################
+# INSTALLING TOOLSETS #
+#######################
+
+_print_message "Installing RoninUI..."
+_ronin_ui_install
+_install_gpio
 
 ########################
 # DOWNLOADING CODEBASE #
