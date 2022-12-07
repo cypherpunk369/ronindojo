@@ -322,15 +322,6 @@ create_swap --file "${install_dir_swap}" --count "${_size}"
 _setup_tor
 _docker_datadir_setup
 
-
-#######################
-# INSTALLING TOOLSETS #
-#######################
-
-_print_message "Installing Ronin UI..."
-_ronin_ui_install
-_install_gpio
-
 #######################
 # INSTALLING FINALIZE #
 #######################
