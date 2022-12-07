@@ -1506,6 +1506,7 @@ _install_wst(){
 
     cd Whirlpool-Stats-Tool || exit
 
+    pip install setuptools &>/dev/null
     pipenv install -r requirements.txt &>/dev/null
     # Change to whirlpool stats directory, otherwise exit
     # install whirlpool stat tool
