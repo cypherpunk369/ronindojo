@@ -101,12 +101,12 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
         # _update_33 is executred as part of dojo upgrade script
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
+        test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
     else
-        # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 34); do
+        for i in $(seq 10 35); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
