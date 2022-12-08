@@ -293,3 +293,12 @@ _update_34() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
 }
+
+# Update RoninUI, specifically to fix a RoninDojo installation with an older UI, that upgrades RoninDojo before UI is ever initialized
+_update_35() {
+
+    _ronin_ui_install
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/35-"$(date +%m-%d-%Y)"
+}
