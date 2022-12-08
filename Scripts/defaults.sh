@@ -102,6 +102,7 @@ ronin_debug_dir="$HOME/.config/RoninDojo/debug"
 ronin_gpio_data_dir="$HOME/.config/RoninDojo/GPIO"
 boltzmann_path="$HOME/boltzmann"
 ronin_ui_path="$HOME/Ronin-UI"
+ronin_ui_init_file="${ronin_data_dir}/ronin_ui_init"
 
 #
 # Data backup variables

@@ -556,7 +556,7 @@ _ronin_ui_install() {
     rm "$_file" /tmp/version.json
 
         # Mark Ronin UI initialized if necessary
-        if [ "${1}" = "--initialized" ]; then
+        if [ -e "${ronin_ui_init_file}" ]; then
           echo -e "{\"initialized\": true}\n" > ronin-ui.dat
         fi
 
@@ -757,6 +757,11 @@ _ronin_ui_uninstall() {
 
     _print_message "Uninstalling Ronin UI..."
     _sleep
+
+    # leave behind a marker file if this system is initialized, for any roninUI re-installs to pick up on
+    if [ -e "${ronin_ui_path}/ronin-ui.dat" ]; then
+        touch "${ronin_ui_init_file}"
+    fi
 
     # Delete app from process list
     pm2 delete "RoninUI" &>/dev/null
