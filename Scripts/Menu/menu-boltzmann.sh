@@ -48,17 +48,19 @@ export BOLTZMANN_RPC_HOST=${BITCOIND_IP}
 export BOLTZMANN_RPC_PORT=${BITCOIND_RPC_PORT}
 
 # Loop command until user quits
-until [[ "$txids" =~ (Q|q|quit|Quit) ]]
+while true
 do
-  printf "\nEnter a txid or multiple txids separated by commas. Type [Q|Quit] to exit boltzmann\n"
-  read -r txids
+    printf "\nEnter a txid or multiple txids separated by commas. Type [Q|Quit] to exit boltzmann\n"
+    read -r txids
 
-  if [[ ! "$txids" =~ (Q|Quit) ]]; then
+    if [[ "$txids" =~ (Q|q|Quit|quit) ]]; then
+        break
+    fi
+
     if ! pipenv run python ludwig.py --rpc --txids="${txids}"; then
         echo "Could not get tx information"
     fi
-  else
-    bash -c "${ronin_samourai_toolkit_menu}"
-    exit
-  fi
 done
+
+bash -c "${ronin_samourai_toolkit_menu}"
+exit
