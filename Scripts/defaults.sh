@@ -116,10 +116,10 @@ backup_format=false
 #
 # Repositories
 #
-ronin_dojo_branch="origin/release/v1.15.0" # defaults to origin/master
+ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="origin/release/v1.15.0" # Tag release
+samourai_commitish="v1.15.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
@@ -195,7 +195,7 @@ declare -a backup_dojo_data=(
 )
 
 # RoninUI defaults
-roninui_version_staging=true
+roninui_version_staging=false
 roninui_version_file="https://ronindojo.io/downloads/RoninUI/version.json"
 if [ "$roninui_version_staging" = true ]; then
     roninui_version_file="https://ronindojo.io/downloads/RoninUI/version-staging.json"
