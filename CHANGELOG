@@ -4,7 +4,7 @@ RoninDojo v1.15.0 Change Log
 - Fixed backup drive feature
 - Fixed salvage for indexers and tor data
 - Fixed bisq installation
-- Fixed mempool
+- Fixed mempool.space
 - added conf backup script in case an upgrade goes wrong
 - debug script now also generates a link for the PnP installation procedure journal logs
 - Dojo updated to upstream v1.17.0
