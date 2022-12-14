@@ -11,7 +11,7 @@ _update_05() {
         sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
+        _start_service_if_inactive tor
     fi
 
     # Some systems have issue with tor not starting unless User=tor is enabled. Here we check both directions as it takes care of edge cases where
@@ -21,109 +21,13 @@ _update_05() {
             -e '/Type=notify/a\User=tor' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
+        _start_service_if_inactive tor
     elif findmnt /mnt/usb 1>/dev/null && ! systemctl is-active --quiet tor && grep "User=tor" /usr/lib/systemd/system/tor.service 1>/dev/null; then
         sudo sed -i -e 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' \
             -e '/User=tor/d' /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
 
-        _is_active tor
-    fi
-}
-
-# Modify pacman.conf and add ignore packages
-_update_06() {
-    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
-        sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/06-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Remove duplicate bisq integration changes
-_update_15() {
-    if _is_bisq; then
-        if (($(grep -c "\-peerbloomfilters=1" "${dojo_path_my_dojo}"/bitcoin/restart.sh)>1)); then
-            sed -i -e '/-peerbloomfilters=1/d' \
-                -e "/-whitelist=bloomfilter@${ip}/d" "${dojo_path_my_dojo}"/bitcoin/restart.sh
-
-            sed -i -e "/  -txindex=1/i\  -peerbloomfilters=1" \
-                -e "/  -txindex=1/i\  -whitelist=bloomfilter@${ip}" "${dojo_path_my_dojo}"/bitcoin/restart.sh
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/15-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Uninstall legacy Ronin UI
-_update_17() {
-    if [ -d "$HOME"/Ronin-UI-Backend ]; then
-        cd "$HOME"/Ronin-UI-Backend || exit
-
-        pm2 delete "Ronin Backend" &>/dev/null
-
-        pm2 save 1>/dev/null
-
-        cd "$HOME" || exit
-
-        rm -rf "$HOME"/Ronin-UI-Backend || exit
-
-        cat <<EOF
-${red}
-***
-Legacy Ronin UI detected...
-***
-EOF
-
-        _sleep
-
-        cat <<EOF
-***
-Uninstalling Ronin UI Backend...
-***
-EOF
-
-        _sleep
-
-        cat <<EOF
-***
-Installing Ronin UI Server...
-***
-${nc}
-EOF
-
-        _is_ronin_ui || _ronin_ui_install --initialized
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/17-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Uninstall bleeding edge Node.js and install LTS Node.js instead
-_update_19() {
-    # Remove nodejs-lts-erbium if available
-    if pacman -Q nodejs-lts-erbium &>/dev/null; then
-        cat <<EOF
-${red}
-***
-Migrating to nodejs-lts-fermium, please wait...
-***
-${nc}
-EOF
-        sudo pacman -R --noconfirm --cascade nodejs-lts-erbium &>/dev/null
-        sudo pacman -S --noconfirm --quiet nodejs-lts-fermium npm
-
-        if _is_ronin_ui; then
-            # Restart Ronin-UI
-            cd "${ronin_ui_path}" || exit
-
-            pm2 restart "RoninUI" 1>/dev/null
-        fi
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/19-"$(date +%m-%d-%Y)"
+        _start_service_if_inactive tor
     fi
 }
 
@@ -136,16 +40,6 @@ _update_22() {
 
         # Finalize
         touch "$HOME"/.config/RoninDojo/data/updates/22-"$(date +%m-%d-%Y)"
-    fi
-}
-
-# Update reference from old development branch to develop branch in user.conf
-_update_23() {
-    if grep -q "^ronin_dojo_branch=\"origin/development"\" "$HOME"/.config/RoninDojo/user.conf; then
-        sed -i 's:origin/development:origin/develop:' "$HOME"/.config/RoninDojo/user.conf
-
-        # Finalize
-        touch "$HOME"/.config/RoninDojo/data/updates/23-"$(date +%m-%d-%Y)"
     fi
 }
 
@@ -170,7 +64,7 @@ _update_24() {
         fi
     else
         #append the missing entry
-        echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}"
+        echo $'\n127.0.0.1 localhost' | sudo tee -a "${hostsfile}" > /dev/null
     fi
 }
 
@@ -298,4 +192,43 @@ _update_31() {
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/31-"$(date +%m-%d-%Y)"
+}
+
+# Modify pacman.conf and add ignore packages
+_update_32() {
+    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+        sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/32-"$(date +%m-%d-%Y)"
+}
+
+# Set the addrindexrs option explicitly, otherwise migration ends up with defaults meaning electrs
+_update_33() {
+
+    if sudo test -d "${docker_volume_indexer}"/_data/addrindexrs; then # checks for addrindexrs and sets new conf otherwise would be set to electrs by default
+        _set_addrindexrs
+    fi
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/33-"$(date +%m-%d-%Y)"
+}
+
+# Call _setup_storage_config to set the files
+_update_34() {
+
+    _setup_storage_config
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/34-"$(date +%m-%d-%Y)"
+}
+
+# Update RoninUI, specifically to fix a RoninDojo installation with an older UI, that upgrades RoninDojo before UI is ever initialized
+_update_35() {
+
+    _ronin_ui_install
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/35-"$(date +%m-%d-%Y)"
 }

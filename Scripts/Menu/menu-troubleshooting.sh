@@ -4,7 +4,9 @@
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
-OPTIONS=(1 "Logs"
+_load_user_conf
+
+OPTIONS=(1 "Update Operating System"
          2 "Go Back")
 
 CHOICE=$(dialog --clear \
@@ -17,33 +19,20 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        cat <<EOF
-${red}
-***
-Showing Electrs Logs...
-***
-${nc}
-EOF
+        _print_message "Updating system packages..."
         _sleep
+        _print_message "Use Ctrl+C to exit if needed!"
+        _sleep 10 --msg "Updating in"
 
-        cat <<EOF
-${red}
-***
-Press Ctrl + C to exit at any time...
-***
-${nc}
-EOF
-        _sleep
+        _stop_dojo
+        
+        _print_message "Perfoming a full system update..."
+        sudo pacman -Syyu --noconfirm
 
-        cd "$dojo_path_my_dojo" || exit
-
-        ./dojo.sh logs indexer
-
-        bash -c "${ronin_electrs_menu}"
-        # start electrs, return to menu
+        _pause reboot
+        sudo systemctl reboot
         ;;
-	2)
-        bash -c "${ronin_applications_menu}"
-        # Return to applications menu
+    2)
+        bash -c "${ronin_system_menu}"
         ;;
 esac

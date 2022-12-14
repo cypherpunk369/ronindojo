@@ -20,10 +20,10 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1)
-            if ! _dojo_check; then
+            if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
-            # is dojo installed?
 
             cat <<EOF
 ${red}
@@ -41,10 +41,10 @@ EOF
             # free disk space by deleting docker dangling images and images of previous versions. then returns to menu
             ;;
         2)
-            if ! _dojo_check; then
+            if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
-            # is dojo installed?
 
             cat <<EOF
 ${red}
@@ -63,8 +63,9 @@ EOF
             # press any key to return
             ;;
         3)
-            if ! _dojo_check; then
+            if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
             # is dojo installed?
 
@@ -72,8 +73,9 @@ EOF
             # copy block data from backup drive
             ;;
         4)
-            if ! _dojo_check; then
+            if [ ! -d "${dojo_path}" ]; then
                 _is_dojo "${ronin_dojo_menu2}"
+                exit
             fi
             # is dojo installed?
 

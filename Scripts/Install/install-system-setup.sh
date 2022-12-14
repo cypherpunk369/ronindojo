@@ -22,8 +22,10 @@ if [ -d "$HOME"/dojo ]; then
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
     fi
     exit
-elif [ -f "${ronin_data_dir}"/system-install ] || [ -f /etc/systemd/system/ronin.network.service ]; then
-    _print_message "Previous system install detected. Exiting script..."
+fi
+
+if [ -f "${ronin_data_dir}"/system-install ] || [ -f /etc/systemd/system/ronin.network.service ]; then
+    _print_message "Previous system install detected, please uninstall RoninDojo first!"
     if [ $# -eq 0 ]; then
         _pause return
         bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
@@ -64,6 +66,10 @@ fi
 #######################
 # FIXING DEPENDENCIES #
 #######################
+
+if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+    sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
+fi
 
 _pacman_update_mirrors
 
@@ -116,17 +122,23 @@ _print_message "All Dojo dependencies installed..."
 # STORAGE DEVICES SETUP: LOADING VARS #
 #######################################
 
-_nvme_check && _load_user_conf
+if ! _setup_storage_config; then
+    _print_error_message "Could not determine primary/secondary storage setup, please make sure all storage devices are connected and reboot first!"
+    if [ $# -eq 0 ]; then
+        _pause return
+        bash "$HOME"/RoninDojo/Scripts/Menu/menu-install.sh
+    fi
+    exit
+fi
 
-_print_message "Creating ${install_dir} directory..."
-test -d "${install_dir}" || sudo mkdir -p "${install_dir}"
+. "${ronin_data_dir}/blockdata_storage_partition"
 
-if [[ "${primary_storage}" =~ "/dev/sd" ]]; then
-    _device="${primary_storage%?}"
-elif [[ "${primary_storage}" =~ "/dev/nvme" ]]; then
-    _device="${primary_storage%??}"
+if [[ "${blockdata_storage_partition}" =~ "/dev/sd" ]]; then
+    _device="${blockdata_storage_partition%?}"
+elif [[ "${blockdata_storage_partition}" =~ "/dev/nvme" ]]; then
+    _device="${blockdata_storage_partition%??}"
 else
-    _print_error_message "Device type unrecognized: ${primary_storage}"
+    _print_error_message "Device type unrecognized: ${blockdata_storage_partition}"
     _pause return
     exit 1
 fi
@@ -145,7 +157,7 @@ fi
 # STORAGE DEVICES SETUP: PREPARING PARTITION TABLE #
 ####################################################
 
-if [ ! -b "${primary_storage}" ]; then
+if [ ! -b "${blockdata_storage_partition}" ]; then
     _print_message "No partition table found, creating one ..."
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 fi
@@ -157,9 +169,9 @@ fi
 _print_message "Creating ${backup_mount} directory..."
 test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
-sudo mount "${primary_storage}" "${backup_mount}"
+sudo mount "${blockdata_storage_partition}" "${backup_mount}"
 
-if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
+if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then #bitcoind
 
     _print_message "Found Blockchain data for salvage!"
     _print_message "Moving to data backup"
@@ -170,21 +182,38 @@ if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then
     _print_message "Blockchain data prepared for salvage!"
 fi
 
-if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/db"; then
+if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # Addrindexrs
 
-    _print_message "Found Indexer data for salvage!"
+    _print_message "Found Addrindexrs data for salvage!"
     _print_message "Moving to data backup"
-    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
 
-    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/db" "${indexer_backup_dir}"/
-    if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then
-        sudo mv -v "${backup_mount}/${indexer_data_dir}/_data/addrindexrs" "${indexer_backup_dir}"/
-    fi
+    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
+
+    _print_message "Addrindexrs data prepared for salvage!"
+
+elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
+
+    _print_message "Found Electrs data for salvage!"
+    _print_message "Moving to data backup"
+
+    test -d "${electrs_backup_dir}" || sudo mkdir -p "${electrs_backup_dir}"
+    sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
+
+    _print_message "Electrs data prepared for salvage!"
+
+elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
+
+    _print_message "Found Addrindexrs data for salvage!"
+    _print_message "Moving to data backup"
+    
+    test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
+    sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
 
     _print_message "Indexer data prepared for salvage!"
 fi
 
-if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then
+if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor
 
     _print_message "Found Tor data for salvage!"
     _print_message "Moving to data backup"
@@ -211,17 +240,21 @@ sudo rm -rf "${backup_mount}"/{docker,tor,swapfile} &>/dev/null
 #######################################################
 
 if sudo test -d "${bitcoin_ibd_backup_dir}/blocks"; then
+
+    _print_message "Creating ${install_dir} directory..."
+    test -d "${install_dir}" || sudo mkdir -p "${install_dir}"
+
     _print_message "Found Blockchain data backup!"
     _print_message "Mounting drive..."
-    sudo mount "${primary_storage}" "${install_dir}"
+    sudo mount "${blockdata_storage_partition}" "${install_dir}"
 
 else
     _print_message "No Blockchain data found for salvage..."
     _print_message "Formatting the SSD..."
 
-    if findmnt "${primary_storage}" 1>/dev/null; then
-        if ! sudo umount "${primary_storage}"; then
-            _print_error_message "Could not prepare device ${primary_storage} for formatting, was likely still in use"
+    if findmnt "${blockdata_storage_partition}" 1>/dev/null; then
+        if ! sudo umount "${blockdata_storage_partition}"; then
+            _print_error_message "Could not prepare device ${blockdata_storage_partition} for formatting, was likely still in use"
             _print_error_message "Filesystem creation failed!"
             _pause return
             exit 1
@@ -230,7 +263,9 @@ else
 
     sudo wipefs -a --force "${_device}" 1>/dev/null
     sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
-    sudo mkfs.ext4 -q -F -L "main" "${primary_storage}" 1>/dev/null
+    sudo mkfs.ext4 -q -F -L "main" "${blockdata_storage_partition}" 1>/dev/null
+
+    _sleep 5 # kernel doesn't pick up on changes immediately, giving it some time
 
 fi
 
@@ -238,20 +273,21 @@ fi
 # STORAGE DEVICES SETUP: INSTALL MOUNT IN SYSTEMD  #
 ####################################################
 
-_print_message "Writing systemd mount unit file for device ${primary_storage}..."
+_print_message "Writing systemd mount unit file for device ${blockdata_storage_partition}..."
 
-#TODO: below, replace this by-uuid construct with a simple use of ${primary_storage}, gotta fix sda Vs sdb first though
+#TODO: below, replace this by-uuid construct with a simple use of ${blockdata_storage_partition}, gotta fix sda Vs sdb first though
 #USECASE: by-uuid construct doesn't survive wipefs and reformat, would require a remake of the mountfile
-#ALTERNATIVE: if the partition has always been labelled "main", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios
+#ALTERNATIVE: if the partition has always been labelled "main", maybe we can use the by-label construct instead, preventing sda Vs sdb scenarios from being a problem
 
-sudo tee "/etc/systemd/system/$(echo "${install_dir:1}" | tr '/' '-').mount" <<EOF >/dev/null
+mountUnitName="$(echo "${install_dir:1}" | tr '/' '-').mount"
+sudo tee "/etc/systemd/system/${mountUnitName}" <<EOF >/dev/null
 [Unit]
-Description=Mount primary storage ${primary_storage}
+Description=Mount primary storage ${blockdata_storage_partition}
 
 [Mount]
-What=/dev/disk/by-uuid/$(lsblk -no UUID "${primary_storage}")
+What=/dev/disk/by-uuid/$(lsblk -no UUID "${blockdata_storage_partition}")
 Where=${install_dir}
-Type=$(blkid -o value -s TYPE "${primary_storage}")
+Type=$(blkid -o value -s TYPE "${blockdata_storage_partition}")
 Options=defaults
 
 [Install]
@@ -259,19 +295,21 @@ WantedBy=multi-user.target
 EOF
 
 sudo systemctl daemon-reload
-sudo systemctl start --quiet mnt-usb.mount
-sudo systemctl enable --quiet mnt-usb.mount
+sudo systemctl start --quiet "${mountUnitName}"
+sudo systemctl enable --quiet "${mountUnitName}"
+
+_print_message "Mounted ${blockdata_storage_partition} to ${install_dir}"
 
 ###########################################
 # STORAGE DEVICES SETUP: USER INTERACTION #
 ###########################################
 
 _print_message "Displaying the name on the external disk..."
-lsblk -o NAME,SIZE,LABEL "${primary_storage}"
+lsblk -o NAME,SIZE,LABEL "${blockdata_storage_partition}"
 _sleep
 
-_print_message "Check output for ${primary_storage} and make sure everything looks ok..."
-df -h "${primary_storage}"
+_print_message "Check output for ${blockdata_storage_partition} and make sure everything looks ok..."
+df -h "${blockdata_storage_partition}"
 
 
 #########################################
@@ -283,21 +321,6 @@ create_swap --file "${install_dir_swap}" --count "${_size}"
 
 _setup_tor
 _docker_datadir_setup
-
-
-#######################
-# INSTALLING TOOLSETS #
-#######################
-
-_print_message "Installing Ronin UI..."
-_ronin_ui_install
-_install_gpio
-
-_print_message "Installing Boltzmann Calculator..."
-_install_boltzmann
-_print_message "Installing Whirlpool Stat Tool..."
-_install_wst
-
 
 #######################
 # INSTALLING FINALIZE #

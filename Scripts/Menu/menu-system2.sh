@@ -83,8 +83,9 @@ EOF
         # uses passwd to unlock root user, returns to menu
         ;;
     6)
-        if ! _dojo_check; then
-            _is_dojo bash -c "${ronin_system_menu2}"
+        if [ ! -d "${dojo_path}" ]; then
+            _is_dojo "${ronin_system_menu2}"
+            exit
         fi
             # is dojo installed?
 
@@ -97,8 +98,7 @@ ${nc}
 EOF
         _sleep 10 --msg "Uninstalling in"
 
-        cd "$dojo_path_my_dojo" || exit
-        _dojo_check && _stop_dojo
+        _stop_dojo
         # stop dojo
 
         # Backup Bitcoin Blockchain Data
@@ -140,7 +140,7 @@ EOF
             # Check if applications need to be uninstalled
             _is_ronin_ui && _ronin_ui_uninstall
 
-            _is_fan_control && _fan_control_uninstall
+            _is_fan_control_installed && _fan_control_uninstall
 
             if [ -d "${HOME}"/Whirlpool-Stats-Tool ]; then
                 cd "${HOME}"/Whirlpool-Stats-Tool || exit

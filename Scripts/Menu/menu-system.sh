@@ -12,8 +12,9 @@ OPTIONS=(1 "Disk Storage"
          4 "Software Updates"
          5 "System Monitoring"
          6 "System Setup & Install"
-         7 "Next Page"
-         8 "Go Back")
+         7 "Troubleshooting"
+         8 "Next Page"
+         9 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -38,8 +39,7 @@ Shutting down Dojo if running...
 ***
 ${nc}
 EOF
-            cd "${dojo_path_my_dojo}" || exit
-            _dojo_check && _stop_dojo
+            _stop_dojo
             # stop dojo
 
             cat <<EOF
@@ -80,9 +80,8 @@ Shutting down Dojo if running...
 ***
 ${nc}
 EOF
-            cd "${dojo_path_my_dojo}" || exit
 
-            _dojo_check && _stop_dojo
+            _stop_dojo
             # stop dojo
 
             cat <<EOF
@@ -128,9 +127,13 @@ EOF
         # System Setup & Install menu
         ;;
     7)
-        bash -c "${ronin_system_menu2}"
+        bash "$HOME"/RoninDojo/Scripts/Menu/menu-troubleshooting.sh
+        # System Setup & Install menu
         ;;
     8)
+        bash -c "${ronin_system_menu2}"
+        ;;
+    9)
         ronin
         # returns to main menu
         ;;

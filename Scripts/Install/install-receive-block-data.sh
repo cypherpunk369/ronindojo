@@ -1,248 +1,147 @@
 #!/bin/bash
 # shellcheck source=/dev/null disable=SC2154
 
+##############################
+# LOADING VARS AND FUNCTIONS #
+##############################
+
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
+_load_user_conf
+
+_print_message "Preparing to copy data from your Backup Data Drive now..."
+_sleep
+
+
+#######################################
+# STORAGE DEVICES SETUP: LOADING VARS #
+#######################################
+
+
+backup_storage_partition_uuid=$(lsblk -no UUID "${backup_storage_partition}" 2> /dev/null)
+install_dir_partition=$(findmnt -n -o SOURCE --target "${install_dir}")
+install_dir_partition_uuid=$(lsblk -no UUID "${install_dir_partition}")
+
+
+#####################################
+# STORAGE DEVICES SETUP: ASSERTIONS #
+#####################################
+
+
 if ! sudo test -d "${docker_volume_bitcoind}"/_data; then
-    cat <<EOF
-${red}
-***
-Blockchain data not found! Did you forget to install RoninDojo?
-***
-${nc}
-EOF
-    _sleep
-
+    _print_message "Blockchain data not found! Did you forget to install RoninDojo?"
     _pause return
     bash -c "${ronin_dojo_menu2}"
+    exit
 fi
-# if data directory is not found then warn and return to menu
 
-cat <<EOF
-${red}
-***
-Preparing to copy data from your Backup Data Drive now...
-***
-${nc}
-EOF
-_sleep 3
+if [ -z ${backup_storage_partition} ]; then
 
-if [ -b "${secondary_storage}" ]; then
-    # Make sure /mnt/usb UUID is not same as $secondary_storage
-    if [[ $(lsblk -no UUID "$(findmnt -n -o SOURCE --target "${install_dir}")") != $(lsblk -no UUID "${secondary_storage}") ]]; then
-        cat <<EOF
-${red}
-***
-Your new backup drive has been detected...
-***
-${nc}
-EOF
-        _sleep
-        # checks for ${secondary_storage}
-    else
-        cat <<EOF
-${red}
-***
-Possible drive rearrangement occured. Checking if ${primary_storage} is available to mount...
-***
-${nc}
-EOF
-        secondary_storage="${primary_storage}"
+    _setup_storage_config
+
+    . "${HOME}"/RoninDojo/Scripts/defaults.sh
+
+    if [ -z ${backup_storage_partition} ]; then
+        _print_error_message "No backup storage device found"
+        _pause return
+        bash -c "${ronin_dojo_menu2}"
+        exit
     fi
-else
-    cat <<EOF
-${red}
-***
-No backup drive partition detected! Make sure it is available for use...
-***
-${nc}
-EOF
-    _sleep 5
-
-    _pause return
-
-    bash -c "${ronin_dojo_menu2}"
-    # no drive detected, press any key to return to menu
 fi
+
+if [ ! -b ${backup_storage_partition} ]; then
+    _print_message "Backup storage partition missing, if you haven't connected the device please do and retry."
+    _pause return
+    bash -c "${ronin_dojo_menu2}"
+    exit
+fi
+
+if [[ "${blockdata_storage_partition}" != "${install_dir_partition}" ]]; then
+    _print_error_message "${install_dir} is not mounted to the prescribed partition ${blockdata_storage_partition}, instead found to be mounted to ${install_dir_partition}"
+    _pause return
+    bash -c "${ronin_dojo_menu2}"
+    exit
+fi
+
+if [[ "${install_dir_partition_uuid}" == "${backup_storage_partition_uuid}" ]]; then
+    _print_error_message "Backup drive unusable, conflicts with drive mounted to /mnt/usb, both having the UUID ${install_dir_partition_uuid}"
+    _pause return
+    bash -c "${ronin_dojo_menu2}"
+    exit
+fi
+
+
+###################################
+# STORAGE DEVICES SETUP: MOUNTING #
+###################################
+
+
+sudo test -d "${backup_mount}" || sudo mkdir -p"${backup_mount}"
 
 if ! findmnt "${backup_mount}" 1>/dev/null; then
-    cat <<EOF
-${red}
-***
-Preparing to Mount ${secondary_storage} to ${backup_mount}...
-***
-${nc}
-EOF
-    _sleep 3
-
-    cat <<EOF
-${red}
-***
-Are you ready to mount?
-***
-${nc}
-EOF
-
-    while true; do
-        read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
-        case $answer in
-            [yY][eE][sS]|[yY]) break;;
-            [nN][oO]|[Nn])
-            bash "$HOME"/RoninDojo/Scripts/Menu/system-menu2.sh
-            exit
-            ;;
-            *)
-            cat <<EOF
-${red}
-***
-Invalid answer! Enter Y or N
-***
-${nc}
-EOF
-            ;;
-        esac
-    done
-    # ask user to proceed
-
-    test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
-    # create mount directory if not available
-
-    cat <<EOF
-${red}
-***
-Mounting ${secondary_storage} to ${backup_mount}...
-***
-${nc}
-EOF
-    _sleep 1
-
-    sudo mount "${secondary_storage}" "${backup_mount}"
-    # mount backup drive to ${backup_mount} directory
+    _print_message "Mounting the backup storage mount ${backup_mount}..."
+    sudo mount "${backup_storage_partition}" "${backup_mount}"
 fi
 
-cat <<EOF
-${red}
-***
-Making sure Dojo is stopped...
-***
-${nc}
-EOF
 
+#############
+# PREPARING #
+#############
+
+
+_print_message "Making sure Dojo is stopped..."
 _sleep
 
-cd "${dojo_path_my_dojo}" || exit
-_dojo_check && _stop_dojo
-# stop dojo
+_stop_dojo
 
-cat <<EOF
-${red}
-***
-Removing old data...
-***
-${nc}
-EOF
 
+###############
+# MAKING ROOM #
+###############
+
+
+_print_message "Removing old data..."
 _sleep
 
-# Make sure we have directories to delete
 for dir in blocks chainstate indexes; do
     if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
         sudo rm -rf "${docker_volume_bitcoind}"/_data/"${dir}"
     fi
 done
 
-# Check to see if we have old legacy backup directory, if so rename to ${backup_mount}
-if sudo test -d "${backup_mount}"/system-setup-salvage; then
-    sudo mv "${backup_mount}"/system-setup-salvage "${bitcoin_ibd_backup_dir}" 1>/dev/null
-fi
 
-# Migrate from old $bitcoin_ibd_backup_dir path to new
-if sudo test -d "${backup_mount}"/bitcoin; then
-    sudo test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
-    sudo mv "${backup_mount}"/bitcoin/* "${bitcoin_ibd_backup_dir}"/
-    sudo rm -rf "${backup_mount}"/bitcoin
-fi
+########################
+# RECEIVING BLOCK DATA #
+########################
 
-cat <<EOF
-${red}
-***
-Copying...
-***
-${nc}
-EOF
 
+_print_message "Copying..."
 _sleep
 
-if sudo test -d "${bitcoin_ibd_backup_dir}"/blocks; then
-    # copy blockchain data from back up drive to dojo bitcoind data directory, will take a little bit
-    sudo cp -av "${bitcoin_ibd_backup_dir}"/{blocks,chainstate,indexes} "${docker_volume_bitcoind}"/_data/
-else
-    sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
-    cat <<BACKUP
-${red}
-***
-No backup data available to receive data! Umounting drive now...
-***
-${nc}
-BACKUP
-    _sleep
+sudo cp -av "${bitcoin_ibd_backup_dir}"/{blocks,chainstate,indexes} "${docker_volume_bitcoind}"/_data/
 
-    _pause return
-    bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-dojo2.sh
-    exit
-fi
-
-cat <<EOF
-${red}
-***
-Transfer Complete!
-***
-${nc}
-EOF
-
+_print_message "Transfer Complete!"
 _sleep
+_pause "continue" # press to continue is needed because sudo password can be requested for next step, if user is AFK there may be timeout
 
-_pause continue
-# press to continue is needed because sudo password can be requested for next step, if user is AFK there may be timeout
 
-cat <<EOF
-${red}
-***
-Unmounting...
-***
-${nc}
-EOF
+##############
+# AFTER CARE #
+##############
+
+
+_print_message "Unmounting..."
 _sleep
 
 sudo umount "${backup_mount}" && sudo rmdir "${backup_mount}"
-# unmount backup drive and remove directory
 
-cat <<EOF
-${red}
-***
-You can now safely unplug your backup drive!
-***
-${nc}
-EOF
+_print_message "You can now safely unplug your backup drive!"
 _sleep
 
-cat <<EOF
-${red}
-***
-Starting Dojo...
-***
-${nc}
-EOF
-
+_print_message "Starting Dojo..."
 _sleep
-
-cd "${dojo_path_my_dojo}" || exit
-_source_dojo_conf
-
-# Start docker containers
-./dojo.sh start
+_start_dojo
 
 _pause return
 bash -c "${ronin_dojo_menu2}"
-# return to menu

@@ -9,8 +9,7 @@ _load_user_conf
 OPTIONS=(1 "Update Mirrors"
          2 "Check for RoninDojo Update"
          3 "Update RoninDojo"
-         4 "Update Operating System"
-         5 "Go Back")
+         4 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -63,24 +62,22 @@ EOF
         ;;
 
     3)
-        if ! _dojo_check; then
-            if [ ! -d "${dojo_path}" ]; then
-                cat <<EOF
+        if [ ! -d "${dojo_path}" ]; then
+            cat <<EOF
 ${red}
 ***
 Missing ${dojo_path} directory, aborting update...
 ***
 ${nc}
 EOF
-                _sleep
+            _sleep
 
-                _pause return
+            _pause return
 
-                bash -c "${ronin_system_update}"
-                exit 1
-            fi
+            bash -c "${ronin_system_update}"
+            exit 1
         fi
-        # is dojo installed?
+    # is dojo installed?
 
         cat <<EOF
 ${red}
@@ -135,20 +132,6 @@ EOF
         bash -c "${ronin_updates_menu}"
         ;;
     4)
-        _print_message "Updating system packages..."
-        _sleep
-        _print_message "Use Ctrl+C to exit if needed!"
-        _sleep 10 --msg "Updating in"
-
-        _dojo_check && _stop_dojo
-        
-        _print_message "Perfoming a full system update..."
-        sudo pacman -Syyu --noconfirm
-
-        _pause reboot
-        sudo systemctl reboot
-        ;;
-    5)
         bash -c "${ronin_system_menu}"
         ;;
 esac

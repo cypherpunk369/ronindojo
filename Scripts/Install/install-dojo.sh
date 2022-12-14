@@ -11,6 +11,7 @@
 
 _load_user_conf
 
+
 ##############
 # ASSERTIONS #
 ##############
@@ -37,6 +38,13 @@ _print_message "Running RoninDojo install..."
 _print_message "Use Ctrl+C to exit now if needed!"
 _sleep 3 --msg "Installing in"
 
+#######################
+# INSTALLING TOOLSETS #
+#######################
+
+_print_message "Installing RoninUI..."
+_ronin_ui_install
+_install_gpio
 
 ########################
 # DOWNLOADING CODEBASE #
@@ -60,25 +68,28 @@ _print_message "Setting the RPC User and Password..."
 
 _restore_or_create_dojo_confs
 
+
 ######################
 # SETTING UP INDEXER #
 ######################
 
-_set_indexer
-
-if sudo test -d "${dojo_backup_indexer}"/db/bitcoin; then # Found electrs previous install.
+if sudo test -d "${dojo_backup_electrs}"/_data; then # Found electrs previous install.
     _print_message "Found indexer salvage to be of type electrs, setting it up..."
-    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo test -d "${dojo_backup_indexer}"/db/mainnet && sudo rm -rf "${dojo_backup_indexer}"/db/mainnet #remove 0.8.x data that's incompatible with 0.9+
+    _set_electrs
 
-elif sudo test -d "${dojo_backup_indexer}"/addrindexrs; then # Found addrindexrs previous install.
+elif sudo test -d "${dojo_backup_indexer}"/_data; then # Found addrindexrs previous install.
     _print_message "Found indexer salvage to be of type addrindexrs"
+    _set_addrindexrs
+
+elif sudo test -d "${dojo_backup_fulcrum}"/_data; then # Found fulcrum previous install.
+    _print_message "Found indexer salvage to be of type fulcrum, setting it up..."
+    _set_fulcrum
 
 else # No indexer found or fresh install
     _print_message "Found no indexer salvage, setting indexer to default (electrs)..."
-    bash "$HOME"/RoninDojo/Scripts/Install/install-electrs-indexer.sh
-    sudo rm -rf "${dojo_backup_indexer}"
+    _set_electrs
 fi
+
 
 ###################
 # INSTALLING DOJO #
@@ -88,7 +99,6 @@ _print_message "Please see Wiki for FAQ, help, and so much more..."
 _print_message "https://wiki.ronindojo.io"
 _print_message "Installing Samourai Wallet's Dojo..."
 
-# Restart docker here for good measure
 sudo systemctl restart --quiet docker
 
 cd "$dojo_path_my_dojo" || exit
@@ -99,13 +109,14 @@ if ! ./dojo.sh install --nolog --auto; then
     exit
 fi
 
+
 ####################
 # RESTORING BACKUP #
 ####################
 
 if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
 
-    _print_message "Any previous node data will now be salvaged if you choose to continue..."
+    _print_message "Any previous node data will now be salvaged..."
     [ $# -eq 0 ] && _pause continue
 
     _stop_dojo
@@ -114,9 +125,10 @@ if $dojo_data_bitcoind_backup || $dojo_data_indexer_backup || $tor_backup; then
     $dojo_data_indexer_backup && _dojo_data_indexer_restore
     $tor_backup && _tor_restore
 
-    ./dojo.sh start
+    _start_dojo
 
 fi
+
 
 ######################
 # CLEANING UP BACKUP #
@@ -126,6 +138,15 @@ if findmnt "${backup_mount}" 1>/dev/null; then
     sudo umount "${backup_mount}"
     sudo rm -rf "${backup_mount}" &>/dev/null
 fi
+
+
+#####################
+# INSTALL BOLTZMANN #
+#####################
+
+_print_message "Installing Boltzmann Calculator..."
+_install_boltzmann
+
 
 ############
 # FINALIZE #

@@ -33,11 +33,11 @@ EOF
 	cpus=$(lscpu | grep -e "^CPU(s):" | cut -f2 -d: | awk '{print $1}')
 
 	echo "CURRENT USAGE:"
-	sar -P ALL -u ALL 1 1 | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	sar -P ALL -u ALL 1 1 | head "-`expr $cpus + 4`" | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
 	echo ""
 
 	echo "AVERAGE USAGE SINCE BOOT:"
-	mpstat -P ALL | head -`expr $cpus + 4` | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
+	mpstat -P ALL | head "-`expr $cpus + 4`" | tail -$cpus | sed -r "s/\S+(\s+AM|\s+PM)?\s+(\S+)\s+(\S+).*/CPU\2 : \3/"
 	echo ""
 	
     cat <<EOF
@@ -93,22 +93,28 @@ print_memory_usage() {
 	# Using bc to do all math operations, without bc all values will be integers 
 	# Also we use if to add zero before value if value less than 1024, and result of dividing will be less than 1
 	total_mem=$(free -m | head -2 | tail -1| awk '{print $2}')
-	total_bc=$(echo "scale=2;if("$total_mem"<1024 && "$total_mem" > 0) print 0;"$total_mem"/1024"| bc -l)
+	total_bc=$(echo "scale=2;if(${total_mem}<1024 && ${total_mem} > 0) print 0;${total_mem}/1024"| bc -l)
 	used_mem=$(free -m | head -2 | tail -1| awk '{print $3}')
-	used_bc=$(echo "scale=2;if("$used_mem"<1024 && "$used_mem" > 0) print 0;"$used_mem"/1024"|bc -l)
+	used_bc=$(echo "scale=2;if(${used_mem}<1024 && ${used_mem} > 0) print 0;${used_mem}/1024"|bc -l)
 	free_mem=$(free -m | head -2 | tail -1| awk '{print $4}')
-	free_bc=$(echo "scale=2;if("$free_mem"<1024 && "$free_mem" > 0) print 0;"$free_mem"/1024"|bc -l)
+	free_bc=$(echo "scale=2;if(${free_mem}<1024 && ${free_mem} > 0) print 0;${free_mem}/1024"|bc -l)
 	total_swap=$(free -m | tail -1| awk '{print $2}')
-	total_sbc=$(echo "scale=2;if("$total_swap"<1024 && "$total_swap" > 0) print 0;"$total_swap"/1024"| bc -l)
+	total_sbc=$(echo "scale=2;if(${total_swap}<1024 && ${total_swap} > 0) print 0;${total_swap}/1024"| bc -l)
 	used_swap=$(free -m | tail -1| awk '{print $3}')
-	used_sbc=$(echo "scale=2;if("$used_swap"<1024 && "$used_swap" > 0) print 0;"$used_swap"/1024"|bc -l)
+	used_sbc=$(echo "scale=2;if(${used_swap}<1024 && ${used_swap} > 0) print 0;${used_swap}/1024"|bc -l)
 	free_swap=$(free -m |  tail -1| awk '{print $4}')
-	free_sbc=$(echo "scale=2;if("$free_swap"<1024 && "$free_swap" > 0) print 0;"$free_swap"/1024"|bc -l)
+	free_sbc=$(echo "scale=2;if(${free_swap}<1024 && ${free_swap} > 0) print 0;${free_swap}/1024"|bc -l)
 
 	cat <<EOF
 #####################################################################
                          Memory Usage
 #####################################################################
+Total memory     :  $total_bc
+Used memory      :  $used_bc
+Free memory      :  $free_bc
+Total swap       :  $total_sbc
+Used swap        :  $used_sbc
+Free swap        :  $free_sbc
 EOF
 
 	# Need to fix output not displaying properly
@@ -210,6 +216,10 @@ EOF
 
 print_docker_status() {
 
+	if [ ! -d "${dojo_path}" ]; then
+		return
+	fi
+
 	cat <<EOF
 #####################################################################
                       Docker Container Status
@@ -220,64 +230,47 @@ EOF
 
 	printf "\n"
 
-	# checks if dojo is running (check the db container)
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           Bitcoind Logs
 #####################################################################
 EOF
 
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs bitcoind -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs bitcoind -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           Tor Logs
 #####################################################################
 EOF
     
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs tor -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs tor -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+	cat <<EOF
 #####################################################################
                           MariaDB Logs
 #####################################################################
 EOF
     
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs db -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs db -n 25
 
 	printf "\n"
 
-	if ! _dojo_check; then
-	    return
-	else
-	    cat <<EOF
+    cat <<EOF
 #####################################################################
                           Indexer Logs
 #####################################################################
 EOF
 
-	    cd "$dojo_path_my_dojo" || exit
-	    ./dojo.sh logs indexer -n 25
-	fi
+    cd "$dojo_path_my_dojo" || exit
+    ./dojo.sh logs indexer -n 25
 
 }
 
@@ -310,11 +303,14 @@ create_output_logs() {
 
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
+	journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
 
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	  --trust-model always -a "${ronin_debug_dir}/journal.txt"
 }
 
 cleanup_output_logs() {
@@ -333,26 +329,19 @@ upload_logs() {
 EOF
 
 
-    # Upload to termbin
-    cat <<EOF
-${red}
-***
-Please wait while URLs are generated...
-***
-${nc}
-EOF
-_sleep 2
+    _print_message "Please wait while URLs are generated..."
+	_sleep 2
 
-	    cat <<EOF
-***
-PGP Encrypted Logs URLs:
-***
-EOF
+	_print_message "PGP Encrypted Logs URLs:"
+
 	printf "health file: "
 	cat "${ronin_debug_dir}"/health.txt.asc | nc termbin.com 9999
 	printf "\n"
 	printf "dmesg file: "
 	cat "${ronin_debug_dir}"/dmesg.txt.asc | nc termbin.com 9999
+	printf "\n"
+	printf "journal file: "
+	cat "${ronin_debug_dir}"/journal.txt.asc | nc termbin.com 9999
 }
 
 # execute the scripts

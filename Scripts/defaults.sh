@@ -102,6 +102,7 @@ ronin_debug_dir="$HOME/.config/RoninDojo/debug"
 ronin_gpio_data_dir="$HOME/.config/RoninDojo/GPIO"
 boltzmann_path="$HOME/boltzmann"
 ronin_ui_path="$HOME/Ronin-UI"
+ronin_ui_init_file="${ronin_data_dir}/ronin_ui_init"
 
 #
 # Data backup variables
@@ -118,7 +119,7 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.14.2" # Tag release
+samourai_commitish="v1.15.0" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
@@ -126,12 +127,18 @@ ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 #
 # Filesystem Defaults
 #
-primary_storage="/dev/sda1"
-secondary_storage="/dev/sdb1"
-backup_mount="/mnt/backup"
+if test -f "${ronin_data_dir}"/blockdata_storage_partition; then
+    . "${ronin_data_dir}"/blockdata_storage_partition
+fi
+if test -f "${ronin_data_dir}"/backup_storage_partition; then
+    . "${ronin_data_dir}"/backup_storage_partition
+fi
 
+backup_mount="/mnt/backup"
 bitcoin_ibd_backup_dir="${backup_mount}/backup/bitcoin"
 indexer_backup_dir="${backup_mount}/backup/indexer"
+electrs_backup_dir="${backup_mount}/backup/electrs"
+fulcrum_backup_dir="${backup_mount}/backup/fulcrum"
 tor_backup_dir="${backup_mount}/backup/tor"
 
 install_dir="/mnt/usb"
@@ -139,22 +146,29 @@ install_dir_tor="${install_dir}/tor"
 install_dir_swap="${install_dir}/swapfile"
 install_dir_docker="${install_dir}/docker"
 
-docker_volumes="${install_dir_docker}/volumes"
-docker_volume_tor="${docker_volumes}/my-dojo_data-tor"
-docker_volume_wp="${docker_volumes}/my-dojo_data-whirlpool"
-docker_volume_bitcoind="${docker_volumes}/my-dojo_data-bitcoind"
-docker_volume_indexer="${docker_volumes}/my-dojo_data-indexer"
-
 # Dojo Related Backup Paths
 dojo_backup_bitcoind="${install_dir}/backup/bitcoin"
 dojo_backup_indexer="${install_dir}/backup/indexer"
+dojo_backup_fulcrum="${install_dir}/backup/fulcrum"
+dojo_backup_electrs="${install_dir}/backup/electrs"
 dojo_backup_dir="${install_dir}/backup/dojo"
 dojo_backup_conf="${install_dir}/backup/dojo/conf"
 dojo_backup_tor="${install_dir}/backup/tor"
 
 tor_data_dir="docker/volumes/my-dojo_data-tor"
+wp_data_dir="docker/volumes/my-dojo_data-whirlpool"
 bitcoind_data_dir="docker/volumes/my-dojo_data-bitcoind"
 indexer_data_dir="docker/volumes/my-dojo_data-indexer"
+fulcrum_data_dir="docker/volumes/my-dojo_data-fulcrum"
+electrs_data_dir="docker/volumes/my-dojo_data-electrs"
+
+#Deprecated, use the above variables
+docker_volume_tor="${install_dir}/${tor_data_dir}"
+docker_volume_wp="${install_dir}/${wp_data_dir}"
+docker_volume_bitcoind="${install_dir}/${bitcoind_data_dir}"
+docker_volume_indexer="${install_dir}/${indexer_data_dir}"
+docker_volume_fulcrum="${install_dir}/${fulcrum_data_dir}"
+docker_volume_electrs="${install_dir}/${electrs_data_dir}"
 
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 
