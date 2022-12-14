@@ -88,8 +88,6 @@ _call_update_scripts() {
 
         _update_05 # Check on tor unit service
         test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
-        test -f "$HOME"/.config/RoninDojo/data/updates/17-* || _update_17 # Uninstall legacy Ronin UI
-        test -f "$HOME"/.config/RoninDojo/data/updates/19-* || _update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
         test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
         _update_24 # Fix hosts file, rerun always in case OS update reverts it
         test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
@@ -101,12 +99,12 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
         # _update_33 is executred as part of dojo upgrade script
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
+        test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
     else
-        # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 34); do
+        for i in $(seq 10 35); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
@@ -558,7 +556,7 @@ _ronin_ui_install() {
     rm "$_file" /tmp/version.json
 
         # Mark Ronin UI initialized if necessary
-        if [ "${1}" = "--initialized" ]; then
+        if [ -e "${ronin_ui_init_file}" ]; then
           echo -e "{\"initialized\": true}\n" > ronin-ui.dat
         fi
 
@@ -759,6 +757,11 @@ _ronin_ui_uninstall() {
 
     _print_message "Uninstalling Ronin UI..."
     _sleep
+
+    # leave behind a marker file if this system is initialized, for any roninUI re-installs to pick up on
+    if [ -e "${ronin_ui_path}/ronin-ui.dat" ]; then
+        touch "${ronin_ui_init_file}"
+    fi
 
     # Delete app from process list
     pm2 delete "RoninUI" &>/dev/null
@@ -1237,7 +1240,7 @@ _start_dojo() {
 # Remove old fstab entries in favor of systemd.mount.
 #
 _remove_fstab() {
-    if grep -E '(^UUID=.* \/mnt\/(usb1?|backup) ext4)' /etc/fstab 1>/dev/null; then
+    if grep -E '(^UUID=.* /mnt/(usb1?|backup) ext4)' /etc/fstab 1>/dev/null; then
         sudo sed -i '/\/mnt\/usb\|backup ext4/d' /etc/fstab
         return 1
     fi
@@ -1506,6 +1509,7 @@ _install_wst(){
 
     cd Whirlpool-Stats-Tool || exit
 
+    pip install setuptools &>/dev/null
     pipenv install -r requirements.txt &>/dev/null
     # Change to whirlpool stats directory, otherwise exit
     # install whirlpool stat tool
@@ -1530,8 +1534,8 @@ _install_boltzmann(){
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
-    pipenv install -r requirements.txt &>/dev/null
-    pipenv install sympy numpy &>/dev/null
+    pip install setuptools &>/dev/null
+    pipenv install -r requirements.txt  &>/dev/null
 }
 
 _is_bisq(){

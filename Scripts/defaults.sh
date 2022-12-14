@@ -102,6 +102,7 @@ ronin_debug_dir="$HOME/.config/RoninDojo/debug"
 ronin_gpio_data_dir="$HOME/.config/RoninDojo/GPIO"
 boltzmann_path="$HOME/boltzmann"
 ronin_ui_path="$HOME/Ronin-UI"
+ronin_ui_init_file="${ronin_data_dir}/ronin_ui_init"
 
 #
 # Data backup variables
@@ -194,7 +195,7 @@ declare -a backup_dojo_data=(
 )
 
 # RoninUI defaults
-roninui_version_staging=true
+roninui_version_staging=false
 roninui_version_file="https://ronindojo.io/downloads/RoninUI/version.json"
 if [ "$roninui_version_staging" = true ]; then
     roninui_version_file="https://ronindojo.io/downloads/RoninUI/version-staging.json"

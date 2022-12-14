@@ -6,16 +6,11 @@
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 if [ ! -d "${boltzmann_path}" ]; then
-    cat <<EOF
-${red}
-***
-Installing Boltzmann...
-***
-${nc}
-EOF
+    _print_message "Installing Boltzmann..."
+
     _sleep
 
-    bash -c "$HOME"/RoninDojo/Scripts/Install/install-boltzmann.sh
+    _install_boltzmann
 fi
 
 # checks if ${HOME}/boltzmann dir exists, if so kick back to menu
@@ -29,7 +24,7 @@ A python script computing the entropy of Bitcoin transactions
     and the linkability of their inputs and outputs.
 
 EOF
-
+    
 cat <<EOF
 Example Usage:
 
@@ -53,30 +48,19 @@ export BOLTZMANN_RPC_HOST=${BITCOIND_IP}
 export BOLTZMANN_RPC_PORT=${BITCOIND_RPC_PORT}
 
 # Loop command until user quits
-until [[ "$txids" =~ (Q|q|quit|Quit) ]]
+while true
 do
-  printf "\nEnter a txid or multiple txids separated by commas. Type [Q|Quit] to exit boltzmann\n"
-  read -r txids
+    printf "\nEnter a txid or multiple txids separated by commas. Type [Q|Quit] to exit boltzmann\n"
+    read -r txids
 
-  if [[ ! "$txids" =~ (Q|Quit) ]]; then
-    if ! pipenv run python ludwig.py --rpc --txids="${txids}" 2>/dev/null; then
-      _check_pkg "pipenv" "python-pipenv"
-
-      cat <<EOF
-${red}
-***
-Checking for updates...
-***
-${nc}
-EOF
-      _sleep
-
-      cd .. || exit
-
-      # Upgrade dependencies
-      pipenv update &>/dev/null
+    if [[ "$txids" =~ (Q|q|Quit|quit) ]]; then
+        break
     fi
-  else
-    bash -c "${ronin_samourai_toolkit_menu}"
-  fi
+
+    if ! pipenv run python ludwig.py --rpc --txids="${txids}"; then
+        echo "Could not get tx information"
+    fi
 done
+
+bash -c "${ronin_samourai_toolkit_menu}"
+exit
