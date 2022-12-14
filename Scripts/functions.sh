@@ -87,7 +87,6 @@ _call_update_scripts() {
     if [ -f "${ronin_data_dir}"/system-install ]; then
 
         _update_05 # Check on tor unit service
-        test -f "$HOME"/.config/RoninDojo/data/updates/15-* || _update_15 # Remove duplicate bisq integration changes
         test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
         _update_24 # Fix hosts file, rerun always in case OS update reverts it
         test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
