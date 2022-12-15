@@ -2,9 +2,13 @@ Changelog
 
 RoninDojo v1.15.1 Change Log
 - Bug fix: non existent _update_15 is no longer called
-- Updated Dojo to 1.18.0
-- TODO: list dojo changes
-- Credits: dammkewl, PavelTheCoder, TODO
+- Updated Dojo to 1.18.0, which includes the following:
+  - Updated several base images to debian:bullseye-slim
+  - Updated Whirlpool's tor to 0.4.7.11
+  - Tor updated to 0.4.7.11 and its OBFS4 to 0.0.14
+  - Updated addrindexrs to 0.6.0
+  - updated mariadb(tracker) to 10.7.1
+- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1
 
 RoninDojo v1.15.0 Change Log
 - Fixed backup drive feature
