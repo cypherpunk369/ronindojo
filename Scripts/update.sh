@@ -232,3 +232,13 @@ _update_35() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/35-"$(date +%m-%d-%Y)"
 }
+
+# Fulcrum Batch support migration
+_update_36(){
+    if _is_fulcrum; then
+        sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=active/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    fi;
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/36-"$(date +%m-%d-%Y)"
+}
