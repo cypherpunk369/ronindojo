@@ -99,6 +99,7 @@ _call_update_scripts() {
         # _update_33 is executred as part of dojo upgrade script
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
         test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
+        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support      
     else
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
