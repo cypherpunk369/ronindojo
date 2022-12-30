@@ -936,6 +936,7 @@ _set_addrindexrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=addrindexrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -953,6 +954,7 @@ _set_electrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
