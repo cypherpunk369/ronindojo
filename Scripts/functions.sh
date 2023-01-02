@@ -99,11 +99,12 @@ _call_update_scripts() {
         # _update_33 is executred as part of dojo upgrade script
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
         test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
+        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support      
     else
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 35); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
+        for i in $(seq 10 36); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
@@ -936,6 +937,7 @@ _set_addrindexrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=addrindexrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -944,6 +946,7 @@ _set_fulcrum() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=fulcrum/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=active/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -952,6 +955,7 @@ _set_electrs() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
