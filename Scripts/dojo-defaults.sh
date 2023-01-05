@@ -1,6 +1,13 @@
 #!/bin/bash
 
 #
+# Loading vars and functions
+#
+
+# shellcheck source=./Scripts/defaults.sh
+. "$HOME"/RoninDojo/Scripts/defaults.sh
+
+#
 # Dojo Configuration Values
 #
 test -f "${dojo_path_my_dojo}"/conf/docker-node.conf && . "${dojo_path_my_dojo}"/conf/docker-node.conf
