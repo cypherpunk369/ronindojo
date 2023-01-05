@@ -1,6 +1,7 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
+# shellcheck disable=SC2034
 
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 #
