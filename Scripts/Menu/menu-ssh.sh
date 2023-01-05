@@ -30,7 +30,7 @@ case $CHOICE in
         _print_message "Starting SSH..."
 
         if systemctl is-active --quiet sshd; then
-            sudo systemctl start --quiet "$sshd"
+            sudo systemctl start --quiet sshd
         else
             _print_message "SSH already started..."
         fi
