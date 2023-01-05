@@ -66,6 +66,7 @@ display_creds_roninui() {
 }
 
 display_creds_bitcoin() {
+    # shellcheck disable=SC2154
     _print_message "Bitcoin Credentials" \
         "Bitcoin Daemon:" \
         "" \
