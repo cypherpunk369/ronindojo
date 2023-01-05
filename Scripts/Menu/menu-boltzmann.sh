@@ -46,7 +46,10 @@ cd "${boltzmann_path}"/boltzmann || exit
 # Export required environment variables
 export BOLTZMANN_RPC_USERNAME=${BITCOIND_RPC_USER}
 export BOLTZMANN_RPC_PASSWORD=${BITCOIND_RPC_PASSWORD}
+
+# shellcheck disable=SC2154
 export BOLTZMANN_RPC_HOST=${BITCOIND_IP}
+# shellcheck disable=SC2154
 export BOLTZMANN_RPC_PORT=${BITCOIND_RPC_PORT}
 
 # Loop command until user quits
