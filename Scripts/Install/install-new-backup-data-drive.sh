@@ -1,12 +1,14 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
 
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf

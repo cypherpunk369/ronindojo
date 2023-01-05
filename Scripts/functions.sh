@@ -1,5 +1,7 @@
 #!/bin/bash
-# shellcheck disable=SC2221,SC2222,1004,SC2154,SC2120 source=./Scripts/defaults.sh
+# shellcheck disable=SC2221,SC2222,1004,SC2154,SC2120 
+
+# shellcheck source=./Scripts/defaults.sh
 . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
 #

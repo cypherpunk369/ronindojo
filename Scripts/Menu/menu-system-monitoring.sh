@@ -1,8 +1,10 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
-. "${HOME}"/RoninDojo/Scripts/defaults.sh
-. "${HOME}"/RoninDojo/Scripts/functions.sh
+# shellcheck source=./Scripts/defaults.sh
+. "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
+. "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Task Manager"
          2 "Debug Tool"

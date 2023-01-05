@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=./Scripts/defaults.sh
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Add IP Range for Whirlpool GUI"
