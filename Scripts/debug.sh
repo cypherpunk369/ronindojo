@@ -63,7 +63,7 @@ print_general_info() {
 	os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
 	kernel_version=$(uname -r)
 	system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
-	backend_status=$(if cd "${ronin_ui_backend_dir}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
+	backend_status=$(if cd "${ronin_ui_path}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
 	tor_status=$(if systemctl is-active --quiet tor ; then printf "Online" ; else printf "Offline" ; fi)
 	docker_version=$(docker --version; docker-compose --version)
 	docker_status=$(if systemctl is-active --quiet docker ; then printf "Online" ; else printf "Offline" ; fi)
