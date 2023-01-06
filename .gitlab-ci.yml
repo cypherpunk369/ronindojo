@@ -2,7 +2,7 @@ default:
   image: debian:buster
 
 stages:
-  - test
+  - compile
 
 report:
   stage: .pre
@@ -14,20 +14,18 @@ report:
     - ls -la
 
 parse-test:
-  stage:  test
+  stage:  compile
+  image: registry.ronindojo.io/ronin-devops-shellcheck:latest
   only:
     refs:
       - branches
   variables:
     SEVERITY: "warning"
   script:
-    - DEBIAN_FRONTEND=noninteractive
-    - apt-get update
-    - apt-get -yq install wget xz-utils
-    - wget -qO- https://github.com/koalaman/shellcheck/releases/download/stable/shellcheck-stable.linux.x86_64.tar.xz | tar -xJv
     - echo "the following files will be checked"
     - find ./ -name "*.sh"
+    
     - echo -e "*************\nSTARTING TEST\n*************"
-    - find ./ -name "*.sh" | xargs shellcheck-stable/shellcheck -x -a --enable=all --severity=${SEVERITY}
-    - shellcheck-stable/shellcheck -x -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
+    - find ./ -name "*.sh" | xargs shellcheck -x -a --enable=all --severity=${SEVERITY}
+    - shellcheck -x -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
     - echo -e "*************\nTEST COMPLETE\n*************"
