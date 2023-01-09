@@ -89,7 +89,6 @@ _call_update_scripts() {
         _update_05 # Check on tor unit service
         test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
         _update_24 # Fix hosts file, rerun always in case OS update reverts it
-        test -f "$HOME"/.config/RoninDojo/data/updates/25-* || _update_25 # Remove specter
         test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
         test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
         test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
@@ -99,12 +98,13 @@ _call_update_scripts() {
         # _update_33 is executred as part of dojo upgrade script
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
         test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
-        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support      
+        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
+        test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_25 # Remove specter   
     else
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 36); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
+        for i in $(seq 10 37); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
