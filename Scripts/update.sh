@@ -69,6 +69,7 @@ _update_24() {
 }
 
 # Remove specter
+# shellcheck disable=SC2120
 _update_25() {
 
     if [ ! -d "$HOME"/.venv_specter ]; then
