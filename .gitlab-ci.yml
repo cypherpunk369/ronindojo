@@ -23,9 +23,8 @@ parse-test:
     SEVERITY: "warning"
   script:
     - echo "the following files will be checked"
-    - find ./ -name "*.sh"
+    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo")
     
     - echo -e "*************\nSTARTING TEST\n*************"
-    - find ./ -name "*.sh" | xargs shellcheck -x -a --enable=all --severity=${SEVERITY}
-    - shellcheck -x -a --enable=all --severity=${SEVERITY} ronin Scripts/.logo
+    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo") | xargs shellcheck -x -a --enable=all --severity=${SEVERITY}
     - echo -e "*************\nTEST COMPLETE\n*************"
