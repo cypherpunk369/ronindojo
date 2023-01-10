@@ -20,7 +20,7 @@ parse-test:
     refs:
       - branches
   variables:
-    SEVERITY: "warning"
+    SEVERITY: "info"
   script:
     - echo "the following files will be checked"
     - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo")
