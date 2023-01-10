@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck source-path=./Scripts
 
 # shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
