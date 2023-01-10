@@ -1475,7 +1475,7 @@ create_swap() {
                 count=${2}
                 shift 2
                 ;;
-            -*|--*=) # unsupported flags
+            *) # unsupported flags
                 echo "Error: Unsupported flag $1" >&2
                 exit 1
                 ;;
