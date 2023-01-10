@@ -99,7 +99,7 @@ _call_update_scripts() {
         test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
         test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
         test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
-        test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_25 # Remove specter   
+        test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
     else
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
