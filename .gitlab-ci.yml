@@ -26,5 +26,5 @@ parse-test:
     - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo")
     
     - echo -e "*************\nSTARTING TEST\n*************"
-    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo") | xargs shellcheck -x -a --enable=all --severity=${SEVERITY}
+    - find ./ -name "*.sh" | cat - <(echo -e "./ronin\n./Scripts/.logo") | xargs shellcheck -x --enable=all --severity=${SEVERITY}
     - echo -e "*************\nTEST COMPLETE\n*************"
