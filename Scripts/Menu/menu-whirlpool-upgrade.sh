@@ -1,8 +1,10 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
-.  "$HOME"/RoninDojo/Scripts/functions.sh
+
+# shellcheck source=./Scripts/functions.sh
+. "$HOME"/RoninDojo/Scripts/functions.sh
 
 CLI_OBJECT="$(curl -s 'https://raw.githubusercontent.com/Samourai-Wallet/whirlpool-runtimes/master/CLI.json' | jq -r '.CLI_API[([.CLI_API | keys[] | select(test("^[0-9]"))] | max)]')"
 CLI_VERSION="$(jq -r '.CLI_VERSION' <<< "${CLI_OBJECT}")"

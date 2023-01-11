@@ -1,8 +1,12 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/dojo-defaults.sh
 . "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -56,11 +60,12 @@ display_creds_roninui() {
     _ronin_ui_credentials && cd "$HOME" || exit
     _print_message "Ronin UI Credentials" \
         "Local Access Domain     =   http://ronindojo.local" \
-        "Local Access IP         =   http://${ip} # fallback for when ronindojo.local doesn't work for you." \
+        "Local Access IP         =   http://${ip_current} # fallback for when ronindojo.local doesn't work for you." \
         "Tor Address             =   http://${BACKEND_TOR}"
 }
 
 display_creds_bitcoin() {
+    # shellcheck disable=SC2154
     _print_message "Bitcoin Credentials" \
         "Bitcoin Daemon:" \
         "" \

@@ -1,6 +1,6 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
 _load_user_conf
@@ -69,6 +69,7 @@ _update_24() {
 }
 
 # Remove specter
+# shellcheck disable=SC2120
 _update_25() {
 
     if [ ! -d "$HOME"/.venv_specter ]; then

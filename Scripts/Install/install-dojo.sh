@@ -1,12 +1,16 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/generated-credentials.sh
 . "$HOME"/RoninDojo/Scripts/generated-credentials.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
