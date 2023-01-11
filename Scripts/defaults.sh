@@ -124,9 +124,11 @@ ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 # Filesystem Defaults
 #
 if test -f "${ronin_data_dir}"/blockdata_storage_partition; then
+    # shellcheck source=/dev/null
     . "${ronin_data_dir}"/blockdata_storage_partition
 fi
 if test -f "${ronin_data_dir}"/backup_storage_partition; then
+    # shellcheck source=/dev/null
     . "${ronin_data_dir}"/backup_storage_partition
 fi
 

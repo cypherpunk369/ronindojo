@@ -42,6 +42,7 @@ if [ ! -f "${ronin_data_dir}"/ip.txt ]; then
     exit
 fi
 
+# shellcheck source=/dev/null
 . "${ronin_data_dir}"/ip.txt
 
 # shellcheck disable=SC2154
