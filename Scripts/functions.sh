@@ -1203,7 +1203,6 @@ _is_dojo_running() {
 #
 _source_dojo_conf() {
     for conf in conf/docker-{whirlpool,indexer,bitcoind,explorer,mempool}.conf .env; do
-        # fuck, i can't shellchecksource this
         test -f "${conf}" && . "${conf}"
     done
 
