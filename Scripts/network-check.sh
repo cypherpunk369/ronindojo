@@ -11,9 +11,17 @@ ip route get 1 2>/dev/null || exit 1
 # VARIABLES #
 #############
 
-ip_current=$(ip route get 1 | awk '{print $7}')
-interface_current=$(ip route get 1 | awk '{print $5}')
-network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
+ip_current=$(ip route get 1)
+ip_current=$(echo "${ip_current}" | awk '{print $7}')
+
+interface_current=$(ip route get 1)
+interface_current=$(echo "${interface_current}" | awk '{print $5}')
+
+network_current=$(ip route)
+network_current=$(echo "${network_current}" | grep "${interface_current}")
+network_current=$(echo "${network_current}" | grep -v default)
+network_current=$(echo "${network_current}" | awk '{print $1}')
+
 ronin_data_dir=$1
 ronin_username=$2
 
@@ -48,7 +56,7 @@ fi
 # shellcheck disable=SC2154
 if [ "${network}" = "${network_current}" ]; then
     exit
-elif ufw status | head -n 1 | grep "Status: active" >/dev/null; then
+elif (ufw status || true) | (head -n 1 || true) | grep "Status: active" >/dev/null; then
     # uncomment if you want rules from previous network to be removed
     #while ufw status | grep "${network}"; do
     #    ufw status numbered | grep "${network}" | head -n 1 | sed -E 's/\[\s*([0-9]+)\].*/\1/' | xargs -n 1 ufw --force delete
