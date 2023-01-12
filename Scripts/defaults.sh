@@ -171,16 +171,16 @@ docker_volume_electrs="${install_dir}/${electrs_data_dir}"
 sudoers_file="/etc/sudoers.d/21-ronindojo"
 
 # Workaround when on desktop systems and autologin is enabled for the user account
-if [ "$(getent group 1000 | cut -d ':' -f1)" = "autologin" ]; then
-    ronindojo_user=$(getent group 1000 | cut -d ':' -f4)
-else
-    ronindojo_user=$(getent group 1000 | cut -d ':' -f1)
+_getent=$(getent group 1000)
+ronindojo_user=$(echo "${_getent}" | cut -d ':' -f1)
+if [ "${ronindojo_user}" = "autologin" ]; then
+    ronindojo_user=$(echo "${_getent}" | cut -d ':' -f4)
 fi
 
 # Network info
-ip_current=$(ip route get 1 | awk '{print $7}')
-interface_current=$(ip route get 1 | awk '{print $5}')
-network_current="$(ip route | grep $interface_current | grep -v default | awk '{print $1}')"
+ip_current=$(ip route get 1 | awk '{print $7}' || true)
+interface_current=$(ip route get 1 | awk '{print $5}' || true)
+network_current="$(ip route | grep "${interface_current}" | grep -v default | awk '{print $1}' || true)"
 
 # bitcoind defaults
 bitcoind_db_cache=1024 
