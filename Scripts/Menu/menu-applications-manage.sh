@@ -84,6 +84,9 @@ do
 
             upgrade=true
             ;;
+        *)
+            exit 1
+            ;;
     esac
 done
 
