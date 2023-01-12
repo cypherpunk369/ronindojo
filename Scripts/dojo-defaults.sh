@@ -19,7 +19,8 @@ test -f "${dojo_path_my_dojo}"/conf/docker-explorer.conf && . "${dojo_path_my_do
 
 # Whirlpool
 if sudo test -f "${docker_volume_wp}"/_data/.whirlpool-cli/whirlpool-cli-config.properties; then
-    whirlpool_api_key=$(sudo grep cli.apiKey "${docker_volume_wp}"/_data/.whirlpool-cli/whirlpool-cli-config.properties | cut -d '=' -f2)
+    whirlpool_api_key=$(sudo grep cli.apiKey "${docker_volume_wp}"/_data/.whirlpool-cli/whirlpool-cli-config.properties)
+    whirlpool_api_key=$(echo "${whirlpool_api_key}" | cut -d '=' -f2)
 fi
 
 #
@@ -63,6 +64,7 @@ if sudo test -d "${docker_volume_tor}"/_data/hsv3mempool; then
     tor_addr_mempool=$(sudo cat "${docker_volume_tor}"/_data/hsv3mempool/hostname)
 fi
 
-if [ -d "${dojo_path}" ]; then
-    _mempool_version="v$(grep MEMPOOL_API_VERSION_TAG "${dojo_path_my_dojo}"/.env | cut -d '=' -f2)"
+if [ -f "${dojo_path_my_dojo}"/.env ]; then
+    _mempool_version=$(grep MEMPOOL_API_VERSION_TAG "${dojo_path_my_dojo}"/.env)
+    _mempool_version="v$(echo "${_mempool_version}" | cut -d '=' -f2)"
 fi
