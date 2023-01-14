@@ -6,7 +6,8 @@
 # shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
-CLI_OBJECT="$(curl -s 'https://raw.githubusercontent.com/Samourai-Wallet/whirlpool-runtimes/master/CLI.json' | jq -r '.CLI_API[([.CLI_API | keys[] | select(test("^[0-9]"))] | max)]')"
+CLI_JSON="$(curl -s 'https://raw.githubusercontent.com/Samourai-Wallet/whirlpool-runtimes/master/CLI.json')"
+CLI_OBJECT="$(jq -r '.CLI_API[([.CLI_API | keys[] | select(test("^[0-9]"))] | max)]' <<< "${CLI_JSON}")"
 CLI_VERSION="$(jq -r '.CLI_VERSION' <<< "${CLI_OBJECT}")"
 CLI_CHECKSUM="$(jq -r '.CLI_CHECKSUM' <<< "${CLI_OBJECT}")"
 CLI_FILENAME="/home/${ronindojo_user}/whirlpool/whirlpool.jar"
@@ -18,13 +19,7 @@ sudo systemctl stop --quiet whirlpool
 # download whirlpool cli using wget
 # if sha256 hash does not match, warn it failed to correct
 if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}')" != "${CLI_CHECKSUM}" ]; then
-  cat <<EOF
-${red}
-***
-Corrupted/missing whirlpool binary, attempting to download...
-***
-${nc}
-EOF
+  _print_message "Corrupted/missing whirlpool binary, attempting to download..."
 
   if [ -f "${CLI_FILENAME}" ]; then
     rm "${CLI_FILENAME}"
@@ -33,13 +28,7 @@ EOF
   wget -q --output-document="${CLI_FILENAME}" "https://github.com/Samourai-Wallet/whirlpool-client-cli/releases/download/${CLI_VERSION}/whirlpool-client-cli-${CLI_VERSION}-run.jar" 2>/dev/null
 
   if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}')" != "${CLI_CHECKSUM}" ]; then
-    cat <<EOF
-${red}
-***
-Failed to correct corrupted/missing whirlpool binary...
-***
-${nc}
-EOF
+    _print_message "Failed to correct corrupted/missing whirlpool binary..."
     _sleep 5 --msg "Returning to main menu in"
     ronin
   fi
