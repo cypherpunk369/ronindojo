@@ -123,6 +123,7 @@ case $CHOICE in
     8)
         bash -c "${ronin_networking_menu}"
         ;;
+    *)
+        exit
+        ;;
 esac
-
-exit

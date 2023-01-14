@@ -32,7 +32,7 @@ case $CHOICE in
             bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-whirlpool-wst.sh
             # send to WST menu
             ;;
-        4)
+        *)
             ronin
             # returns to main menu
             ;;

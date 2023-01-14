@@ -35,7 +35,7 @@ case $CHOICE in
         _pause reboot
         sudo systemctl reboot
         ;;
-    2)
+    *)
         bash -c "${ronin_system_menu}"
         ;;
 esac

@@ -48,7 +48,7 @@ case $CHOICE in
         _sleep
         sudo passwd -u root
         ;;
-    6)
+    *)
         bash -c "${ronin_system_menu}"
         exit
         ;;

@@ -35,9 +35,7 @@ case $CHOICE in
             cd "${dojo_path_my_dojo}" || exit
             _print_message "Press Ctrl + C to exit at any time..."
             _sleep
-            ;;
-esac
-case $CHOICE in
+            ;;&
         1)
             ./dojo.sh logs bitcoind
             ;;
@@ -93,7 +91,7 @@ case $CHOICE in
         8)
             ./dojo.sh logs
             ;;
-        9)
+        *)
             bash -c "${ronin_dojo_menu}"
             exit
             ;;

@@ -19,8 +19,9 @@ do
             bash "$HOME"/RoninDojo/Scripts/Install/install-dojo.sh
             # runs dojo install script
             ;;
+        *)
+            ;;
     esac
 done
 
 bash -c "${ronin_system_menu}"
-# return to menu

@@ -80,7 +80,7 @@ case $CHOICE in
         5)
             ./dojo.sh logs tor -n 500 | grep -i 'error'
             ;;
-        6)
+        *)
             bash "$HOME"/RoninDojo/Scripts/Menu/menu-dojo-logs.sh
             exit
             ;;

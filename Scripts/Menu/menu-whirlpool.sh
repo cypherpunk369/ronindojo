@@ -112,7 +112,7 @@ case $CHOICE in
             # re-initate whirlpool, return to menu
             # see defaults.sh
             ;;
-        6)
+        *)
             bash -c "${ronin_samourai_toolkit_menu}"
             # return to menu
             ;;

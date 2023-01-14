@@ -59,7 +59,7 @@ case $CHOICE in
         bash -c "${ronin_system_monitoring}"
         # press any key to return to menu
         ;;
-    5)
+    *)
         bash -c "${ronin_system_menu}"
         # returns to menu
         ;;

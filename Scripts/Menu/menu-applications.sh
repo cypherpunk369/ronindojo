@@ -102,7 +102,7 @@ case $CHOICE in
         bash -c "${ronin_applications_manage_menu}"
         # Manage applications menu
         ;;
-    5)
+    *)
         ronin
         # returns to main menu
         ;;

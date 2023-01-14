@@ -27,7 +27,7 @@ case $CHOICE in
     2)
         bash -c "${ronin_ssh_menu}"
         ;;
-    3)
+    *)
         bash -c "${ronin_system_menu2}"
         ;;
 esac

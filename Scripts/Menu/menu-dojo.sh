@@ -106,7 +106,7 @@ DOJO
             bash -c "${ronin_dojo_menu2}"
             exit
             ;;
-        6)
+        *)
             ronin
             exit
             ;;

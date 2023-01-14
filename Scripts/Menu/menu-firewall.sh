@@ -146,7 +146,7 @@ case $CHOICE in
             bash -c "${ronin_firewall_menu2}"
             # go to next menu page
             ;;
-        9)
+        *)
             bash -c "${ronin_system_menu2}"
             # return system menu page 2
             ;;

@@ -135,7 +135,7 @@ EOF
     8)
         bash -c "${ronin_system_menu2}"
         ;;
-    9)
+    *)
         ronin
         # returns to main menu
         ;;

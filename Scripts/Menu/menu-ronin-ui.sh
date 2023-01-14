@@ -117,7 +117,7 @@ case $CHOICE in
         _pause return
         bash -c "${ronin_ui_menu}"
         ;;
-    8)
+    *)
         ronin
         # returns to main menu
         ;;

@@ -89,7 +89,7 @@ case $CHOICE in
         
         bash -c "${ronin_updates_menu}"
         ;;
-    4)
+    *)
         bash -c "${ronin_system_menu}"
         ;;
 esac

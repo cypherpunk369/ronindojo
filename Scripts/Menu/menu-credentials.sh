@@ -142,7 +142,7 @@ case $CHOICE in
                 display_creds_electrs
             fi
             ;;
-        8)
+        *)
             ronin
             exit
             ;;

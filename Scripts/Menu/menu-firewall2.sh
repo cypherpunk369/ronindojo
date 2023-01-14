@@ -74,7 +74,7 @@ case $CHOICE in
             bash -c "${ronin_firewall_menu2}"
             # press any key to return to menu
             ;;
-        3)
+        *)
             bash -c "${ronin_firewall_menu}"
             ;;
 esac

@@ -71,7 +71,7 @@ case $CHOICE in
             bash "$HOME"/RoninDojo/Scripts/Install/install-send-block-data.sh
             # copy block data to backup drive
             ;;
-        5)
+        *)
             bash -c "${ronin_dojo_menu}"
             # return to main menu
             ;;

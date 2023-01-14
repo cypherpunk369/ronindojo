@@ -93,7 +93,7 @@ case $CHOICE in
             # see defaults.sh
         fi
         ;;
-    5)
+    *)
         ronin
         # return to menu
         ;;

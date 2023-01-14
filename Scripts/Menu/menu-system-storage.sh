@@ -43,7 +43,7 @@ case $CHOICE in
         bash -c "${ronin_system_storage}"
         exit
         ;;
-    3)
+    *)
         bash -c "${ronin_system_menu}"
         # returns to menu
         ;;
