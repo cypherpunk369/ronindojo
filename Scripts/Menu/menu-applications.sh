@@ -28,6 +28,7 @@ case $CHOICE in
             _sleep
             _print_message "Install Mempool Space Visualizer using the manage applications menu..."
             _sleep
+
             _pause return
             bash -c "${ronin_applications_menu}"
         else
@@ -43,6 +44,7 @@ case $CHOICE in
             _sleep
             _print_message "Enable Bisq connections using the applications install menu..."
             _sleep
+
             _pause return
             bash -c "$ronin_applications_menu"
         else

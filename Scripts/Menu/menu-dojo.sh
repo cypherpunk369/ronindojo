@@ -65,23 +65,10 @@ case $CHOICE in
             fi
             _print_message "Restarting Dojo..."
             _sleep
-
-            cat <<DOJO
-${red}
-***
-Stopping Dojo...
-***
-${nc}
-DOJO
-            # Check if db container running before stopping all containers
+            _print_message "Stopping Dojo..."
+            
             _stop_dojo
-            cat <<DOJO
-${red}
-***
-Starting Dojo...
-***
-${nc}
-DOJO
+            _print_message "Starting Dojo..."
                 
             cd "${dojo_path_my_dojo}" || exit
             # Start docker containers

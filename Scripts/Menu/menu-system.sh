@@ -34,23 +34,11 @@ case $CHOICE in
         ;;
     2)
         if [ -d "${dojo_path}" ]; then
-            cat <<EOF
-${red}
-***
-Shutting down Dojo if running...
-***
-${nc}
-EOF
+            _print_message "Shutting down Dojo if running..."
             _stop_dojo
             # stop dojo
 
-            cat <<EOF
-${red}
-***
-Powering off machine, or press Ctrl + C to cancel...
-***
-${nc}
-EOF
+            _print_message "Powering off machine, or press Ctrl + C to cancel..."
             _sleep
 
             _pause continue
@@ -58,13 +46,7 @@ EOF
             sudo systemctl poweroff
             # power off machine
         else
-            cat <<EOF
-${red}
-***
-Powering off machine, or press Ctrl + C to cancel...
-***
-${nc}
-EOF
+            _print_message "Powering off machine, or press Ctrl + C to cancel..."
             _sleep
 
             _pause continue
@@ -75,24 +57,12 @@ EOF
         ;;
     3)
         if [ -d "${dojo_path}" ]; then
-            cat <<EOF
-${red}
-***
-Shutting down Dojo if running...
-***
-${nc}
-EOF
+            _print_message "Shutting down Dojo if running..."
 
             _stop_dojo
             # stop dojo
 
-            cat <<EOF
-${red}
-***
-Restarting machine, or press Ctrl + C to cancel...
-***
-${nc}
-EOF
+            _print_message "Restarting machine, or press Ctrl + C to cancel..."
             _sleep
 
             _pause continue
@@ -100,13 +70,7 @@ EOF
             sudo systemctl reboot
             # restart machine
         else
-            cat <<EOF
-${red}
-***
-Restarting machine, or press Ctrl + C to cancel...
-***
-${nc}
-EOF
+            _print_message "Restarting machine, or press Ctrl + C to cancel..."
             _sleep
 
             _pause continue

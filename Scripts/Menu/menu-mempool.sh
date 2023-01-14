@@ -29,7 +29,6 @@ case $CHOICE in
             bash -c "${ronin_mempool_menu}"
         else
             _print_message "Starting Mempool Space Visualizer..."
-
             docker start mempool_api mempool_db mempool_web 1>/dev/null
             _sleep 5
             _pause return
@@ -46,7 +45,6 @@ case $CHOICE in
             bash -c "${ronin_mempool_menu}"
         else
             _print_message "Stopping Mempool Space Visualizer..."
-
             docker stop mempool_api mempool_db mempool_web 1>/dev/null
             _pause return
             bash -c "${ronin_mempool_menu}"
@@ -62,7 +60,6 @@ case $CHOICE in
             bash -c "${ronin_mempool_menu}"
         else
             _print_message "Restarting Mempool Space Visualizer..."
-
             docker stop mempool_api mempool_db mempool_web 1>/dev/null
             _sleep 5
 

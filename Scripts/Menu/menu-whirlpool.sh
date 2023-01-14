@@ -81,7 +81,6 @@ case $CHOICE in
             _print_message "Re-initiating Whirlpool will reset your mix count and generate new API key..."
             _sleep
             _print_message "Are you sure you want to re-initiate Whirlpool?"
-
             while true; do
                 read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
                 case $answer in
