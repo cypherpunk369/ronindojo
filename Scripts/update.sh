@@ -88,13 +88,7 @@ _update_37() {
 
             _load_user_conf
 
-            cat <<EOF
-${red}
-***
-Uninstalling Specter ${_specter_version:-$specter_version}...
-***
-${nc}
-EOF
+            _print_message "Uninstalling Specter ${_specter_version:-$specter_version}..."
 
             if systemctl is-active --quiet specter; then
                 sudo systemctl stop --quiet specter
