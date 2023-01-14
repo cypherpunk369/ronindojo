@@ -18,7 +18,7 @@ sudo systemctl stop --quiet whirlpool
 # if the sha256 hash does not match then warn corrupted/missing
 # download whirlpool cli using wget
 # if sha256 hash does not match, warn it failed to correct
-if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}')" != "${CLI_CHECKSUM}" ]; then
+if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}' || true)" != "${CLI_CHECKSUM}" ]; then
   _print_message "Corrupted/missing whirlpool binary, attempting to download..."
 
   if [ -f "${CLI_FILENAME}" ]; then
@@ -27,7 +27,7 @@ if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}')" != "${CLI_CHECKSUM}" ];
 
   wget -q --output-document="${CLI_FILENAME}" "https://github.com/Samourai-Wallet/whirlpool-client-cli/releases/download/${CLI_VERSION}/whirlpool-client-cli-${CLI_VERSION}-run.jar" 2>/dev/null
 
-  if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}')" != "${CLI_CHECKSUM}" ]; then
+  if [ "$(sha256sum "${CLI_FILENAME}" | awk '{print $1}' || true)" != "${CLI_CHECKSUM}" ]; then
     _print_message "Failed to correct corrupted/missing whirlpool binary..."
     _sleep 5 --msg "Returning to main menu in"
     ronin
