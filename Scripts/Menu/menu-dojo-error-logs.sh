@@ -32,9 +32,7 @@ case $CHOICE in
             cd "$dojo_path_my_dojo" || exit
             _print_message "Press Ctrl + C to exit at any time..."
             _sleep
-            ;;
-esac
-case $CHOICE in
+            ;;&
         1)
             ./dojo.sh logs bitcoind -n 200 | grep -i 'error'
             ;;
