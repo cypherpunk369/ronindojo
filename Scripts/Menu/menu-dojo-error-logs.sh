@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o pipefail
+
 # shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
