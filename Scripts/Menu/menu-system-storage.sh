@@ -28,12 +28,12 @@ case $CHOICE in
         _print_message "Showing Disk Space Info..."
         _sleep
 
-        sd_free_ratio=$(printf "%s" "$(df | grep "/$" | awk '{ print $4/$2*100 }')") 2>/dev/null
-        sd=$(printf "%s (%s%%)" "$(df -h | grep '/$' | awk '{ print $4 }')" "${sd_free_ratio}")
-        echo "Internal: ${sd} remaining"
-        hdd_free_ratio=$(printf "%s" "$(df  | grep "${install_dir}" | awk '{ print $4/$2*100 }')") 2>/dev/null
-        hdd=$(printf "%s (%s%%)" "$(df -h | grep "${install_dir}" | awk '{ print $4 }')" "${hdd_free_ratio}")
-        echo "External: ${hdd} remaining"
+        sd_free_ratio="$(df | grep "/$" | awk '{ print $4/$2*100 }' | tr -d '\n' 2>/dev/null)"
+        sd="$(df -h | grep '/$' | awk '{ print $4 }' | tr -d '\n' 2>/dev/null)"
+        echo "Internal: ${sd} (${sd_free_ratio}%) remaining"
+        hdd_free_ratio="$(df  | grep "${install_dir}" | awk '{ print $4/$2*100 }' | tr -d '\n'  2>/dev/null)" 
+        hdd="$(df -h | grep "${install_dir}" | awk '{ print $4 }' | tr -d '\n'  2>/dev/null)"
+        echo "External: ${hdd} (${hdd_free_ratio}%) remaining"
         # disk space info
 
         _pause return
