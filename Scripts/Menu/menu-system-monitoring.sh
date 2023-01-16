@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -o pipefail -o errtrace -o errexit -o nounset
+
 # shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
 
