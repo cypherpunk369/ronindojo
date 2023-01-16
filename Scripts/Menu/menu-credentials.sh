@@ -39,6 +39,7 @@ display_creds_whirlpool() {
 }
 
 display_creds_fulcrum() {
+    # shellcheck disable=SC2310
     if _is_fulcrum; then
         _print_message "Fulcrum Credentials" "Tor Address             =   ${tor_addr_fulcrum}"
         _print_message "Fulcrum Credentials" "Tor Port                =   ${tor_port_fulcrum}"
@@ -47,6 +48,7 @@ display_creds_fulcrum() {
 }
 
 display_creds_electrs() {
+    # shellcheck disable=SC2310
     if _is_electrs; then
         _print_message "Electrs Credentials" "Tor Address             =   ${tor_addr_electrs}"
         _print_message "Electrs Credentials" "Tor Port                =   ${tor_port_electrs}"
@@ -55,12 +57,14 @@ display_creds_electrs() {
 }
 
 display_creds_mempool() {
-    if _is_mempool ; then
+    # shellcheck disable=SC2310
+    if _is_mempool; then
         _print_message "Mempool Space Visualizer Credentials" "Tor Address             =   http://${tor_addr_mempool}"
     fi
 }
 
 display_creds_roninui() {
+    # shellcheck disable=SC2310
     _ronin_ui_credentials && cd "$HOME" || exit
     _print_message "Ronin UI Credentials" \
         "Local Access Domain     =   http://ronindojo.local" \
@@ -109,6 +113,7 @@ case $CHOICE in
             display_creds_whirlpool
             ;;
         3)
+            # shellcheck disable=SC2310
             if _is_fulcrum; then
                 display_creds_fulcrum
             elif _is_electrs; then
@@ -116,6 +121,7 @@ case $CHOICE in
             fi
             ;;
         4)
+            # shellcheck disable=SC2310
             if _is_mempool ; then
                 display_creds_mempool
             else
@@ -138,6 +144,7 @@ case $CHOICE in
             display_creds_roninui
             display_creds_bitcoin
             display_creds_mempool
+            # shellcheck disable=SC2310
             if _is_fulcrum; then
                 display_creds_fulcrum
             elif _is_electrs; then
