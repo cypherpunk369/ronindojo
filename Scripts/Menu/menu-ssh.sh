@@ -60,13 +60,16 @@ case $CHOICE in
         ;;
     4)
         # If already enabled, just return to menu
-        if _ssh_key_authentication enable; then
-            if _ssh_key_authentication add-ssh-key; then
+        _ssh_key_authentication enable
+        if [ $? -eq 0 ]; then
+            _ssh_key_authentication add-ssh-key
+            if [ $? -eq 0 ]; then
                 printf "%s\n***\nVerify connection now...\n***%s\n" "${red}" "${nc}"
 
                 _pause continue
 
-                if ! _yes_or_no "Did connection work?"; then
+                _yes_or_no "Did connection work?"
+                if [ $? -ne 0 ]; then
                     _ssh_key_authentication disable
                 fi
 
@@ -84,7 +87,8 @@ case $CHOICE in
         else
             printf "%s\n***\nDisabling SSH Key Authentication...\n***%s\n\n" "${red}" "${nc}"
 
-            if _yes_or_no "${red}Do you wish to continue?${nc}"; then
+            _yes_or_no "${red}Do you wish to continue?${nc}"
+            if [ $? -eq 0 ]; then
                 _ssh_key_authentication disable
             fi
         fi
@@ -96,7 +100,8 @@ case $CHOICE in
         if ! sudo grep -q "UsePAM no" /etc/ssh/sshd_config; then
             printf "%s\n***\nSSH Key Authentication not enabled! Returning to menu...\n***%s\n" "${red}" "${nc}"
         else
-            if _ssh_key_authentication add-ssh-key; then
+            _ssh_key_authentication add-ssh-key
+            if [ $? -eq 0 ]; then
                 printf "%s\n***\nKey successfully added... Returning to menu...\n***%s\n" "${red}" "${nc}"
             else
                 printf "%s\n***\nKey already exists... Returning to menu...\n***%s\n" "${red}" "${nc}"
@@ -110,7 +115,8 @@ case $CHOICE in
         if ! sudo grep -q "UsePAM no" /etc/ssh/sshd_config; then
             printf "%s\n***\nSSH Key Authentication not enabled! Returning to menu...\n***%s\n" "${red}" "${nc}"
         else
-            if _ssh_key_authentication del-ssh-key; then
+            _ssh_key_authentication del-ssh-key
+            if [ $? -eq 0 ]; then
                 printf "%s\n***\nKey has been removed... Returning to menu\n***%s\n" "${red}" "${nc}"
             else
                 printf "%s\n***\nKey not available to delete... Returning to menu\n***%s\n" "${red}" "${nc}"
