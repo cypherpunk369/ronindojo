@@ -11,6 +11,7 @@ upgrade=false
 volume_prune=false
 
 # Set mempool install/uninstall status
+# shellcheck disable=SC2310
 if ! _is_mempool; then
     is_mempool_installed=false
     mempool_text="Install"
@@ -20,6 +21,7 @@ else
 fi
 
 # Set Bisq install/uninstall status
+# shellcheck disable=SC2310
 if ! _is_bisq; then
     is_bisq_installed=false
     bisq_text="Enable"
@@ -60,7 +62,7 @@ do
                 _print_message "Installing Mempool Space Visualizer ${_mempool_version}..."
                 _mempool_conf
             else
-                _mempool_uninstall || exit
+                _mempool_uninstall
             fi
 
             upgrade=true
