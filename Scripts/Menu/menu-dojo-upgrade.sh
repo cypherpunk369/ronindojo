@@ -79,8 +79,10 @@ cd "${HOME}" || exit
 
 update_all_config_files
 
-if _is_mempool; then
-    _mempool_conf || exit
+_is_mempool
+if [ $? -eq 0 ]; then
+    _mempool_conf
+    test $? -eq 0 || exit
 fi
 
 # Set the addrindexrs option explicitly, otherwise migration ends up with defaults meaning electrs
@@ -114,7 +116,8 @@ fi
 
 # TODO: remove this code block
 
-if _is_bisq ; then
+_is_bisq
+if [ $? -eq 0 ]; then
     _bisq_install
 fi
 
