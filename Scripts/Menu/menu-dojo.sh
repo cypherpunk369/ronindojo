@@ -25,7 +25,8 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
         1)
-            if _is_dojo_running; then
+            _is_dojo_running
+            if [ $? -eq 0 ]; then
                 _print_message "Dojo is already started!"
                 _sleep
                 _pause return
