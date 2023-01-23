@@ -190,7 +190,8 @@ _rand_passwd() {
 #
 _load_user_conf() {
     if [ -f "${HOME}/.config/RoninDojo/user.conf" ]; then
-      . "${HOME}/.config/RoninDojo/user.conf"
+        # shellcheck disable=SC1091
+        . "${HOME}/.config/RoninDojo/user.conf"
     fi
 }
 
