@@ -270,8 +270,6 @@ _install_pkg_if_missing() {
     return 0
 }
 
-
-
 #
 # Countdown timer
 # Usage: _sleep <seconds> --msg "your message"
