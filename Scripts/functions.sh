@@ -66,7 +66,8 @@ EOF
         fi
 
         sudo gpasswd -a "${ronindojo_user}" docker
-        _sleep 5 --msg "Reloading RoninDojo in" && newgrp docker
+        _sleep 5 --msg "Reloading RoninDojo in"
+        newgrp docker
     fi
 
     # Remove any old legacy fstab entries when systemd.mount is enabled
