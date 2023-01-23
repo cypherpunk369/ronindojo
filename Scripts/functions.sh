@@ -70,17 +70,6 @@ EOF
         newgrp docker
     fi
 
-    # Remove any old legacy fstab entries when systemd.mount is enabled
-    if [ -f /etc/systemd/system/mnt-usb.mount ] || [ -f /etc/systemd/system/mnt-backup.mount ]; then
-        if [ "$(systemctl is-enabled mnt-usb.mount 2>/dev/null)" = "enabled" ] || [ "$(systemctl is-enabled mnt-backup.mount 2>/dev/null)" = "enabled" ]; then
-            _remove_fstab
-            if [ $? -ne 0 ]; then
-                _print_message "Removing legacy fstab entries and replacing with systemd mount service..."
-                _sleep 4 --msg "Starting RoninDojo in"
-            fi
-        fi
-    fi
-
     # Remove any legacy ipv6.disable entries from kernel line
     _remove_ipv6
     if [ $? -ne 0 ]; then
@@ -1239,19 +1228,6 @@ _start_dojo() {
 
     cd "${dojo_path_my_dojo}" || exit 1
     ./dojo.sh start
-
-    return 0
-}
-
-
-#
-# Remove old fstab entries in favor of systemd.mount.
-#
-_remove_fstab() {
-    if grep -E '(^UUID=.* /mnt/(usb1?|backup) ext4)' /etc/fstab 1>/dev/null; then
-        sudo sed -i '/\/mnt\/usb\|backup ext4/d' /etc/fstab
-        return 1
-    fi
 
     return 0
 }
