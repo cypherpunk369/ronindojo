@@ -22,7 +22,8 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        if ! _is_mempool ; then
+        _is_mempool
+        if [ $? -ne 0 ]; then
             _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
@@ -38,7 +39,8 @@ case $CHOICE in
         fi
         ;;
     2)
-        if ! _is_mempool ; then
+        _is_mempool
+        if [ $? -ne 0 ]; then
             _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
@@ -53,7 +55,8 @@ case $CHOICE in
         fi
         ;;
     3)
-        if ! _is_mempool ; then
+        _is_mempool
+        if [ $? -ne 0 ]; then
             _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
@@ -73,7 +76,8 @@ case $CHOICE in
         fi
         ;;
     4)
-        if ! _is_mempool ; then
+        _is_mempool
+        if [ $? -ne 0 ]; then
             _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
