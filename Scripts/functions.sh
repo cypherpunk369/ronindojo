@@ -290,6 +290,9 @@ _sleep() {
                 verbose=true
                 shift 2
                 ;;
+            *)
+                exit
+                ;;
         esac
     done
 
