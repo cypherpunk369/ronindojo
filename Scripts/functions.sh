@@ -118,10 +118,10 @@ _call_update_scripts() {
 _skip_update_scripts() {
     if [ ! -f "${ronin_data_dir}"/system-install ]; then
         for i in $(seq 1 9); do
-            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
+            echo "skipped" > "${HOME}/.config/RoninDojo/data/updates/0${i}-$(date +%m-%d-%Y)"
         done
         for i in $(seq 10 40); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
-            echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
+            echo "skipped" > "${HOME}"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
 }
