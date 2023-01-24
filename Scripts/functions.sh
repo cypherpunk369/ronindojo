@@ -446,11 +446,13 @@ HiddenServicePort 80 127.0.0.1:8470\n\
     fi
 
     # Populate or update "${ronin_data_dir}"/ronin-ui-tor-hostname with tor address
-    if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
-        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
-    elif ! sudo grep -q "$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)" "${ronin_data_dir}"/ronin-ui-tor-hostname; then
-        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
+    if [ -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
+        ronin_hostname="$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)"
+        sudo grep -q "${ronin_hostname}" "${ronin_data_dir}/ronin-ui-tor-hostname"
+        test $? -eq 0 && return
     fi
+
+    sudo cat ${install_dir_tor}/hidden_service_ronin_backend/hostname | sudo tee "${ronin_data_dir}/ronin-ui-tor-hostname" > /dev/null
 }
 
 #
