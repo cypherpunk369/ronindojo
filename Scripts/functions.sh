@@ -131,7 +131,7 @@ $1
 ${nc}
 EOF
     while [ $# -gt 1 ]; do
-        echo $2
+        echo "${2}"
         shift 1
     done
 }
@@ -547,7 +547,7 @@ _ronin_ui_install() {
     wget -q https://ronindojo.io/downloads/RoninUI/"$_file" 2>/dev/null
 
     if ! echo "${_shasum} ${_file}" | sha256sum --check --status; then
-        _bad_shasum=$(sha256sum ${_file})
+        _bad_shasum=$(sha256sum "${_file}")
         _print_error_message "Ronin UI archive verification failed! Valid sum is ${_shasum}, got ${_bad_shasum} instead..."
     fi
 
@@ -2178,25 +2178,25 @@ _uninstall_network_check_service() {
 # Function name and body copied from SamouraiWallet's dojo repo, file /docker/my-dojo/install/upgrade-script.sh
 #
 update_config_file() {
-  if [ -f $1 ]; then
-    sed "s/^#.*//g;s/=.*//g;/^$/d" $1 > ./original.keys.raw
-    grep -f ./original.keys.raw $1 > ./original.lines.raw
+  if [ -f "${1}" ]; then
+    sed "s/^#.*//g;s/=.*//g;/^$/d" "${1}" > ./original.keys.raw
+    grep -f ./original.keys.raw "${1}" > ./original.lines.raw
 
-    cp -p $1 "$1.save"
-    cp -p $2 $1
+    cp -p "${1}" "${1}.save"
+    cp -p "${2}" "${1}"
 
     while IFS='=' read -r key val ; do
       if [[ $OSTYPE == darwin* ]]; then
-        sed -i "" "s~$key=.*~$key=$val~g" "$1"
+        sed -i "" "s~$key=.*~$key=$val~g" "${1}"
       else
-        sed -i "s~$key=.*~$key=$val~g" "$1"
+        sed -i "s~$key=.*~$key=$val~g" "${1}"
       fi
     done < ./original.lines.raw
 
     rm ./original.keys.raw
     rm ./original.lines.raw
   else
-    cp $2 $1
+    cp "${2}" "${1}"
   fi
 }
 
