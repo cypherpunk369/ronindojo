@@ -346,11 +346,9 @@ _start_service() {
 # Starts systemd unit service if inactive
 #
 _start_service_if_inactive() {
-    local service
-    service="$1"
-
-    if ! _is_active "$service"; then
-        _start_service "$service"
+    _is_active "${1}"
+    if [ $? -ne 0 ]; then
+        _start_service "${1}"
     fi
 }
 
