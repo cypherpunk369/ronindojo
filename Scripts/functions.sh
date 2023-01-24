@@ -834,16 +834,19 @@ _fan_control_install() {
     else
         sudo systemctl stop --quiet bbbfancontrol
 
-        if ! _fan_control_upgrade; then
+        _fan_control_upgrade
+        if [ $? -ne 0 ]; then
             return 1
         fi
 
         upgrade=true
     fi
 
-    _fan_control_compile || return 1
+    _fan_control_compile
+    test $? -eq 0 || return 1
 
-    _fan_control_unit_file || return 1
+    _fan_control_unit_file
+    test $? -eq 0 || return 1
 
     _start_service_if_inactive bbbfancontrol
 
@@ -860,7 +863,8 @@ _fan_control_install() {
 # Install fan control for rockchip boards
 #
 _fan_control_uninstall() {
-    if _is_fan_control_installed && [ -f /etc/systemd/system/bbbfancontrol.service ]; then
+    _is_fan_control_installed
+    if  [ $? -eq 0 ] && [ -f /etc/systemd/system/bbbfancontrol.service ]; then
 
         sudo systemctl stop --quiet bbbfancontrol
 
