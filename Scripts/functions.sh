@@ -378,9 +378,9 @@ _setup_tor() {
     fi
 
     # Check for ownership
-    if ! [ "$(stat -c "%U" "${install_dir_tor}")" = "tor" ]; then
-        sudo chown -R tor:tor "${install_dir_tor}"
-    fi
+    tor_install_dir_owner="$(stat -c "%U" "${install_dir_tor}")"
+    test "${tor_install_dir_owner}" = "tor" || sudo chown -R tor:tor "${install_dir_tor}"
+    
 
     # Check for proper torrc settings.
     if ! grep "User tor" /etc/tor/torrc; then
