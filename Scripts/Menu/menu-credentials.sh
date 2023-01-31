@@ -56,7 +56,7 @@ display_creds_roninui() {
     _ronin_ui_credentials && cd "$HOME" || exit
     _print_message "Ronin UI Credentials" \
         "Local Access Domain     =   http://ronindojo.local" \
-        "Local Access IP         =   http://${ip} # fallback for when ronindojo.local doesn't work for you." \
+        "Local Access IP         =   http://${ip_current} # fallback for when ronindojo.local doesn't work for you." \
         "Tor Address             =   http://${BACKEND_TOR}"
 }
 
