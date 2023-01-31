@@ -187,7 +187,7 @@ if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # 
     test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
     sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
 
-    _print_message "Addrindexrs data prepared for salvage!"
+    _print_message "Indexer data prepared for salvage!"
 
 elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
 
