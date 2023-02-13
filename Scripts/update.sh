@@ -276,3 +276,13 @@ _update_39() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/39-"$(date +%m-%d-%Y)"
 }
+
+# The last 1.x update ever
+_update_40() {
+
+    #pseudo: update user.conf to point to an end-of-life branch
+    #pseudo: switch to the end-of-life branch
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/40-"$(date +%m-%d-%Y)"
+}
