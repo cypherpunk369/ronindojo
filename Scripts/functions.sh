@@ -240,24 +240,12 @@ _install_pkg_if_missing() {
         _apt_update
     fi
 
-    update_keyring=true
-
     for pkg in "$@"; do
-        if ! pacman -Q "${pkg}" 1>/dev/null 2>/dev/null; then
-
-            if [ $update_keyring = true ]; then
-                update_keyring=false
-                _print_message "Updating keyring..."
-
-                if ! sudo pacman --quiet -S --noconfirm archlinux-keyring &>/dev/null; then
-                    _print_error_message "Keyring failed to update!"
-                    return 1
-                fi
-            fi
+        if ! sudo apt list --installed "${pkg}" 1>/dev/null 2>/dev/null; then
 
             _print_message "Installing ${pkg}..."
 
-            if ! sudo pacman --quiet -S --noconfirm "${pkg}" &>/dev/null; then
+            if ! sudo apt-get -y install"${pkg}" &>/dev/null; then
                 _print_error_message "${pkg} failed to install!"
                 return 1
             fi
