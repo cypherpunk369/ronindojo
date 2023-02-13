@@ -147,7 +147,7 @@ EOF
 
 
 #
-# Update pacman mirrors
+# Update package listings
 #
 _apt_update() {
     sudo apt-get -y update &>/dev/null
