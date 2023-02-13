@@ -23,7 +23,7 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        _pacman_update_mirrors
+        _apt_update
         # Update Mirrors and continue.
 
         _pause return
@@ -89,7 +89,7 @@ Updating Arch OS Mirrors, Please wait...
 ${nc}
 EOF
         # Update Mirrors
-        _pacman_update_mirrors
+        _apt_update
 
         cat <<EOF
 ${red}

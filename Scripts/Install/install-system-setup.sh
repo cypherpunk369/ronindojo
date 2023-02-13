@@ -73,7 +73,7 @@ if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
     sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
 fi
 
-_pacman_update_mirrors
+_apt_update
 
 _print_message "Checking package dependencies. Please wait..."
 

@@ -149,8 +149,8 @@ EOF
 #
 # Update pacman mirrors
 #
-_pacman_update_mirrors() {
-    sudo pacman --quiet -Syy &>/dev/null
+_apt_update() {
+    sudo apt update &>/dev/null
     return 0
 }
 
@@ -237,7 +237,7 @@ _install_pkg_if_missing() {
             echo "No packages supplied as arguments"
         fi
         shift
-        _pacman_update_mirrors
+        _apt_update
     fi
 
     update_keyring=true
