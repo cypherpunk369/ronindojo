@@ -24,15 +24,10 @@ declare -A package_dependencies=(
     [unzip]=unzip
     [which]=which
     [wget]=wget
-    [docker]=docker
-    [docker-compose]=docker-compose
     [ufw]=ufw
     [rsync]=rsync
-    [node]=nodejs-lts-fermium
-    [npm]=npm
     [jq]=jq
     [pipenv]=python-pipenv
-    [sgdisk]=gptfdisk
     [gcc]=gcc
 )
 
