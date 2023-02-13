@@ -117,10 +117,10 @@ EOF
 
         # Check for package dependencies
         for pkg in go gcc; do
-            _check_pkg "${pkg}"
+            _install_pkg_if_missing "${pkg}"
         done
 
-        _check_pkg "ldd" "glibc"
+        _install_pkg_if_missing "ldd" "glibc"
 
         if [ ! -f /etc/systemd/system/bbbfancontrol.service ]; then
             cat <<EOF

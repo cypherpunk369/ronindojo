@@ -222,46 +222,6 @@ EOF
 }
 
 #
-# DEPRECATED, USE _install_pkg_if_missing
-# Check if package is installed or not
-#
-_check_pkg() {
-    local pkg_bin pkg_name update
-    pkg_bin="${1}"
-    pkg_name="${2:-$1}"
-    update=false
-
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --update-mirrors)
-                update=true
-                break
-                ;;
-            *)
-                shift 1
-                ;;
-        esac
-    done
-
-    [ "${pkg_name}" = "--update-mirrors" ] && pkg_name="${pkg_bin}"
-
-    "${update}" && _pacman_update_mirrors
-
-    if ! hash "${pkg_bin}" 2>/dev/null; then
-        _print_message "Installing ${pkg_name}..."
-        if ! sudo pacman --quiet -S --noconfirm "${pkg_name}" &>/dev/null; then
-            _print_error_message "${pkg_name} failed to install!"
-            return 1
-        else
-            return 0
-        fi
-    fi
-
-    return 1
-}
-
-#
 # Installs a package if not yet installed, return false if an install failed.
 # Usage: _install_pkg_if_missing [--update-mirrors] package1 [pacakge2[..]]
 #
@@ -535,9 +495,9 @@ _ronin_ui_install() {
     _print_message "Checking package dependencies for Ronin UI..."
     _sleep
 
-    _check_pkg "nginx"
-    _check_pkg "pm2"
-    _check_pkg "avahi-daemon" "avahi"
+    _install_pkg_if_missing "nginx"
+    _install_pkg_if_missing "pm2"
+    _install_pkg_if_missing "avahi-daemon" "avahi"
 
     sudo npm i -g pnpm@7 &>/dev/null
 
@@ -1516,7 +1476,7 @@ _install_wst(){
     # Download whirlpool stat tool
 
     # Check for python-pip and install if not found
-    _check_pkg "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv" "python-pipenv"
 
     cd Whirlpool-Stats-Tool || exit
 
@@ -1541,7 +1501,7 @@ _install_boltzmann(){
     _print_message "Checking package dependencies..."
 
     # Check for package dependency
-    _check_pkg "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv" "python-pipenv"
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.

@@ -78,7 +78,7 @@ _pacman_update_mirrors
 _print_message "Checking package dependencies. Please wait..."
 
 for pkg in "${!package_dependencies[@]}"; do
-    _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
+    _install_pkg_if_missing "${pkg}" "${package_dependencies[$pkg]}"
 done
 
 # TODO: replace this with use of _install_pkg_if_missing
