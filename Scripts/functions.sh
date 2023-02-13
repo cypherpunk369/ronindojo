@@ -257,22 +257,6 @@ _install_pkg_if_missing() {
 
 
 #
-# Package version match
-#
-_check_pkg_ver() {
-    local pkgver pkg
-
-    pkgver="${2}"
-    pkg="${1}"
-
-    if pacman -Q "${pkg}" &>/dev/null && [[ $(pacman -Q "${pkg}" | awk '{print$2}') < "${pkgver}" ]]; then
-        return 1
-    fi
-
-    return 0
-}
-
-#
 # Countdown timer
 # Usage: _sleep <seconds> --msg "your message"
 #
