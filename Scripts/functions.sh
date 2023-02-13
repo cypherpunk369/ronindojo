@@ -150,7 +150,7 @@ EOF
 # Update pacman mirrors
 #
 _apt_update() {
-    sudo apt update &>/dev/null
+    sudo apt-get -y update &>/dev/null
     return 0
 }
 
