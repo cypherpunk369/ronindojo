@@ -253,3 +253,16 @@ _update_36(){
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/36-"$(date +%m-%d-%Y)"
 }
+
+_update_38(){
+    
+    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+        sudo sed -i "s/^#IgnorePkg   =.*$/IgnorePkg   = ${pkg_ignore[*]}/" /etc/pacman.conf
+    else
+        sudo sed -i "/^IgnorePkg/ s/$/ linux linux-headers linux-firmware/" /etc/pacman.conf
+    fi
+
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/38-"$(date +%m-%d-%Y)"
+}
