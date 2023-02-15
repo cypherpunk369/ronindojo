@@ -69,10 +69,6 @@ fi
 # FIXING DEPENDENCIES #
 #######################
 
-if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
-    sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-fi
-
 _apt_update
 
 _print_message "Checking package dependencies. Please wait..."
@@ -81,11 +77,11 @@ for pkg in "${!package_dependencies[@]}"; do
     _install_pkg_if_missing "${pkg}" "${package_dependencies[$pkg]}"
 done
 
-# TODO: replace this with use of _install_pkg_if_missing
-if ! pacman -Q libusb 1>/dev/null; then
-    _print_message "Installing libusb..."
-    sudo pacman --quiet -S --noconfirm libusb
-fi
+# TODO: verify if this is even needed any more.
+#if ! pacman -Q libusb 1>/dev/null; then
+#    _print_message "Installing libusb..."
+#    sudo pacman --quiet -S --noconfirm libusb
+#fi
 
 
 ###############################
