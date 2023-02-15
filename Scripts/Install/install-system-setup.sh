@@ -77,12 +77,6 @@ for pkg in "${!package_dependencies[@]}"; do
     _install_pkg_if_missing "${pkg}" "${package_dependencies[$pkg]}"
 done
 
-# TODO: verify if this is even needed any more.
-#if ! pacman -Q libusb 1>/dev/null; then
-#    _print_message "Installing libusb..."
-#    sudo pacman --quiet -S --noconfirm libusb
-#fi
-
 
 ###############################
 # SETTING UP SECURITY PROFILE #
