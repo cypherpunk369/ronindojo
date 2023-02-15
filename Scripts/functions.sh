@@ -233,7 +233,6 @@ EOF
 # Usage: _install_pkg_if_missing [--update-mirrors] package1 [pacakge2[..]]
 #
 _install_pkg_if_missing() {
-    local update_keyring
 
     if [ $# -eq 0 ]; then
         echo "No arguments supplied"
