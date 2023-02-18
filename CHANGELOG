@@ -12,7 +12,10 @@ RoninDojo v1.15.1 Change Log
   - Updated addrindexrs to 0.6.0
   - updated mariadb(tracker) to 10.7.1
   - A fix so that it doesn't matter if the newer or older docker compose CLI api is present
-- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1, BrotherRabbit
+- An additional update in RoninDojo's fork of dojo, updating WhirlPool to 0.10.16
+- Some UX improvements
+- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1, BrotherRabbit, KYC3, OrangedMike, Din
+- Honorable Mentions: ZeroLeak
 
 RoninDojo v1.15.0 Change Log
 - Fixed backup drive feature
