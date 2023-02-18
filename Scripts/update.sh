@@ -254,6 +254,7 @@ _update_36(){
     touch "$HOME"/.config/RoninDojo/data/updates/36-"$(date +%m-%d-%Y)"
 }
 
+# Fixes not being able to update the system because manjaro broke it
 _update_38(){
     
     if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
@@ -265,4 +266,12 @@ _update_38(){
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/38-"$(date +%m-%d-%Y)"
+}
+
+# Reinstalls the GPIO with the contemporary additions for tanto 2.x
+_update_39() {
+    _install_gpio
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/39-"$(date +%m-%d-%Y)"
 }
