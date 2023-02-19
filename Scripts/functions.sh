@@ -9,11 +9,6 @@
 #
 _main() {
 
-    # pseudo: if this is a fresh install and on manjaro,
-    #   then switch from the master branch to the end-of-life branch
-    #   and recall this function on the new codebase
-    #   and then exit to prevent further code execution here
-
     # Create RoninDojo config directory
     test ! -d "$HOME"/.config/RoninDojo && mkdir -p "$HOME"/.config/RoninDojo
 
@@ -26,6 +21,14 @@ _main() {
 
         # Copy user.conf
         test -f "$HOME"/.config/RoninDojo/user.conf || cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
+    fi
+
+    # Setup Manjaro users into the utility branch
+    if [ ! -f "${ronin_data_dir}"/system-install ]; then
+        if [ -f /etc/lbs-release ] && grep "Manjaro" "/etc/lsb-release"; then
+            . "$HOME"/RoninDojo/Scripts/update.sh
+            _update_40
+        fi
     fi
 
     # Execute the update scripts (this call here is to be removed in the next release after 1.14)

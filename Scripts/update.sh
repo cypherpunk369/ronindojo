@@ -280,9 +280,14 @@ _update_39() {
 # The last 1.x update ever
 _update_40() {
 
-    #pseudo: update user.conf to point to an end-of-life branch
-    #pseudo: switch to the end-of-life branch
+    sed -i 's/^samourai_commitish/#samourai_commitish/' "${HOME}/.config/RoninDojo/user.conf" # let the samoura_commitish be decided by the RD branch
+    sed -i 's/#ronin_dojo_branch/ronin_dojo_branch/' "${HOME}/.config/RoninDojo/user.conf" # uncomment the line
+
+    sed -i 's/ronin_dojo_branch=.*/ronin_dojo_branch="origin/utility/E-1"/' "${HOME}/.config/RoninDojo/user.conf"
+
+    _ronindojo_update
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/40-"$(date +%m-%d-%Y)"
+
 }
