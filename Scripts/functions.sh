@@ -514,6 +514,11 @@ _ronin_ui_install() {
         echo -e "VERSION_CHECK=staging\n" >> .env
     fi
 
+    # check if pm2 is installed. if it isn't then install it.
+    if [ ! -f /usr/lib/node_modules/pm2/bin/pm2 ]; then
+        sudo npm install -g pm2
+    fi
+
     _print_message "Performing pnpm install, please wait..."
 
     pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
@@ -578,8 +583,8 @@ _ronin_ui_vhost() {
         _tor_hostname=$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)
 
         test -d /etc/nginx/sites-enabled || sudo mkdir /etc/nginx/sites-enabled
-        test -d /var/log/nginx || sudo mkdir /var/log/nginx
-        test -d /etc/nginx/logs || sudo mkdir /etc/nginx/logs
+        test -d /var/log/nginx || sudo mkdir -p /var/log/nginx
+        test -d /etc/nginx/logs || sudo mkdir -p /etc/nginx/logs
 
         # Generate nginx.conf
         sudo tee "/etc/nginx/nginx.conf" <<EOF >/dev/null
@@ -682,6 +687,11 @@ EOF
 
         # Reload nginx server
         sudo systemctl reload --quiet nginx
+    fi
+
+    # add check otherwise remove. Causes a failure for nginx.service
+    if [ -f /etc/nginx/sites-enabled/default]; then
+        sudo rm -rf /etc/nginx/sites-enabled/default
     fi
 
     # Enable nginx on boot
@@ -1836,8 +1846,8 @@ After=multi-user.target
 User=root
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py
-ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py
+ExecStart=/bin/python3 ${ronin_gpio_data_dir}/turn.LED.on.py
+ExecStop=/bin/python3 ${ronin_gpio_data_dir}/turn.LED.off.py
 WorkingDirectory=${ronin_gpio_data_dir}
 Restart=on-failure
 RestartSec=30
