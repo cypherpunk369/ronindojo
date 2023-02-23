@@ -4,10 +4,14 @@
 # shellcheck source=./Scripts/defaults.sh
 . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
+set -ex
+
 #
 # Main function runs at beginning of script execution
 #
 _main() {
+
+    set -ex
 
     # Create RoninDojo config directory
     test ! -d "$HOME"/.config/RoninDojo && mkdir -p "$HOME"/.config/RoninDojo
