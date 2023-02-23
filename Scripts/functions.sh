@@ -383,10 +383,14 @@ _setup_tor() {
 
     # Check for ownership
     if ! [ "$(stat -c "%U" "${install_dir_tor}")" = "tor" ]; then
-        sudo chown -R tor:tor "${install_dir_tor}"
+        sudo chown -R tor:tor "${install_dir_tor}" 
     fi
 
-    if ! systemctl is-active --quiet tor; then
+    #checks if the proper tor user (ie "tor") is assigned in debian installed torrc, otherwise 
+    if ! grep "User tor" /user/share/tor/tor-service-defaults-torrc 1>/dev/null; then
+        sudo sed -i 's:^User.*$:User tor:' /usr/share/tor/tor-service-defaults-torrc
+        sudo sed -i 's:^DataDirectory /var/log/tor.*$:DataDirectory /mnt/usb/tor:' /usr/share/tor/tor-service-defaults-torrc
+        sudo sed -i 's:^ExecStartPre=/usr/bin/install.*$:ExecStartPre=/usr/bin/install -Z -m 02755 -o tor -g tor -d /run/tor:' /usr/lib/systemd/system/tor@default.service
         sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor@default.service
         sudo systemctl daemon-reload
         sudo systemctl restart --quiet tor
@@ -1257,6 +1261,8 @@ _ronindojo_update() {
 # Docker Data Directory
 #
 _docker_datadir_setup() {
+    _load_user_conf
+
     _print_message "Now configuring docker to use the external SSD..."
     test -d "${install_dir_docker}" || sudo mkdir "${install_dir_docker}"
     # makes directory to store docker/dojo data
@@ -1283,6 +1289,9 @@ EOF"
     if ! sudo systemctl is-enabled --quiet docker; then
         sudo systemctl enable --quiet docker
     fi
+
+    # Make sure ronindojo user is part of docker group
+    sudo usermod -aG docker "$USER"
 
     return 0
 }
