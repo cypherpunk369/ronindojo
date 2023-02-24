@@ -75,8 +75,8 @@ _apt_update
 
 _print_message "Checking package dependencies. Please wait..."
 
-for pkg in "${!package_dependencies[@]}"; do
-    _install_pkg_if_missing "${pkg}" "${package_dependencies[$pkg]}"
+for pkg in "${package_dependencies[@]}"; do
+    _install_pkg_if_missing "${pkg}"
 done
 
 

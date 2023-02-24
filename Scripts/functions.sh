@@ -254,14 +254,11 @@ _install_pkg_if_missing() {
     fi
 
     for pkg in "$@"; do
-        if ! sudo apt list --installed "${pkg}" 1>/dev/null 2>/dev/null; then
+        _print_message "Installing ${pkg}..."
 
-            _print_message "Installing ${pkg}..."
-
-            if ! sudo apt-get -y install"${pkg}" &>/dev/null; then
-                _print_error_message "${pkg} failed to install!"
-                return 1
-            fi
+        if ! sudo apt-get -y install "${pkg}" &>/dev/null; then
+            _print_error_message "${pkg} failed to install!"
+            return 1
         fi
     done
 
