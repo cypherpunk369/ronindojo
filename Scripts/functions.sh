@@ -482,10 +482,11 @@ _ronin_ui_install() {
     _sleep
 
     _install_pkg_if_missing "nginx"
-    _install_pkg_if_missing "pm2"
-    _install_pkg_if_missing "avahi-daemon" "avahi"
+    _install_pkg_if_missing "avahi-daemon"
 
     sudo npm i -g pnpm@7 &>/dev/null
+
+    sudo npm install pm2 -g
 
     test -d "${ronin_ui_path}" || mkdir "${ronin_ui_path}"
     cd "${ronin_ui_path}" || exit
@@ -517,11 +518,6 @@ _ronin_ui_install() {
 
     if [ "${roninui_version_staging}" = true ] ; then
         echo -e "VERSION_CHECK=staging\n" >> .env
-    fi
-
-    # check if pm2 is installed. if it isn't then install it.
-    if [ ! -f /usr/lib/node_modules/pm2/bin/pm2 ]; then
-        sudo npm install -g pm2
     fi
 
     _print_message "Performing pnpm install, please wait..."
