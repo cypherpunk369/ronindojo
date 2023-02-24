@@ -11,10 +11,9 @@ fi
 # Package dependencies associative array
 #
 declare -A package_dependencies=(
-    [avahi-daemon]=avahi
-    [pm2]=pm2
+    [avahi-daemon]=avahi-daemon
     [nginx]=nginx
-    [java]=jdk11-openjdk
+    [java]=openjdk-11-jdk
     [tor]=tor
     [python3]=python3
     [fail2ban-python]=fail2ban
@@ -22,12 +21,11 @@ declare -A package_dependencies=(
     [htop]=htop
     [vim]=vim
     [unzip]=unzip
-    [which]=which
     [wget]=wget
     [ufw]=ufw
     [rsync]=rsync
     [jq]=jq
-    [pipenv]=python-pipenv
+    [pipenv]=pipenv
     [gcc]=gcc
 )
 
