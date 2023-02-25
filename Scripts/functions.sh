@@ -393,7 +393,11 @@ _setup_tor() {
         sudo sed -i 's:^DataDirectory /var/log/tor.*$:DataDirectory /mnt/usb/tor:' /usr/share/tor/tor-service-defaults-torrc
         sudo sed -i 's:^ExecStartPre=/usr/bin/install.*$:ExecStartPre=/usr/bin/install -Z -m 02755 -o tor -g tor -d /run/tor:' /usr/lib/systemd/system/tor@default.service
         sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor@default.service
+        sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\ r, \
+            owner \/mnt\/usb\/tor\/\* w, \
+            owner \/mnt\/usb\/tor\/\*\* rwk,' /etc/apparmor.d/system_tor
         sudo systemctl daemon-reload
+        sudo systemctl restart --quiet apparmor
         sudo systemctl restart --quiet tor
     fi
 
@@ -530,7 +534,7 @@ _ronin_ui_install() {
     pm2 save
     pm2 startup
 
-    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "${ronindojo_user}" --hp "$HOME" &>/dev/null
+    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" &>/dev/null
 
     _ronin_ui_setup_tor
 
