@@ -393,9 +393,9 @@ _setup_tor() {
         sudo sed -i 's:^DataDirectory /var/log/tor.*$:DataDirectory /mnt/usb/tor:' /usr/share/tor/tor-service-defaults-torrc
         sudo sed -i 's:^ExecStartPre=/usr/bin/install.*$:ExecStartPre=/usr/bin/install -Z -m 02755 -o tor -g tor -d /run/tor:' /usr/lib/systemd/system/tor@default.service
         sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor@default.service
-        sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\ r, \
-            owner \/mnt\/usb\/tor\/\* w, \
-            owner \/mnt\/usb\/tor\/\*\* rwk,' /etc/apparmor.d/system_tor
+        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\ r,' /etc/apparmor.d/system_tor
+        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\* w,' /etc/apparmor.d/system_tor
+        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\*\* rwk,' /etc/apparmor.d/system_tor
         sudo systemctl daemon-reload
         sudo systemctl restart --quiet apparmor
         sudo systemctl restart --quiet tor
