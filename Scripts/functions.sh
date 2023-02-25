@@ -526,9 +526,9 @@ _ronin_ui_install() {
 
     _print_message "Performing Next start, please wait..."
 
-    pm2 start pm2.config.js &>/dev/null
-    pm2 save &>/dev/null
-    pm2 startup &>/dev/null
+    pm2 start pm2.config.js
+    pm2 save
+    pm2 startup
 
     sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "${ronindojo_user}" --hp "$HOME" &>/dev/null
 
