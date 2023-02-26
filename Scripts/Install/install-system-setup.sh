@@ -320,4 +320,6 @@ _docker_datadir_setup
 _create_dir "${ronin_data_dir}"
 touch "${ronin_data_dir}"/system-install
 _print_message "Dojo is ready to be installed!"
-[ $# -eq 0 ] && _pause continue
+if [ $# -eq 0 ]; then
+  _pause continue
+fi
