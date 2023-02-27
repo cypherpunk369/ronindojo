@@ -1501,7 +1501,7 @@ _install_boltzmann(){
     _print_message "Checking package dependencies..."
 
     # Check for package dependency
-    _install_pkg_if_missing "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv"
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
