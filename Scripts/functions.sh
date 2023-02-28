@@ -387,17 +387,16 @@ _setup_tor() {
         sudo chown -R tor:tor "${install_dir_tor}" 
     fi
 
-    #checks if the proper tor user (ie "tor") is assigned in debian installed torrc, otherwise 
-    if ! grep "User tor" /user/share/tor/tor-service-defaults-torrc 1>/dev/null; then
-        sudo sed -i 's:^User.*$:User tor:' /usr/share/tor/tor-service-defaults-torrc
-        sudo sed -i 's:^DataDirectory /var/log/tor.*$:DataDirectory /mnt/usb/tor:' /usr/share/tor/tor-service-defaults-torrc
-        sudo sed -i 's:^ExecStartPre=/usr/bin/install.*$:ExecStartPre=/usr/bin/install -Z -m 02755 -o tor -g tor -d /run/tor:' /usr/lib/systemd/system/tor@default.service
-        sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor@default.service
-        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\ r,' /etc/apparmor.d/system_tor
-        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\* w,' /etc/apparmor.d/system_tor
-        sudo sed -i '/  owner \/var\/lib\/tor\/\*\*/i \  owner \/mnt\/usb\/tor\/\*\* rwk,' /etc/apparmor.d/system_tor
+    # Check for proper torrc settings.
+    if ! grep "User tor" /etc/tor/torrc; then
+        sudo sed -i '$a\User tor\nDataDirectory /mnt/usb/tor' /etc/tor/torrc
+    fi
+
+    #checks if the proper tor.service, otherwise replace with ours. 
+    ##TODO: Determine if this revents on upgrades.
+    if ! grep "/usr/bin/tor -f /etc/tor/torrc --verify-config" /usr/lib/systemd/system/tor.service 1>/dev/null; then
+        sudo cp "${ronin_dir}"/example.tor.service /usr/lib/systemd/system/tor.service
         sudo systemctl daemon-reload
-        sudo systemctl restart --quiet apparmor
         sudo systemctl restart --quiet tor
     fi
 
