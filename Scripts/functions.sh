@@ -690,10 +690,11 @@ EOF
 
         # Reload nginx server
         sudo systemctl reload --quiet nginx
+        sudo systemctl restart nginx
     fi
 
     # add check otherwise remove. Causes a failure for nginx.service
-    if [ -f /etc/nginx/sites-enabled/default]; then
+    if [ -f /etc/nginx/sites-enabled/default ]; then
         sudo rm -rf /etc/nginx/sites-enabled/default
     fi
 
