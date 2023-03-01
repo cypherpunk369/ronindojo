@@ -396,6 +396,7 @@ _setup_tor() {
     ##TODO: Determine if this revents on upgrades.
     if ! grep "/usr/bin/tor -f /etc/tor/torrc --verify-config" /usr/lib/systemd/system/tor.service 1>/dev/null; then
         sudo cp "${ronin_dir}"/example.tor.service /usr/lib/systemd/system/tor.service
+        sudo rm -rf /usr/lib/systemd/system/tor@* #remove unnecessary debian installed services
         sudo systemctl daemon-reload
         sudo systemctl restart --quiet tor
     fi
