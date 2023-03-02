@@ -51,6 +51,8 @@ _sleep 3 --msg "Installing in"
 _print_message "Installing RoninUI..."
 if [ ! -d "${ronin_ui_path}" ]; then
     _ronin_ui_install
+else
+    pm2 resurrect
 fi
 _install_gpio
 
