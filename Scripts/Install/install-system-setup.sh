@@ -71,13 +71,13 @@ fi
 # FIXING DEPENDENCIES #
 #######################
 
-_apt_update
+#_apt_update
 
-_print_message "Checking package dependencies. Please wait..."
+#_print_message "Checking package dependencies. Please wait..."
 
-for pkg in "${package_dependencies[@]}"; do
-    _install_pkg_if_missing "${pkg}"
-done
+#for pkg in "${package_dependencies[@]}"; do
+#    _install_pkg_if_missing "${pkg}"
+#done
 
 
 ###############################
