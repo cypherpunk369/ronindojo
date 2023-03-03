@@ -471,6 +471,27 @@ _is_ronin_ui() {
     return 0
 }
 
+_ronin_debian_ui() {
+    _print_message "Performing pnpm install, please wait..."
+
+    pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+
+    _print_message "Performing Next start, please wait..."
+    pm2 start pm2.config.js
+    pm2 save
+    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" &>/dev/null
+
+    if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
+        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
+    elif ! sudo grep -q "$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)" "${ronin_data_dir}"/ronin-ui-tor-hostname; then
+        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
+    fi
+
+    _ronin_ui_vhost
+  
+    sudo systemctl restart nginx
+}
+
 #
 # Install Ronin UI
 #

@@ -52,7 +52,7 @@ _print_message "Installing RoninUI..."
 if [ ! -d "${ronin_ui_path}" ]; then
     _ronin_ui_install
 else
-    pm2 resurrect
+    _ronin_debian_ui
 fi
 _install_gpio
 
