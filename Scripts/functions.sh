@@ -164,7 +164,7 @@ EOF
 # Update package listings
 #
 _apt_update() {
-    sudo apt-get -y update &>/dev/null
+    sudo apt-get -y update 
     return 0
 }
 
@@ -256,7 +256,7 @@ _install_pkg_if_missing() {
     for pkg in "$@"; do
         _print_message "Installing ${pkg}..."
 
-        if ! sudo apt-get -y install "${pkg}" &>/dev/null; then
+        if ! sudo apt-get -y install "${pkg}" ; then
             _print_error_message "${pkg} failed to install!"
             return 1
         fi
@@ -314,7 +314,7 @@ _systemd_unit_exist() {
     local service
     service="$1"
 
-    if systemctl cat -- "$service" &>/dev/null; then
+    if systemctl cat -- "$service" ; then
         return 0
     else
         return 1
@@ -459,7 +459,7 @@ HiddenServicePort 80 127.0.0.1:8470\n\
 }
 
 #
-# Check Ronin UI Installation
+# Check Ronin UI Installationrand
 #
 _is_ronin_ui() {
     _load_user_conf
@@ -472,14 +472,17 @@ _is_ronin_ui() {
 }
 
 _ronin_debian_ui() {
+    
+    cd "${ronin_ui_path}"
+
     _print_message "Performing pnpm install, please wait..."
 
-    pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+    pnpm install --prod  || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
     _print_message "Performing Next start, please wait..."
     pm2 start pm2.config.js
     pm2 save
-    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" &>/dev/null
+    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
 
     if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
         sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
@@ -509,7 +512,7 @@ _ronin_ui_install() {
     _install_pkg_if_missing "nginx"
     _install_pkg_if_missing "avahi-daemon"
 
-    sudo npm i -g pnpm@7 &>/dev/null
+    sudo npm i -g pnpm@7 
 
     #sudo npm install pm2 -g
 
@@ -547,13 +550,13 @@ _ronin_ui_install() {
 
     _print_message "Performing pnpm install, please wait..."
 
-    pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+    pnpm install --prod || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
     _print_message "Performing Next start, please wait..."
 
     pm2 start pm2.config.js
     pm2 save
-    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" &>/dev/null
+    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
 
     _ronin_ui_setup_tor
 
@@ -746,7 +749,7 @@ _ronin_ui_uninstall() {
     fi
 
     # Delete app from process list
-    pm2 delete "RoninUI" &>/dev/null
+    pm2 delete "RoninUI" 
 
     # dump all processes for resurrecting them later
     pm2 save 1>/dev/null
@@ -772,7 +775,7 @@ _ronin_ui_uninstall() {
 # For only support Rockpro64 boards.
 #
 _has_fan_control() {
-    if grep 'rockpro64' /etc/manjaro-arm-version &>/dev/null; then
+    if grep 'rockpro64' /etc/manjaro-arm-version ; then
         # Find fan control file
         cd /sys/class/hwmon || exit
 
@@ -806,7 +809,7 @@ _fan_control_install() {
     upgrade=false
 
     if ! _is_fan_control_installed; then
-        git clone -q https://github.com/digitalbitbox/bitbox-base.git &>/dev/null || return 1
+        git clone -q https://github.com/digitalbitbox/bitbox-base.git  || return 1
         cd bitbox-base/tools/bbbfancontrol || return 1
     else
         sudo systemctl stop --quiet bbbfancontrol
@@ -1135,7 +1138,7 @@ _dojo_upgrade() {
 
     # get rid of orphan volumes
     if [ "${1}" = "prune" ]; then
-        docker volume prune -f &>/dev/null
+        docker volume prune -f 
     fi
 
     _pause return
@@ -1502,8 +1505,8 @@ _install_wst(){
 
     cd Whirlpool-Stats-Tool || exit
 
-    pip install setuptools &>/dev/null
-    pipenv install -r requirements.txt &>/dev/null
+    pip install setuptools 
+    pipenv install -r requirements.txt 
     # Change to whirlpool stats directory, otherwise exit
     # install whirlpool stat tool
     # install WST
@@ -1527,8 +1530,8 @@ _install_boltzmann(){
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
-    pip install setuptools &>/dev/null
-    pipenv install -r requirements.txt  &>/dev/null
+    pip install setuptools 
+    pipenv install -r requirements.txt  
 }
 
 _is_bisq(){
