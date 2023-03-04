@@ -459,7 +459,7 @@ HiddenServicePort 80 127.0.0.1:8470\n\
 }
 
 #
-# Check Ronin UI Installationrand
+# Check Ronin UI Installation
 #
 _is_ronin_ui() {
     _load_user_conf
@@ -493,6 +493,7 @@ _ronin_debian_ui() {
     _ronin_ui_vhost
   
     sudo systemctl restart nginx
+    cd -
 }
 
 #
