@@ -22,7 +22,7 @@ _load_user_conf
 # ASSERTIONS #
 ##############
 
-if ! findmnt "${install_dir}" 1>/dev/null; then
+if ! findmnt "${install_dir}"; then
     _print_message "Missing drive mount at ${install_dir}! Please contact support for assistance..."
     _print_message "Exiting RoninDojo..."
     [ $# -eq 0 ] && _pause return
@@ -52,7 +52,7 @@ _print_message "Installing RoninUI..."
 if [ ! -d "${ronin_ui_path}" ]; then
     _ronin_ui_install
 else
-    _ronin_debian_ui
+    _ronin_debian_
 fi
 _install_gpio
 
@@ -63,7 +63,7 @@ _install_gpio
 _print_message "Downloading latest RoninDojo release..."
 
 cd "$HOME" || exit
-git clone -q "${samourai_repo}" dojo 2>/dev/null
+git clone -q "${samourai_repo}" dojo 
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
@@ -144,9 +144,9 @@ fi
 # CLEANING UP BACKUP #
 ######################
 
-if findmnt "${backup_mount}" 1>/dev/null; then
+if findmnt "${backup_mount}" ; then
     sudo umount "${backup_mount}"
-    sudo rm -rf "${backup_mount}" &>/dev/null
+    sudo rm -rf "${backup_mount}" 
 fi
 
 
