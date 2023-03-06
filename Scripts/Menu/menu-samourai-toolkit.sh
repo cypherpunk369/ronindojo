@@ -1,15 +1,14 @@
 #!/bin/bash
+# shellcheck source=/dev/null disable=SC2154
 
-# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
-
-# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Whirlpool"
          2 "Boltzmann Calculator"
          3 "Whirlpool Stat Tool"
-         4 "Go Back")
+	     4 "Mix to External zPub"
+         5 "Go Back")
 
 CHOICE=$(dialog --clear \
                 --title "$TITLE" \
@@ -32,7 +31,11 @@ case $CHOICE in
             bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-whirlpool-wst.sh
             # send to WST menu
             ;;
-        4)
+	    4)
+	    bash -c "$HOME"/RoninDojo/Scripts/Menu/menu-whirlpool-mixto.sh
+	    # send to mixto menu
+	    ;;
+        5)
             ronin
             # returns to main menu
             ;;
