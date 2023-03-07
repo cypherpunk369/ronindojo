@@ -484,11 +484,11 @@ _ronin_debian_ui() {
     pm2 save
     pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
 
-    if [ ! "$(systemctl is-active tor)" ] && [ ! -d "${install_dir_tor}"/hidden_service_ronin_backend ]; then
-        if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
-            sudo systemctl restart tor
-        fi
-    fi
+    # restart tor to ensure the backend is up and ready
+    sudo systemctl restart tor
+
+    # give tor time to rest and get set properly
+    sleep 10s 
 
     if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
         sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
