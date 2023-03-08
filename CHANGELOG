@@ -14,7 +14,7 @@ RoninDojo v1.15.1 Change Log
   - A fix so that it doesn't matter if the newer or older docker compose CLI api is present
 - An additional update in RoninDojo's fork of dojo, updating WhirlPool to 0.10.16
 - Some UX improvements
-- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1, BrotherRabbit, KYC3, OrangedMike, Din
+- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1, BrotherRabbit, KYC3, OrangedMike, Din, Numbers
 - Honorable Mentions: ZeroLeak
 
 RoninDojo v1.15.0 Change Log
