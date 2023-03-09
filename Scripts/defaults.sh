@@ -44,6 +44,9 @@ declare -a pkg_ignore=(
     docker
     docker-compose
     bridge-utils
+    linux
+    linux-headers
+    linux-firmware
 )
 
 #
@@ -119,7 +122,7 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.15.0" # Tag release
+samourai_commitish="v1.15.1" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"

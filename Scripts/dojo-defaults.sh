@@ -36,12 +36,14 @@ fi
 
 # Electrum Server (will use same hostname per tor/restart.sh)
 if sudo test -d "${docker_volume_tor}"/_data/hsv3electrs; then
-    tor_addr_electrs=$(sudo cat "${docker_volume_tor}"/_data/hsv3electrs/hostname)":50001"
+    tor_addr_electrs=$(sudo cat "${docker_volume_tor}"/_data/hsv3electrs/hostname)
+    tor_port_electrs="50001"
 fi
 
 # Fulcrum Server (will use same hostname per tor/restart.sh)
 if sudo test -d "${docker_volume_tor}"/_data/hsv3fulcrum; then
-    tor_addr_fulcrum=$(sudo cat "${docker_volume_tor}"/_data/hsv3fulcrum/hostname)":50001"
+    tor_addr_fulcrum=$(sudo cat "${docker_volume_tor}"/_data/hsv3fulcrum/hostname)
+    tor_port_fulcrum="50001"
 fi
 
 # Whirlpool
