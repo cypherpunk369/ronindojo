@@ -4,8 +4,6 @@
 # shellcheck source=./Scripts/defaults.sh
 . "${HOME}"/RoninDojo/Scripts/defaults.sh
 
-set -ex
-
 #
 # Main function runs at beginning of script execution
 #
@@ -1291,11 +1289,60 @@ _ronindojo_update() {
 }
 
 #
+# Check if Docker is installed
+#
+_check_docker() {
+    if ! command -v docker &> /dev/null; then
+        _install_docker
+    else
+        echo "Docker is already installed."
+    fi
+}
+
+
+#
+# Docker install Debian Docker
+#
+_install_docker() {
+    if [ ! -d /etc/apt/keyrings ]; then
+        sudo mkdir -m 0755 -p /etc/apt/keyrings
+    fi
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+#
+# Check if Docker is installed
+#
+_check_docker_compose() {
+    if ! command -v docker-compose &> /dev/null; then
+        _install_docker_compose
+    else
+        echo "Docker is already installed."
+    fi
+}
+
+#
+# Docker install Debian Docker
+#
+_install_docker_compose() {
+    sudo curl -L https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-linux-aarch64 -o /usr/bin/docker-compose
+    sudo chmod +x /usr/bin/docker-compose
+}
+
+
+#
 # Docker Data Directory
 #
 _docker_datadir_setup() {
     _load_user_conf
 
+    _check_docker
+    _check_docker_compose
     _print_message "Now configuring docker to use the external SSD..."
     test -d "${install_dir_docker}" || sudo mkdir "${install_dir_docker}"
     # makes directory to store docker/dojo data
