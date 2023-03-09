@@ -55,9 +55,6 @@ _load_user_conf
 # STABILIZE #
 #############
 
-
-_check_dojo_perms "${dojo_path_my_dojo}"
-
 if grep BITCOIND_RPC_EXTERNAL=off "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf 1>/dev/null; then
     sed -i 's/BITCOIND_RPC_EXTERNAL=.*$/BITCOIND_RPC_EXTERNAL=on/' "${dojo_path_my_dojo}"/conf/docker-bitcoind.conf
 fi
