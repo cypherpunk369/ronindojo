@@ -482,7 +482,8 @@ _ronin_debian_ui() {
     _print_message "Performing Next start, please wait..."
     pm2 start pm2.config.js
     pm2 save
-    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
+    pm2 startup
+    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
 
     # restart tor to ensure the backend is up and ready
     sudo systemctl restart tor
