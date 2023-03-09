@@ -112,7 +112,7 @@ backup_format=false
 #
 # Repositories
 #
-ronin_dojo_branch="origin/master" # defaults to origin/master
+ronin_dojo_branch="origin/release/v2.0.x" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
 samourai_commitish="v2.0.0" # Tag release
