@@ -308,7 +308,7 @@ df -h "${blockdata_storage_partition}"
 #########################################
 
 _swap_size
-create_swap --file "${install_dir_swap}" --count "${_size}"
+create_swap --file "${install_dir_swap}" --count "${_size}" &
 
 _setup_tor
 _docker_datadir_setup

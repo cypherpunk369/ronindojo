@@ -521,7 +521,7 @@ _ronin_ui_install() {
 
     sudo npm i -g pnpm@7 
 
-    #sudo npm install pm2 -g
+    sudo npm install pm2 -g
 
     test -d "${ronin_ui_path}" || mkdir "${ronin_ui_path}"
     cd "${ronin_ui_path}" || exit
