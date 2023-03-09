@@ -70,21 +70,25 @@ _update_24() {
 
 # Remove specter
 # shellcheck disable=SC2120
-_update_25() {
+_update_37() {
 
     if [ ! -d "$HOME"/.venv_specter ]; then
         return 0
     fi
 
-    local _specter_version
-    _specter_version="$1"
+    cd ~ || exit
 
-    local specter_version
-    specter_version="v1.7.2"
+    for dir in specter*; do
+        if [ -d "$dir" ]; then
+            
+            _specter_version="${dir#*-}"
 
-    _load_user_conf
+            local specter_version
+            specter_version="v1.7.2"
 
-    cat <<EOF
+            _load_user_conf
+
+            cat <<EOF
 ${red}
 ***
 Uninstalling Specter ${_specter_version:-$specter_version}...
@@ -92,42 +96,47 @@ Uninstalling Specter ${_specter_version:-$specter_version}...
 ${nc}
 EOF
 
-    if systemctl is-active --quiet specter; then
-        sudo systemctl stop --quiet specter
-        sudo systemctl --quiet disable specter
-        sudo rm /etc/systemd/system/specter.service
-        sudo systemctl daemon-reload
-    fi
-    # Remove systemd unit
+            if systemctl is-active --quiet specter; then
+                sudo systemctl stop --quiet specter
+                sudo systemctl --quiet disable specter
+                sudo rm /etc/systemd/system/specter.service
+                sudo systemctl daemon-reload
+            fi
+            # Remove systemd unit
 
-    cd "${dojo_path_my_dojo}"/bitcoin || exit
-    git checkout restart.sh &>/dev/null && cd - 1>/dev/null || exit
-    # Resets to defaults
+            cd "${dojo_path_my_dojo}"/bitcoin || exit
+            git checkout restart.sh &>/dev/null && cd - 1>/dev/null || exit
+            # Resets to defaults
 
-    if [ -f /etc/udev/rules.d/51-coinkite.rules ]; then
-        cd "$HOME"/specter-"${_specter_version:-$specter_version}"/udev || exit
+            if [ -f /etc/udev/rules.d/51-coinkite.rules ]; then
+                cd "$HOME"/specter-"${_specter_version:-$specter_version}"/udev || exit
 
-        for file in *.rules; do
-            test -f /etc/udev/rules.d/"${file}" && sudo rm /etc/udev/rules.d/"${file}"
-        done
+                for file in *.rules; do
+                    test -f /etc/udev/rules.d/"${file}" && sudo rm /etc/udev/rules.d/"${file}"
+                done
 
-        sudo udevadm trigger
-        sudo udevadm control --reload-rules
-    fi
-    # Delete udev rules
+                sudo udevadm trigger
+                sudo udevadm control --reload-rules
+            fi
+            # Delete udev rules
 
-    rm -rf "$HOME"/.specter "$HOME"/specter-* "$HOME"/.venv_specter &>/dev/null
-    rm "$HOME"/.config/RoninDojo/specter* &>/dev/null
-    # Deletes the .specter dir, source dir, venv directory, certificate files and specter.service file
+            rm -rf "$HOME"/.specter "$HOME"/specter-* "$HOME"/.venv_specter &>/dev/null
+            rm "$HOME"/.config/RoninDojo/specter* &>/dev/null
+            # Deletes the .specter dir, source dir, venv directory, certificate files and specter.service file
 
-    sudo sed -i -e "s:^ControlPort .*$:#ControlPort 9051:" -e "/specter/,+3d" /etc/tor/torrc
-    sudo systemctl restart --quiet tor
-    # Remove torrc changes
+            sudo sed -i -e "s:^ControlPort .*$:#ControlPort 9051:" -e "/specter/,+3d" /etc/tor/torrc
+            sudo systemctl restart --quiet tor
+            # Remove torrc changes
 
-    if getent group plugdev | grep -q "${ronindojo_user}" &>/dev/null; then
-        sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
-    fi
-    # Remove user from plugdev group
+            if getent group plugdev | grep -q "${ronindojo_user}" &>/dev/null; then
+                sudo gpasswd -d "${ronindojo_user}" plugdev 1>/dev/null
+            fi
+            # Remove user from plugdev group
+
+        fi
+    done
+
+    cd - || exit
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/25-"$(date +%m-%d-%Y)"
@@ -232,4 +241,38 @@ _update_35() {
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/35-"$(date +%m-%d-%Y)"
+}
+
+# Fulcrum Batch support migration
+_update_36(){
+    if _is_fulcrum; then
+        sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=active/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    else
+        sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    fi;
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/36-"$(date +%m-%d-%Y)"
+}
+
+# Fixes not being able to update the system because manjaro broke it
+_update_38(){
+    
+    if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
+        sudo sed -i "s/^#IgnorePkg   =.*$/IgnorePkg   = ${pkg_ignore[*]}/" /etc/pacman.conf
+    else
+        sudo sed -i "/^IgnorePkg/ s/$/ linux linux-headers linux-firmware/" /etc/pacman.conf
+    fi
+
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/38-"$(date +%m-%d-%Y)"
+}
+
+# Reinstalls the GPIO with the contemporary additions for tanto 2.x
+_update_39() {
+    _install_gpio
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/39-"$(date +%m-%d-%Y)"
 }

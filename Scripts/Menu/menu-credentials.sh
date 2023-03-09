@@ -38,14 +38,16 @@ display_creds_whirlpool() {
 
 display_creds_fulcrum() {
     if _is_fulcrum; then
-        _print_message "Fulcrum Credentials" "Tor Address             =   http://${tor_addr_fulcrum}"
+        _print_message "Fulcrum Credentials" "Tor Address             =   ${tor_addr_fulcrum}"
+        _print_message "Fulcrum Credentials" "Tor Port                =   ${tor_port_fulcrum}"
         _print_message "Check the RoninDojo Wiki for pairing information at https://wiki.ronindojo.io"
     fi
 }
 
 display_creds_electrs() {
     if _is_electrs; then
-        _print_message "Electrs Credentials" "Tor Address             =   http://${tor_addr_electrs}"
+        _print_message "Electrs Credentials" "Tor Address             =   ${tor_addr_electrs}"
+        _print_message "Electrs Credentials" "Tor Port                =   ${tor_port_electrs}"
         _print_message "Check the RoninDojo Wiki for pairing information at https://wiki.ronindojo.io"
     fi
 }

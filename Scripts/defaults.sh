@@ -44,6 +44,9 @@ declare -a pkg_ignore=(
     docker
     docker-compose
     bridge-utils
+    linux
+    linux-headers
+    linux-firmware
 )
 
 #

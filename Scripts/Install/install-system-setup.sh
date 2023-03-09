@@ -77,9 +77,6 @@ _pacman_update_mirrors
 
 _print_message "Checking package dependencies. Please wait..."
 
-. "$HOME"/RoninDojo/Scripts/update.sh
-_update_19 # Uninstall bleeding edge Node.js and install LTS Node.js
-
 for pkg in "${!package_dependencies[@]}"; do
     _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
 done
@@ -206,13 +203,13 @@ elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
 
 elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
 
-    _print_message "Found Addrindexrs data for salvage!"
+    _print_message "Found Fulcrum data for salvage!"
     _print_message "Moving to data backup"
     
     test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
     sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
 
-    _print_message "Indexer data prepared for salvage!"
+    _print_message "Fulcrum data prepared for salvage!"
 fi
 
 if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor

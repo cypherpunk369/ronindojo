@@ -67,9 +67,9 @@ Showing network stats...
 ${nc}
 EOF
         _sleep
-        ifconfig eth0 | grep 'inet'
-        network_rx=$(ifconfig eth0 | grep 'RX packets' | awk '{ print $6$7 }' | sed 's/[()]//g')
-        network_tx=$(ifconfig eth0 | grep 'TX packets' | awk '{ print $6$7 }' | sed 's/[()]//g')
+        ifconfig eth0 2> /dev/null || ifconfig end0 2> /dev/null | grep 'inet'
+        network_rx=$(ifconfig eth0 2> /dev/null || ifconfig end0 2> /dev/null | grep 'RX packets' | awk '{ print $6$7 }' | sed 's/[()]//g')
+        network_tx=$(ifconfig eth0 2> /dev/null || ifconfig end0 2> /dev/null | grep 'TX packets' | awk '{ print $6$7 }' | sed 's/[()]//g')
         echo "        Receive: $network_rx"
         echo "        Transmit: $network_tx"
         # network info, use wlan0 for wireless
