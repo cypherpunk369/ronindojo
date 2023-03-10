@@ -469,6 +469,22 @@ _is_ronin_ui() {
     return 0
 }
 
+#
+# Setup pm2 server for Ronin-UI.
+# Description: Setup the service file first. service file is enabled and inactive. start the Ronin-UI pm2 instance. Save it.
+# Kill the current process. So we can use the persistant and restarting systemd instance. Prevents methods from competition for the PID.
+#
+_pm2_setup(){
+   cd /home/ronindojo/Ronin-UI
+   pm2 startup
+   sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ronindojo --hp /home/ronindojo
+   pm2 start pm2.config.js
+   pm2 save
+   pm2 kill
+   sudo systemctl start pm2-ronindojo
+   cd -
+}
+
 _ronin_debian_ui() {
     
     cd "${ronin_ui_path}"
@@ -478,10 +494,8 @@ _ronin_debian_ui() {
     pnpm install --prod  || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
     _print_message "Performing Next start, please wait..."
-    pm2 start pm2.config.js
-    pm2 save
-    pm2 startup
-    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ronindojo --hp /home/ronindojo 
+    
+    _pm2_setup
 
     # restart tor to ensure the backend is up and ready
     sudo systemctl restart tor
