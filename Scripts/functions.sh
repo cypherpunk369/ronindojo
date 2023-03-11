@@ -574,9 +574,7 @@ _ronin_ui_install() {
 
     _print_message "Performing Next start, please wait..."
 
-    pm2 start pm2.config.js
-    pm2 save
-    pm2 startup && sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "$USER" --hp "$HOME" 
+    _pm2_setup
 
     _ronin_ui_setup_tor
 
@@ -585,6 +583,8 @@ _ronin_ui_install() {
     _ronin_ui_avahi_service
     
     sudo systemctl restart nginx
+
+    cd -
 }
 
 #
@@ -795,7 +795,7 @@ _ronin_ui_uninstall() {
 # For only support Rockpro64 boards.
 #
 _has_fan_control() {
-    if grep 'rockpro64' /etc/manjaro-arm-version ; then
+    if grep 'rockpro64' /etc/armbian-image-release ; then
         # Find fan control file
         cd /sys/class/hwmon || exit
 

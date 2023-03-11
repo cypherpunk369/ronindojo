@@ -116,7 +116,7 @@ EOF
         fi
 
         # Check for package dependencies
-        for pkg in go gcc; do
+        for pkg in golang gcc; do
             _install_pkg_if_missing "${pkg}"
         done
 
