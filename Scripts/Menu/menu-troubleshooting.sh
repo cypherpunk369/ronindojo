@@ -29,8 +29,9 @@ case $CHOICE in
         _stop_dojo
         
         _print_message "Perfoming a full system update..."
-        sudo pacman -Syyu --noconfirm
-
+        _apt_update
+        sudo apt-get -y upgrade
+        
         _pause reboot
         sudo systemctl reboot
         ;;

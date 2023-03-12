@@ -34,7 +34,7 @@ _main() {
     fi
 
     # Execute the update scripts (this call here is to be removed in the next release after 1.14)
-    _call_update_scripts
+    #_call_update_scripts
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
