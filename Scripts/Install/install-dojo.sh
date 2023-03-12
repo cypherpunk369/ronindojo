@@ -109,6 +109,8 @@ _print_message "Installing Samourai Wallet's Dojo..."
 
 sudo systemctl restart --quiet docker
 
+wait
+
 cd "$dojo_path_my_dojo" || exit
 if ! ./dojo.sh install --nolog --auto; then
     _print_error_message "Install failed! Please contact support..."
