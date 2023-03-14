@@ -8,7 +8,7 @@
 
 _load_user_conf
 
-OPTIONS=(1 "Update Mirrors"
+OPTIONS=(1 "Update System"
          2 "Check for RoninDojo Update"
          3 "Update RoninDojo"
          4 "Go Back")
@@ -23,8 +23,9 @@ CHOICE=$(dialog --clear \
 clear
 case $CHOICE in
     1)
-        _apt_update
         # Update Mirrors and continue.
+        _apt_update
+        sudo apt-get -y upgrade
 
         _pause return
         bash -c "${ronin_system_update}"
@@ -34,90 +35,46 @@ case $CHOICE in
             rm "${ronin_data_dir}"/ronin-latest.txt
         fi
 
+        # check for Ronin update from site
         wget -q https://ronindojo.io/downloads/ronindojo-version.txt -O "${ronin_data_dir}"/ronindojo-latest.txt 2>/dev/null
 
         version=$(<"${ronin_data_dir}"/ronindojo-latest.txt)
 
         if [[ "${ronindojo_version}" != "${version}" ]] ; then
-            cat <<EOF
-${red}
-***
-RoninDojo update is available!
-***
-${nc}
-EOF
+            _print_message "RoninDojo update is available!"
             _sleep
         else
-            cat <<EOF
-${red}
-***
-No update is available!
-***
-${nc}
-EOF
+            _print_message "No update is available!"
             _sleep
         fi
-        # check for Ronin update from site
 
         _pause return
         bash -c "${ronin_system_update}"
         ;;
 
     3)
+        # is dojo installed?
         if [ ! -d "${dojo_path}" ]; then
-            cat <<EOF
-${red}
-***
-Missing ${dojo_path} directory, aborting update...
-***
-${nc}
-EOF
+            _print_message "Missing ${dojo_path} directory, aborting update..."
             _sleep
-
             _pause return
-
             bash -c "${ronin_system_update}"
             exit 1
         fi
-    # is dojo installed?
 
-        cat <<EOF
-${red}
-***
-Updating Arch OS Mirrors, Please wait...
-***
-${nc}
-EOF
-        # Update Mirrors
+        # Update System
+        _print_message "Updating Debian OS Mirrors, Please wait..."
         _apt_update
+        sudo apt-get -y upgrade
 
-        cat <<EOF
-${red}
-***
-Updating PNPM, Please wait...
-***
-${nc}
-EOF
         # Update PNPM
+        _print_message "Updating PNPM, Please wait..."
         sudo npm i -g pnpm@7 &>/dev/null
 
-        cat <<EOF
-${red}
-***
-Updating RoninDojo...
-***
-${nc}
-EOF
+        _print_message "Updating RoninDojo..."
         _sleep
 
-        cat <<EOF
-${red}
-***
-Use Ctrl+C to exit if needed!
-***
-${nc}
-EOF
-
+        _print_message "Use Ctrl+C to exit if needed!"
         _sleep 10 --msg "Updating in"
 
         _ronindojo_update

@@ -123,13 +123,7 @@ EOF
         _install_pkg_if_missing "ldd" "glibc"
 
         if [ ! -f /etc/systemd/system/bbbfancontrol.service ]; then
-            cat <<EOF
-${red}
-***
-Installing fan control...
-***
-${nc}
-EOF
+            _print_message "Installing fan control..."
             cd "${HOME}" || exit
 
             _fan_control_install || exit 1
@@ -139,32 +133,13 @@ EOF
             bash -c "${ronin_applications_menu}"
             # Manage applications menu
         else
-            cat <<EOF
-${red}
-***
-Fan control already installed...
-***
-${nc}
-EOF
-
+            _print_message "Fan control already installed..."
             _sleep
 
-            cat <<EOF
-${red}
-***
-Checking for Fan Control updates...
-***
-${nc}
-EOF
+            _print_message "Checking for Fan Control updates..."
 
             if ! _fan_control_install; then
-                cat <<EOF
-${red}
-***
-Fan Control already up to date...
-***
-${nc}
-EOF
+                _print_message "Fan Control already up to date..."
             fi
         fi
 
