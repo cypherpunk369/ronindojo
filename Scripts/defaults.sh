@@ -84,9 +84,9 @@ ronin_samourai_toolkit_menu="$ronin_menu_dir/menu-samourai-toolkit.sh"
 #
 # Terminal Colors
 #
-#red=$(tput setaf 1)
-#green=$(tput setaf 2)
-#nc=$(tput sgr0) # No Color
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+nc=$(tput sgr0) # No Color
 
 #
 # Install Defaults

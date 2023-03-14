@@ -8,7 +8,7 @@
 
 _load_user_conf
 
-OPTIONS=(1 "Update System"
+OPTIONS=(1 "Update Mirrors"
          2 "Check for RoninDojo Update"
          3 "Update RoninDojo"
          4 "Go Back")
@@ -25,7 +25,6 @@ case $CHOICE in
     1)
         # Update Mirrors and continue.
         _apt_update
-        sudo apt-get -y upgrade
 
         _pause return
         bash -c "${ronin_system_update}"

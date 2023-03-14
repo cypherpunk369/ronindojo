@@ -87,7 +87,7 @@ case $CHOICE in
         ;;
     5)
         _print_message "Showing Ronin UI Logs..."
-        _print_message "Press "q" key to exit at any time..."
+        _print_message 'Press "q" key to exit at any time...'
 
         cd "${ronin_ui_path}" || exit
 
