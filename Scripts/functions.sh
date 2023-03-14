@@ -9,8 +9,6 @@
 #
 _main() {
 
-    set -ex
-
     # Create RoninDojo config directory
     test ! -d "$HOME"/.config/RoninDojo && mkdir -p "$HOME"/.config/RoninDojo
 
