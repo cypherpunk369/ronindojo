@@ -308,6 +308,8 @@ create_output_logs() {
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
 	journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
+	# Include new setup.logs. This mainly replaces the journalctl output, however, there are some good outputs still in journalctl so give both.
+	cp -Rv /home/ronindojo/.logs/setup.logs "${ronin_debug_dir}/setup.logs"
 
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
@@ -315,6 +317,8 @@ create_output_logs() {
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
 	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
 	  --trust-model always -a "${ronin_debug_dir}/journal.txt"
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	  --trust-model always -a "${ronin_debug_dir}/setup.logs"
 }
 
 cleanup_output_logs() {
@@ -346,6 +350,9 @@ EOF
 	printf "\n"
 	printf "journal file: "
 	cat "${ronin_debug_dir}"/journal.txt.asc | nc termbin.com 9999
+	printf "\n"
+	printf "setup log file: "
+	cat "${ronin_debug_dir}"/setup.logs.asc | nc termbin.com 9999
 }
 
 # execute the scripts
