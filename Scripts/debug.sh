@@ -10,7 +10,7 @@
 . "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat nvme-cli
+_install_pkg_if_missing "sysstat" "bc" "netcat" "nvme-cli"
 
 # Import team pgp keys
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
@@ -58,8 +58,8 @@ print_general_info() {
 
 	# Get general system info
 	current_time=$(date)
-	os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
-	os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
+	os_descrip=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g')
+	os_version=$(grep VERSION_ID /etc/os-release | sed 's/VERSION_ID=//g')
 	kernel_version=$(uname -r)
 	system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
 	backend_status=$(if cd "${ronin_ui_path}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
@@ -208,12 +208,8 @@ EOF
 
 	# Show dmesg error logs if found when piped into grep search 
 	if dmesg | grep "error" 1> /dev/null; then
-	    cat <<EOF
-***
-WARNING - Dmesg Error Logs Detected:
-***
-EOF
-	dmesg | grep "error"
+		_print_message "WARNING - Dmesg Error Logs Detected:"
+		dmesg | grep "error"
 	fi
 
 }
@@ -274,7 +270,25 @@ EOF
 EOF
 
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs indexer -n 25
+    _fetch_configured_indexer_type
+	indexer=$?
+
+	if ((indexer==3)); then
+		_print_message "No indexer installed..."
+	elif ((indexer==2)); then
+		_print_message "Fulcrum Server is your current Indexer..."
+		./dojo.sh logs fulcrum -n 25
+
+	elif ((indexer==1)); then
+		_print_message "SW Addrindexrs is your current Indexer..."
+		./dojo.sh logs indexer -n 25
+
+	elif ((indexer==0)); then
+		_print_message "Electrs is your current Indexer..."
+		./dojo.sh logs electrs -n 25
+	else
+		_print_message "Something went wrong! Contact support..."
+	fi
 
 }
 
@@ -307,7 +321,7 @@ create_output_logs() {
 
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
-	journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
+	sudo journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
 	# Include new setup.logs. This mainly replaces the journalctl output, however, there are some good outputs still in journalctl so give both.
 	cp -Rv /home/ronindojo/.logs/setup.logs "${ronin_debug_dir}/setup.logs"
 
