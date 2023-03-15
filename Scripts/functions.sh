@@ -478,19 +478,19 @@ _is_ronin_ui() {
 # Kill the current process. So we can use the persistant and restarting systemd instance. Prevents methods from competition for the PID.
 #
 _pm2_setup(){
-   cd /home/ronindojo/Ronin-UI
+   cd /home/ronindojo/Ronin-UI || exit
    pm2 startup
    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ronindojo --hp /home/ronindojo
    pm2 start pm2.config.js
    pm2 save
    pm2 kill
    sudo systemctl start pm2-ronindojo
-   cd -
+   cd - || exit
 }
 
 _ronin_debian_ui() {
     
-    cd "${ronin_ui_path}"
+    cd "${ronin_ui_path}" || exit
 
     _print_message "Performing pnpm install, please wait..."
 
@@ -515,7 +515,8 @@ _ronin_debian_ui() {
     _ronin_ui_vhost
   
     sudo systemctl restart nginx
-    cd -
+    
+    cd - || exit
 }
 
 #
@@ -587,7 +588,7 @@ _ronin_ui_install() {
     
     sudo systemctl restart nginx
 
-    cd -
+    cd - || exit
 }
 
 #
