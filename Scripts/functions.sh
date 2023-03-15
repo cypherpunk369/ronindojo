@@ -236,30 +236,35 @@ EOF
 # Usage: _install_pkg_if_missing [--update-mirrors] package1 [pacakge2[..]]
 #
 _install_pkg_if_missing() {
-
     if [ $# -eq 0 ]; then
         echo "No arguments supplied"
+        return 1
     fi
 
     if [ "$1" = "--update-mirrors" ]; then
         if [ $# -eq 1 ]; then
             echo "No packages supplied as arguments"
+            return 1
         fi
         shift
         _apt_update
     fi
 
     for pkg in "$@"; do
-        _print_message "Installing ${pkg}..."
-
-        if ! sudo apt-get -y install "${pkg}" ; then
-            _print_error_message "${pkg} failed to install!"
-            return 1
+        if dpkg -s "$pkg" >/dev/null 2>&1; then
+            _print_message "${pkg} is already installed"
+        else
+            _print_message "Installing ${pkg}..."
+            if ! sudo apt-get -y install "${pkg}"; then
+                _print_error_message "${pkg} failed to install!"
+                return 1
+            fi
         fi
     done
 
     return 0
 }
+
 
 
 #
@@ -793,7 +798,7 @@ _ronin_ui_uninstall() {
 # For only support Rockpro64 boards.
 #
 _has_fan_control() {
-    if grep 'rockpro64' /etc/armbian-image-release ; then
+    if grep 'rockpro64' /etc/armbian-image-release 1>/dev/null ; then
         # Find fan control file
         cd /sys/class/hwmon || exit
 
@@ -1568,7 +1573,7 @@ _install_wst(){
     # Download whirlpool stat tool
 
     # Check for python-pip and install if not found
-    _install_pkg_if_missing "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv"
 
     cd Whirlpool-Stats-Tool || exit
 

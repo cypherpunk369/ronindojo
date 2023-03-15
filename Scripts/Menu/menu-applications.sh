@@ -24,21 +24,9 @@ clear
 case $CHOICE in
     1)
         if ! _is_mempool ; then
-            cat <<EOF
-${red}
-***
-Mempool Space Visualizer not installed!
-***
-${nc}
-EOF
+            _print_message "Mempool Space Visualizer not installed!"
             _sleep
-            cat <<EOF
-${red}
-***
-Install Mempool Space Visualizer using the manage applications menu...
-***
-${nc}
-EOF
+            _print_message "Install Mempool Space Visualizer using the manage applications menu..."
             _sleep
             _pause return
             bash -c "${ronin_applications_menu}"
@@ -48,49 +36,19 @@ EOF
         fi
         ;;
     2)
-        cat <<EOF
-${red}
-***
-Checking your RoninDojo's compatibility with Bisq...
-***
-${nc}
-EOF
+        _print_message "Checking your RoninDojo's compatibility with Bisq..."
         _sleep
         if ! _is_bisq ; then
-            cat <<EOF
-${red}
-***
-Bisq connections are not enabled...
-***
-${nc}
-EOF
+            _print_message "Bisq connections are not enabled..."
             _sleep
-            cat <<EOF
-${red}
-***
-Enable Bisq connections using the applications install menu...
-***
-${nc}
-EOF
+            _print_message "Enable Bisq connections using the applications install menu..."
             _sleep
             _pause return
             bash -c "$ronin_applications_menu"
         else
-            cat <<EOF
-${red}
-***
-Bisq connections are enabled...
-***
-${nc}
-EOF
+            _print_message "Bisq connections are enabled..."
             _sleep
-            cat <<EOF
-${red}
-***
-Enjoy those no-KYC sats...
-***
-${nc}
-EOF
+            _print_message "Enjoy those no-KYC sats..."
             _sleep
             _pause return
             bash -c "$ronin_applications_menu"
@@ -101,15 +59,8 @@ EOF
         if ! _has_fan_control; then
             _print_message "No supported single-board computer detected for fan control..."
             _sleep
-            cat <<EOF
-${red}
-***
-Supported devices are Rockpro64 and Rockpi4...
-***
-${nc}
-EOF
+            _print_message "Supported devices are Rockpro64 and Rockpi4..."
             _sleep
-
             _pause return
             bash -c "$ronin_applications_menu"
             exit
@@ -120,7 +71,7 @@ EOF
             _install_pkg_if_missing "${pkg}"
         done
 
-        _install_pkg_if_missing "ldd" "glibc"
+        _install_pkg_if_missing "libc-bin" "glibc-source"
 
         if [ ! -f /etc/systemd/system/bbbfancontrol.service ]; then
             _print_message "Installing fan control..."
