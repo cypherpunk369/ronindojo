@@ -127,13 +127,7 @@ EOF
 
         _uninstall_network_check_service
 
-        cat <<EOF
-${red}
-***
-Removing Samourai Dojo Server...
-***
-${nc}
-EOF
+        _print_message "Removing Samourai Dojo Server..."
 
         cd "$dojo_path_my_dojo" || exit
 
@@ -147,13 +141,8 @@ EOF
             if [ -d "${HOME}"/Whirlpool-Stats-Tool ]; then
                 cd "${HOME}"/Whirlpool-Stats-Tool || exit
 
-                cat <<EOF
-${red}
-***
-Uninstalling Whirlpool Stats Tool...
-***
-${nc}
-EOF
+                _print_message "Uninstalling Whirlpool Stats Tool..."
+
                 pipenv --rm &>/dev/null
                 cd - 1>/dev/null || exit
                 rm -rf "${HOME}"/Whirlpool-Stats-Tool
@@ -162,13 +151,8 @@ EOF
             if [ -d "${HOME}"/boltzmann ]; then
                 cd "${HOME}"/boltzmann || exit
 
-                cat <<EOF
-${red}
-***
-Uninstalling Bolzmann...
-***
-${nc}
-EOF
+                _print_message "Uninstalling Bolzmann..."
+
                 pipenv --rm &>/dev/null
                 cd - 1>/dev/null || exit
                 rm -rf "${HOME}"/boltzmann
@@ -185,13 +169,7 @@ EOF
             sudo systemctl restart --quiet docker
             # restart docker daemon
 
-            cat <<EOF
-${red}
-***
-All RoninDojo features has been Uninstalled...
-***
-${nc}
-EOF
+            _print_message "All RoninDojo features has been Uninstalled..."
             _sleep
         fi
 

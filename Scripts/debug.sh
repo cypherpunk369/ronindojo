@@ -354,36 +354,25 @@ upload_logs
 
 
 # Ask user to print the output
-    cat <<EOF
-${red}
-***
-Do you want to see the debugging health script output?
-***
-${nc}
-EOF
+_print_message "Do you want to see the debugging health script output?"
+
 while true; do
     read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
     case $answer in
         [yY][eE][sS]|[yY])
-          # Display ronindebug function output to user
-          printf "\n"
-          cat "${ronin_debug_dir}"/health.txt
+        	# Display ronindebug function output to user
+          	printf "\n"
+          	cat "${ronin_debug_dir}"/health.txt
 
-		  _pause return
-          break
-          ;;
-        [nN][oO]|[Nn])
-          break
-          ;;
-        *)
-          cat <<EOF
-${red}
-***
-Invalid answer! Enter Y or N
-***
-${nc}
-EOF
-          ;;
+			_pause return
+			break
+			;;
+			[nN][oO]|[Nn])
+			break
+			;;
+			*)
+			_print_message "Invalid answer! Enter Y or N"
+	        ;;
     esac
 done
 
