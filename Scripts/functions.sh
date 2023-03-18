@@ -31,8 +31,8 @@ _main() {
         fi
     fi
 
-    # Execute the update scripts (this call here is to be removed in the next release after 1.14)
-    #_call_update_scripts
+    # First time init: prevent these updates from running as the current codebase already has those fixes in
+    _skip_update_scripts
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
@@ -95,26 +95,27 @@ _call_update_scripts() {
     # shellcheck source=./Scripts/update.sh
     . "$HOME"/RoninDojo/Scripts/update.sh
 
-    if [ -f "${ronin_data_dir}"/system-install ]; then
+    _update_05 # Check on tor unit service
+    test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
+    _update_24 # Fix hosts file, rerun always in case OS update reverts it
+    test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
+    test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
+    test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
+    test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
+    # _update_33 is executred as part of dojo upgrade script
+    test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
+    test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
+    test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
+    test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
+    test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
+    test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
+    test -f "$HOME"/.config/RoninDojo/data/updates/40-* || _update_40 # The last 1.x update ever
+}
 
-        _update_05 # Check on tor unit service
-        test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
-        _update_24 # Fix hosts file, rerun always in case OS update reverts it
-        test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
-        test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
-        test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
-        test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
-        test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
-        test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
-        # _update_33 is executred as part of dojo upgrade script
-        test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
-        test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
-        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
-        test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
-        test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
-        test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
-        test -f "$HOME"/.config/RoninDojo/data/updates/40-* || _update_40 # The last 1.x update ever
-    else
+_skip_update_scripts() {
+    if [ ! -f "${ronin_data_dir}"/system-install ]; then
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
