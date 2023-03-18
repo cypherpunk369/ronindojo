@@ -325,13 +325,13 @@ create_output_logs() {
 	# Include new setup.logs. This mainly replaces the journalctl output, however, there are some good outputs still in journalctl so give both.
 	cp -Rv /home/ronindojo/.logs/setup.logs "${ronin_debug_dir}/setup.logs"
 
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/journal.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/setup.logs"
 }
 
