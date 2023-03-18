@@ -388,10 +388,10 @@ while true; do
 			_pause return
 			break
 			;;
-			[nN][oO]|[Nn])
+		[nN][oO]|[Nn])
 			break
 			;;
-			*)
+		*)
 			_print_message "Invalid answer! Enter Y or N"
 	        ;;
     esac
