@@ -1,5 +1,10 @@
 Changelog
 
+RoninDojo v2.0.0 Change log
+
+- Switched expected OS from Manjaro to Debian
+- Credits: BTCxZelko, OrangedMike, dammkewl, s2l1
+
 RoninDojo v1.15.1 Change Log
 - Bug fix: non existent _update_15 is no longer called during an upgrade
 - Bug fix: non existent _update_19 is no longer called in a fresh install
