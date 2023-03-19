@@ -26,13 +26,7 @@ clear
 case $CHOICE in
         1)
             if _is_dojo_running; then
-                cat <<EOF
-${red}
-***
-Dojo is already started!
-***
-${nc}
-EOF
+                _print_message "Dojo is already started!"
                 _sleep
                 _pause return
                 bash -c "${ronin_dojo_menu}"
@@ -41,14 +35,7 @@ EOF
                     _is_dojo "${ronin_dojo_menu}"
                     exit
                 fi
-
-                cat <<EOF
-${red}
-***
-Starting Dojo...
-***
-${nc}
-EOF
+                _print_message "Starting Dojo..."
                 _sleep
 
                 cd "${dojo_path_my_dojo}" || exit
@@ -76,14 +63,7 @@ EOF
                 _is_dojo "${ronin_dojo_menu}"
                 exit
             fi
-
-            cat <<EOF
-${red}
-***
-Restarting Dojo...
-***
-${nc}
-EOF
+            _print_message "Restarting Dojo..."
             _sleep
 
             cat <<DOJO

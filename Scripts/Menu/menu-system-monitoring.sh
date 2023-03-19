@@ -23,15 +23,8 @@ clear
 
 case $CHOICE in
     1)
-        cat <<EOF
-${red}
-***
-Use Ctrl+C at any time to exit Task Manager...
-***
-${nc}
-EOF
+        _print_message "Use Ctrl+C at any time to exit Task Manager..."
         _sleep 3
-
         htop
         bash -c "${ronin_system_monitoring}"
         # returns to menu
@@ -41,13 +34,7 @@ EOF
         bash -c "${ronin_system_monitoring}"
         ;;
     3)
-        cat <<EOF
-${red}
-***
-Showing CPU temp...
-***
-${nc}
-EOF
+        _print_message "Showing CPU temp..."
         _sleep
         cpu=$(cat /sys/class/thermal/thermal_zone0/temp)
         tempC=$((cpu/1000))
@@ -59,13 +46,7 @@ EOF
         # press any key to return to menu
         ;;
     4)
-        cat <<EOF
-${red}
-***
-Showing network stats...
-***
-${nc}
-EOF
+        _print_message "Showing network stats..."
         _sleep
         ifconfig eth0 2> /dev/null || ifconfig end0 2> /dev/null | grep 'inet'
         network_rx=$(ifconfig eth0 2> /dev/null || ifconfig end0 2> /dev/null | grep 'RX packets' | awk '{ print $6$7 }' | sed 's/[()]//g')

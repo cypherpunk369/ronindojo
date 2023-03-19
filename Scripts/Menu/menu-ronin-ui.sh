@@ -29,25 +29,13 @@ case $CHOICE in
 	1)
         # Check if process running, otherwise start it
         if pm2 describe "RoninUI" | grep status | grep stopped 1>/dev/null; then
-            cat <<EOF
-${red}
-***
-Starting Ronin UI...
-***
-${nc}
-EOF
+            _print_message "Starting Ronin UI..."
             _sleep
             cd "${ronin_ui_path}" || exit
 
             pm2 start "RoninUI"
         else
-            cat <<EOF
-${red}
-***
-Ronin UI already started...
-***
-${nc}
-EOF
+            _print_message "Ronin UI already started..."
             _sleep
         fi
 
@@ -60,25 +48,13 @@ EOF
     2)
         # Check if process running before stopping it
         if pm2 describe "RoninUI" &>/dev/null; then
-            cat <<EOF
-${red}
-***
-Stopping Ronin UI...
-***
-${nc}
-EOF
+            _print_message "Stopping Ronin UI..."
             _sleep
             cd "${ronin_ui_path}" || exit
 
             pm2 stop "RoninUI"
         else
-            cat <<EOF
-${red}
-***
-Ronin UI already stopped...
-***
-${nc}
-EOF
+            _print_message "Ronin UI already stopped..."
         fi
 
         _pause return
@@ -88,13 +64,7 @@ EOF
         # start Ronin UI, return to menu
         ;;
     3)
-        cat <<EOF
-${red}
-***
-Restarting Ronin UI...
-***
-${nc}
-EOF
+        _print_message "Restarting Ronin UI..."
         _sleep
         cd "${ronin_ui_path}" || exit
 
@@ -108,14 +78,7 @@ EOF
         # start Ronin UI, return to menu
         ;;
     4)
-        cat <<EOF
-${red}
-***
-Showing Ronin UI Status...
-***
-${nc}
-EOF
-
+        _print_message "Showing Ronin UI Status..."
         cd "${ronin_ui_path}" || exit
         pm2 status
 
@@ -123,21 +86,9 @@ EOF
         bash -c "${ronin_ui_menu}"
         ;;
     5)
-        cat <<EOF
-${red}
-***
-Showing Ronin UI Logs...
-***
-${nc}
-EOF
+        _print_message "Showing Ronin UI Logs..."
+        _print_message 'Press "q" key to exit at any time...'
 
-        cat <<EOF
-${red}
-***
-Press "q" key to exit at any time...
-***
-${nc}
-EOF
         cd "${ronin_ui_path}" || exit
 
         _sleep 5 # Workaround until a proper FIX!!!
@@ -146,13 +97,7 @@ EOF
         bash -c "${ronin_ui_menu}"
         ;;
     6)
-        cat <<EOF
-${red}
-***
-Resetting Ronin UI...
-***
-${nc}
-EOF
+        _print_message "Resetting Ronin UI..."
 
         cd "${ronin_ui_path}" || exit
 
@@ -163,13 +108,7 @@ EOF
         bash -c "${ronin_ui_menu}"
         ;;
     7)
-        cat <<EOF
-${red}
-***
-Re-installing Ronin UI...
-***
-${nc}
-EOF
+        _print_message "Re-installing Ronin UI..."
         _ronin_ui_uninstall
         _ronin_ui_install
 

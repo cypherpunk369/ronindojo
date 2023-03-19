@@ -8,6 +8,7 @@
 # Main function runs at beginning of script execution
 #
 _main() {
+
     # Create RoninDojo config directory
     test ! -d "$HOME"/.config/RoninDojo && mkdir -p "$HOME"/.config/RoninDojo
 
@@ -22,8 +23,16 @@ _main() {
         test -f "$HOME"/.config/RoninDojo/user.conf || cp "$HOME"/RoninDojo/user.conf.example "$HOME"/.config/RoninDojo/user.conf
     fi
 
-    # Execute the update scripts (this call here is to be removed in the next release after 1.14)
-    _call_update_scripts
+    # Setup Manjaro users into the utility branch
+    if [ ! -f "${ronin_data_dir}"/system-install ]; then
+        if [ -f /etc/lbs-release ] && grep "Manjaro" "/etc/lsb-release"; then
+            . "$HOME"/RoninDojo/Scripts/update.sh
+            _update_40
+        fi
+    fi
+
+    # First time init: prevent these updates from running as the current codebase already has those fixes in
+    _skip_update_scripts
 
     # Create symbolic link for main ronin script
     if [ ! -h /usr/local/bin/ronin ]; then
@@ -86,29 +95,31 @@ _call_update_scripts() {
     # shellcheck source=./Scripts/update.sh
     . "$HOME"/RoninDojo/Scripts/update.sh
 
-    if [ -f "${ronin_data_dir}"/system-install ]; then
+    _update_05 # Check on tor unit service
+    test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
+    _update_24 # Fix hosts file, rerun always in case OS update reverts it
+    test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
+    test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
+    test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
+    test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
+    test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
+    test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
+    # _update_33 is executred as part of dojo upgrade script
+    test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
+    test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
+    test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
+    test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
+    test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
+    test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
+    test -f "$HOME"/.config/RoninDojo/data/updates/40-* || _update_40 # The last 1.x update ever
+}
 
-        _update_05 # Check on tor unit service
-        test -f "$HOME"/.config/RoninDojo/data/updates/22-* || _update_22 # Remove any existing docker-mempool.conf in favor of new tpl for v2
-        _update_24 # Fix hosts file, rerun always in case OS update reverts it
-        test -f "$HOME"/.config/RoninDojo/data/updates/26-* || _update_26 # Fix for 1.13.1 users that salvaged and thus miss the gpio setup
-        test -f "$HOME"/.config/RoninDojo/data/updates/27-* || _update_27 # Updated the mempool and db_cache size settings for bitcoind
-        test -f "$HOME"/.config/RoninDojo/data/updates/28-* || _update_28 # Fix for users getting locked-out of their Ronin UI
-        test -f "$HOME"/.config/RoninDojo/data/updates/29-* || _update_29 # Update Node.js and pnpm if necessary
-        test -f "$HOME"/.config/RoninDojo/data/updates/31-* || _update_31 # Add service to auto detect network change, overwrite previous version if exists, of ronin.network.service
-        test -f "$HOME"/.config/RoninDojo/data/updates/32-* || _update_32 # Modify pacman to Ignore specific packages
-        # _update_33 is executred as part of dojo upgrade script
-        test -f "$HOME"/.config/RoninDojo/data/updates/34-* || _update_34 # Call _setup_storage_config to set the files
-        test -f "$HOME"/.config/RoninDojo/data/updates/35-* || _update_35 # Update RoninUI
-        test -f "$HOME"/.config/RoninDojo/data/updates/36-* || _update_36 # Fulcrum Batch support   
-        test -f "$HOME"/.config/RoninDojo/data/updates/37-* || _update_37 # Remove specter   
-        test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
-        test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
-    else
+_skip_update_scripts() {
+    if [ ! -f "${ronin_data_dir}"/system-install ]; then
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 39); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
+        for i in $(seq 10 40); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
@@ -147,10 +158,10 @@ EOF
 
 
 #
-# Update pacman mirrors
+# Update package listings
 #
-_pacman_update_mirrors() {
-    sudo pacman --quiet -Syy &>/dev/null
+_apt_update() {
+    sudo apt-get -y update 
     return 0
 }
 
@@ -222,82 +233,30 @@ EOF
 }
 
 #
-# DEPRECATED, USE _install_pkg_if_missing
-# Check if package is installed or not
-#
-_check_pkg() {
-    local pkg_bin pkg_name update
-    pkg_bin="${1}"
-    pkg_name="${2:-$1}"
-    update=false
-
-    # Parse Arguments
-    while [ $# -gt 0 ]; do
-        case "$1" in
-            --update-mirrors)
-                update=true
-                break
-                ;;
-            *)
-                shift 1
-                ;;
-        esac
-    done
-
-    [ "${pkg_name}" = "--update-mirrors" ] && pkg_name="${pkg_bin}"
-
-    "${update}" && _pacman_update_mirrors
-
-    if ! hash "${pkg_bin}" 2>/dev/null; then
-        _print_message "Installing ${pkg_name}..."
-        if ! sudo pacman --quiet -S --noconfirm "${pkg_name}" &>/dev/null; then
-            _print_error_message "${pkg_name} failed to install!"
-            return 1
-        else
-            return 0
-        fi
-    fi
-
-    return 1
-}
-
-#
 # Installs a package if not yet installed, return false if an install failed.
 # Usage: _install_pkg_if_missing [--update-mirrors] package1 [pacakge2[..]]
 #
 _install_pkg_if_missing() {
-    local update_keyring
-
     if [ $# -eq 0 ]; then
         echo "No arguments supplied"
+        return 1
     fi
 
     if [ "$1" = "--update-mirrors" ]; then
         if [ $# -eq 1 ]; then
             echo "No packages supplied as arguments"
+            return 1
         fi
         shift
-        _pacman_update_mirrors
+        _apt_update
     fi
 
-    update_keyring=true
-
     for pkg in "$@"; do
-        if ! pacman -Q "${pkg}" 1>/dev/null 2>/dev/null; then
-
-            if [ $update_keyring = true ]; then
-                update_keyring=false
-                _print_message "Updating keyring..."
-
-                if ! sudo pacman --quiet -S --noconfirm archlinux-keyring &>/dev/null; then
-                    _print_error_message "Keyring failed to update!"
-                    return 1
-                fi
-            fi
-
+        if dpkg -s "$pkg" >/dev/null 2>&1; then
+            _print_message "${pkg} is already installed"
+        else
             _print_message "Installing ${pkg}..."
-
-            if ! sudo pacman --quiet -S --noconfirm "${pkg}" &>/dev/null; then
+            if ! sudo apt-get -y install "${pkg}"; then
                 _print_error_message "${pkg} failed to install!"
                 return 1
             fi
@@ -308,21 +267,6 @@ _install_pkg_if_missing() {
 }
 
 
-#
-# Package version match
-#
-_check_pkg_ver() {
-    local pkgver pkg
-
-    pkgver="${2}"
-    pkg="${1}"
-
-    if pacman -Q "${pkg}" &>/dev/null && [[ $(pacman -Q "${pkg}" | awk '{print$2}') < "${pkgver}" ]]; then
-        return 1
-    fi
-
-    return 0
-}
 
 #
 # Countdown timer
@@ -372,7 +316,7 @@ _systemd_unit_exist() {
     local service
     service="$1"
 
-    if systemctl cat -- "$service" &>/dev/null; then
+    if systemctl cat -- "$service" ; then
         return 0
     else
         return 1
@@ -442,11 +386,19 @@ _setup_tor() {
 
     # Check for ownership
     if ! [ "$(stat -c "%U" "${install_dir_tor}")" = "tor" ]; then
-        sudo chown -R tor:tor "${install_dir_tor}"
+        sudo chown -R tor:tor "${install_dir_tor}" 
     fi
 
-    if ! systemctl is-active --quiet tor; then
-        sudo sed -i 's:^ReadWriteDirectories=-/var/lib/tor.*$:ReadWriteDirectories=-/var/lib/tor /mnt/usb/tor:' /usr/lib/systemd/system/tor.service
+    # Check for proper torrc settings.
+    if ! grep "User tor" /etc/tor/torrc; then
+        sudo sed -i '$a\User tor\nDataDirectory /mnt/usb/tor' /etc/tor/torrc
+    fi
+
+    #checks if the proper tor.service, otherwise replace with ours. 
+    ##TODO: Determine if this revents on upgrades.
+    if ! grep "/usr/bin/tor -f /etc/tor/torrc --verify-config" /usr/lib/systemd/system/tor.service 1>/dev/null; then
+        sudo cp "${ronin_dir}"/example.tor.service /usr/lib/systemd/system/tor.service
+        sudo rm -rf /usr/lib/systemd/system/tor@* #remove unnecessary debian installed services
         sudo systemctl daemon-reload
         sudo systemctl restart --quiet tor
     fi
@@ -522,6 +474,53 @@ _is_ronin_ui() {
 }
 
 #
+# Setup pm2 server for Ronin-UI.
+# Description: Setup the service file first. service file is enabled and inactive. start the Ronin-UI pm2 instance. Save it.
+# Kill the current process. So we can use the persistant and restarting systemd instance. Prevents methods from competition for the PID.
+#
+_pm2_setup(){
+   cd /home/ronindojo/Ronin-UI || exit
+   pm2 startup
+   sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u ronindojo --hp /home/ronindojo
+   pm2 start pm2.config.js
+   pm2 save
+   pm2 kill
+   sudo systemctl start pm2-ronindojo
+   cd - || exit
+}
+
+_ronin_debian_ui() {
+    
+    cd "${ronin_ui_path}" || exit
+
+    _print_message "Performing pnpm install, please wait..."
+
+    pnpm install --prod  || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+
+    _print_message "Performing Next start, please wait..."
+    
+    _pm2_setup
+
+    # restart tor to ensure the backend is up and ready
+    sudo systemctl restart tor
+
+    # give tor time to rest and get set properly
+    sleep 10s 
+
+    if [ ! -f "${ronin_data_dir}"/ronin-ui-tor-hostname ]; then
+        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
+    elif ! sudo grep -q "$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)" "${ronin_data_dir}"/ronin-ui-tor-hostname; then
+        sudo bash -c "cat ${install_dir_tor}/hidden_service_ronin_backend/hostname >${ronin_data_dir}/ronin-ui-tor-hostname"
+    fi
+
+    _ronin_ui_vhost
+  
+    sudo systemctl restart nginx
+    
+    cd - || exit
+}
+
+#
 # Install Ronin UI
 #
 _ronin_ui_install() {
@@ -535,11 +534,12 @@ _ronin_ui_install() {
     _print_message "Checking package dependencies for Ronin UI..."
     _sleep
 
-    _check_pkg "nginx"
-    _check_pkg "pm2"
-    _check_pkg "avahi-daemon" "avahi"
+    _install_pkg_if_missing "nginx"
+    _install_pkg_if_missing "avahi-daemon"
 
-    sudo npm i -g pnpm@7 &>/dev/null
+    sudo npm i -g pnpm@7 
+
+    sudo npm install pm2 -g
 
     test -d "${ronin_ui_path}" || mkdir "${ronin_ui_path}"
     cd "${ronin_ui_path}" || exit
@@ -575,15 +575,11 @@ _ronin_ui_install() {
 
     _print_message "Performing pnpm install, please wait..."
 
-    pnpm install --prod &>/dev/null || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
+    pnpm install --prod || { printf "\n%s***\nRonin UI pnpm install failed...\n***%s\n" "${red}" "${nc}";exit; }
 
     _print_message "Performing Next start, please wait..."
 
-    pm2 start pm2.config.js &>/dev/null
-    pm2 save &>/dev/null
-    pm2 startup &>/dev/null
-
-    sudo env PATH="$PATH:/usr/bin" /usr/lib/node_modules/pm2/bin/pm2 startup systemd -u "${ronindojo_user}" --hp "$HOME" &>/dev/null
+    _pm2_setup
 
     _ronin_ui_setup_tor
 
@@ -591,6 +587,9 @@ _ronin_ui_install() {
 
     _ronin_ui_avahi_service
     
+    sudo systemctl restart nginx
+
+    cd - || exit
 }
 
 #
@@ -637,8 +636,8 @@ _ronin_ui_vhost() {
         _tor_hostname=$(sudo cat "${install_dir_tor}"/hidden_service_ronin_backend/hostname)
 
         test -d /etc/nginx/sites-enabled || sudo mkdir /etc/nginx/sites-enabled
-        test -d /var/log/nginx || sudo mkdir /var/log/nginx
-        test -d /etc/nginx/logs || sudo mkdir /etc/nginx/logs
+        test -d /var/log/nginx || sudo mkdir -p /var/log/nginx
+        test -d /etc/nginx/logs || sudo mkdir -p /etc/nginx/logs
 
         # Generate nginx.conf
         sudo tee "/etc/nginx/nginx.conf" <<EOF >/dev/null
@@ -741,6 +740,12 @@ EOF
 
         # Reload nginx server
         sudo systemctl reload --quiet nginx
+        sudo systemctl restart nginx
+    fi
+
+    # add check otherwise remove. Causes a failure for nginx.service
+    if [ -f /etc/nginx/sites-enabled/default ]; then
+        sudo rm -rf /etc/nginx/sites-enabled/default
     fi
 
     # Enable nginx on boot
@@ -769,7 +774,7 @@ _ronin_ui_uninstall() {
     fi
 
     # Delete app from process list
-    pm2 delete "RoninUI" &>/dev/null
+    pm2 delete "RoninUI" 
 
     # dump all processes for resurrecting them later
     pm2 save 1>/dev/null
@@ -795,7 +800,7 @@ _ronin_ui_uninstall() {
 # For only support Rockpro64 boards.
 #
 _has_fan_control() {
-    if grep 'rockpro64' /etc/manjaro-arm-version &>/dev/null; then
+    if grep 'rockpro64' /etc/armbian-image-release 1>/dev/null ; then
         # Find fan control file
         cd /sys/class/hwmon || exit
 
@@ -829,7 +834,7 @@ _fan_control_install() {
     upgrade=false
 
     if ! _is_fan_control_installed; then
-        git clone -q https://github.com/digitalbitbox/bitbox-base.git &>/dev/null || return 1
+        git clone -q https://github.com/digitalbitbox/bitbox-base.git  || return 1
         cd bitbox-base/tools/bbbfancontrol || return 1
     else
         sudo systemctl stop --quiet bbbfancontrol
@@ -1158,7 +1163,7 @@ _dojo_upgrade() {
 
     # get rid of orphan volumes
     if [ "${1}" = "prune" ]; then
-        docker volume prune -f &>/dev/null
+        docker volume prune -f 
     fi
 
     _pause return
@@ -1303,9 +1308,60 @@ _ronindojo_update() {
 }
 
 #
+# Check if Docker is installed
+#
+_check_docker() {
+    if ! command -v docker &> /dev/null; then
+        _install_docker
+    else
+        echo "Docker is already installed."
+    fi
+}
+
+
+#
+# Docker install Debian Docker
+#
+_install_docker() {
+    if [ ! -d /etc/apt/keyrings ]; then
+        sudo mkdir -m 0755 -p /etc/apt/keyrings
+    fi
+    sudo curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+    sudo echo \
+    "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+    $(lsb_release -cs) stable" | tee /etc/apt/sources.list.d/docker.list > /dev/null
+    sudo apt-get update
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+}
+
+#
+# Check if Docker is installed
+#
+_check_docker_compose() {
+    if ! command -v docker-compose &> /dev/null; then
+        _install_docker_compose
+    else
+        echo "Docker is already installed."
+    fi
+}
+
+#
+# Docker install Debian Docker
+#
+_install_docker_compose() {
+    sudo curl -L https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-linux-aarch64 -o /usr/bin/docker-compose
+    sudo chmod +x /usr/bin/docker-compose
+}
+
+
+#
 # Docker Data Directory
 #
 _docker_datadir_setup() {
+    _load_user_conf
+
+    _check_docker
+    _check_docker_compose
     _print_message "Now configuring docker to use the external SSD..."
     test -d "${install_dir_docker}" || sudo mkdir "${install_dir_docker}"
     # makes directory to store docker/dojo data
@@ -1332,6 +1388,9 @@ EOF"
     if ! sudo systemctl is-enabled --quiet docker; then
         sudo systemctl enable --quiet docker
     fi
+
+    # Make sure ronindojo user is part of docker group
+    sudo usermod -aG docker "$USER"
 
     return 0
 }
@@ -1516,12 +1575,12 @@ _install_wst(){
     # Download whirlpool stat tool
 
     # Check for python-pip and install if not found
-    _check_pkg "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv"
 
     cd Whirlpool-Stats-Tool || exit
 
-    pip install setuptools &>/dev/null
-    pipenv install -r requirements.txt &>/dev/null
+    pip install setuptools 
+    pipenv install -r requirements.txt 
     # Change to whirlpool stats directory, otherwise exit
     # install whirlpool stat tool
     # install WST
@@ -1541,12 +1600,12 @@ _install_boltzmann(){
     _print_message "Checking package dependencies..."
 
     # Check for package dependency
-    _check_pkg "pipenv" "python-pipenv"
+    _install_pkg_if_missing "pipenv"
 
     # Setup a virtual environment to hold boltzmann dependencies. We should use this
     # with all future packages that ship a requirements.txt.
-    pip install setuptools &>/dev/null
-    pipenv install -r requirements.txt  &>/dev/null
+    pip install setuptools 
+    pipenv install -r requirements.txt  
 }
 
 _is_bisq(){
@@ -1895,8 +1954,8 @@ After=multi-user.target
 User=root
 Type=oneshot
 RemainAfterExit=yes
-ExecStart=/bin/python ${ronin_gpio_data_dir}/turn.LED.on.py
-ExecStop=/bin/python ${ronin_gpio_data_dir}/turn.LED.off.py
+ExecStart=/bin/python3 ${ronin_gpio_data_dir}/turn.LED.on.py
+ExecStop=/bin/python3 ${ronin_gpio_data_dir}/turn.LED.off.py
 WorkingDirectory=${ronin_gpio_data_dir}
 Restart=on-failure
 RestartSec=30

@@ -10,7 +10,7 @@
 . "${HOME}"/RoninDojo/Scripts/functions.sh
 
 # Check for package dependencies
-_install_pkg_if_missing --update-mirrors sysstat bc gnu-netcat nvme-cli
+_install_pkg_if_missing "sysstat" "bc" "netcat" "nvme-cli"
 
 # Import team pgp keys
 gpg --import "${HOME}"/RoninDojo/Keys/pgp.txt &>/dev/null && gpg --refresh-keys &>/dev/null
@@ -58,8 +58,8 @@ print_general_info() {
 
 	# Get general system info
 	current_time=$(date)
-	os_descrip=$(grep DESCRIPTION /etc/lsb-release | sed 's/DISTRIB_DESCRIPTION=//g')
-	os_version=$(grep RELEASE /etc/lsb-release | sed 's/DISTRIB_RELEASE=//g')
+	os_descrip=$(grep PRETTY_NAME /etc/os-release | sed 's/PRETTY_NAME=//g')
+	os_version=$(grep VERSION_ID /etc/os-release | sed 's/VERSION_ID=//g')
 	kernel_version=$(uname -r)
 	system_uptime=$(uptime | sed 's/.*up \([^,]*\), .*/\1/')
 	backend_status=$(if cd "${ronin_ui_path}" && pm2 status | grep "online" &>/dev/null ; then printf "Online" ; else printf "Offline" ; fi)
@@ -208,12 +208,8 @@ EOF
 
 	# Show dmesg error logs if found when piped into grep search 
 	if dmesg | grep "error" 1> /dev/null; then
-	    cat <<EOF
-***
-WARNING - Dmesg Error Logs Detected:
-***
-EOF
-	dmesg | grep "error"
+		_print_message "WARNING - Dmesg Error Logs Detected:"
+		dmesg | grep "error"
 	fi
 
 }
@@ -274,7 +270,25 @@ EOF
 EOF
 
     cd "$dojo_path_my_dojo" || exit
-    ./dojo.sh logs indexer -n 25
+    _fetch_configured_indexer_type
+	indexer=$?
+
+	if ((indexer==3)); then
+		_print_message "No indexer installed..."
+	elif ((indexer==2)); then
+		_print_message "Fulcrum Server is your current Indexer..."
+		./dojo.sh logs fulcrum -n 25
+
+	elif ((indexer==1)); then
+		_print_message "SW Addrindexrs is your current Indexer..."
+		./dojo.sh logs indexer -n 25
+
+	elif ((indexer==0)); then
+		_print_message "Electrs is your current Indexer..."
+		./dojo.sh logs electrs -n 25
+	else
+		_print_message "Something went wrong! Contact support..."
+	fi
 
 }
 
@@ -307,14 +321,21 @@ create_output_logs() {
 
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
-	journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
 
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	# shellcheck disable=SC2024 # this is explicit use of sudo only for accessing journalctl
+	sudo journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
+	
+	# Include new setup.logs. This mainly replaces the journalctl output, however, there are some good outputs still in journalctl so give both.
+	cp -Rv /home/ronindojo/.logs/setup.logs "${ronin_debug_dir}/setup.logs"
+
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/health.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/dmesg.txt"
-	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl \
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
 	  --trust-model always -a "${ronin_debug_dir}/journal.txt"
+	gpg -e -r btcxzelko@protonmail.com -r s2l1@pm.me -r pajaseviwow@gmail.com -r dammkewl -r admin@ronindojo.io \
+	  --trust-model always -a "${ronin_debug_dir}/setup.logs"
 }
 
 cleanup_output_logs() {
@@ -346,6 +367,9 @@ EOF
 	printf "\n"
 	printf "journal file: "
 	cat "${ronin_debug_dir}"/journal.txt.asc | nc termbin.com 9999
+	printf "\n"
+	printf "setup log file: "
+	cat "${ronin_debug_dir}"/setup.logs.asc | nc termbin.com 9999
 }
 
 # execute the scripts
@@ -354,36 +378,25 @@ upload_logs
 
 
 # Ask user to print the output
-    cat <<EOF
-${red}
-***
-Do you want to see the debugging health script output?
-***
-${nc}
-EOF
+_print_message "Do you want to see the debugging health script output?"
+
 while true; do
     read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
     case $answer in
         [yY][eE][sS]|[yY])
-          # Display ronindebug function output to user
-          printf "\n"
-          cat "${ronin_debug_dir}"/health.txt
+        	# Display ronindebug function output to user
+          	printf "\n"
+          	cat "${ronin_debug_dir}"/health.txt
 
-		  _pause return
-          break
-          ;;
-        [nN][oO]|[Nn])
-          break
-          ;;
-        *)
-          cat <<EOF
-${red}
-***
-Invalid answer! Enter Y or N
-***
-${nc}
-EOF
-          ;;
+			_pause return
+			break
+			;;
+		[nN][oO]|[Nn])
+			break
+			;;
+		*)
+			_print_message "Invalid answer! Enter Y or N"
+	        ;;
     esac
 done
 

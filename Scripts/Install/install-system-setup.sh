@@ -69,23 +69,13 @@ fi
 # FIXING DEPENDENCIES #
 #######################
 
-if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
-    sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-fi
+#_apt_update
 
-_pacman_update_mirrors
+#_print_message "Checking package dependencies. Please wait..."
 
-_print_message "Checking package dependencies. Please wait..."
-
-for pkg in "${!package_dependencies[@]}"; do
-    _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
-done
-
-# TODO: replace this with use of _install_pkg_if_missing
-if ! pacman -Q libusb 1>/dev/null; then
-    _print_message "Installing libusb..."
-    sudo pacman --quiet -S --noconfirm libusb
-fi
+#for pkg in "${package_dependencies[@]}"; do
+#    _install_pkg_if_missing "${pkg}"
+#done
 
 
 ###############################
@@ -316,7 +306,7 @@ df -h "${blockdata_storage_partition}"
 #########################################
 
 _swap_size
-create_swap --file "${install_dir_swap}" --count "${_size}"
+create_swap --file "${install_dir_swap}" --count "${_size}" &
 
 _setup_tor
 _docker_datadir_setup
@@ -328,4 +318,6 @@ _docker_datadir_setup
 _create_dir "${ronin_data_dir}"
 touch "${ronin_data_dir}"/system-install
 _print_message "Dojo is ready to be installed!"
-[ $# -eq 0 ] && _pause continue
+if [ $# -eq 0 ]; then
+  _pause continue
+fi

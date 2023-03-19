@@ -3,9 +3,9 @@
 
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
-red=$(tput setaf 1)
+#red=$(tput setaf 1)
 # used for color with ${red}
-nc=$(tput sgr0)
+#c=$(tput sgr0)
 # No Color
 
 cat <<EOF
@@ -26,4 +26,4 @@ ${nc}
 |█|█|█|█|█|█|█|█|█|____________________________________________________/
                   !
 EOF
-_sleep 5
+_sleep 2

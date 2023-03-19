@@ -27,13 +27,7 @@ case $CHOICE in
                 exit
             fi
 
-            cat <<EOF
-${red}
-***
-Deleting docker dangling images and images of previous versions...
-***
-${nc}
-EOF
+            _print_message "Deleting docker dangling images and images of previous versions..."
             _sleep
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh clean
@@ -47,14 +41,7 @@ EOF
                 _is_dojo "${ronin_dojo_menu2}"
                 exit
             fi
-
-            cat <<EOF
-${red}
-***
-Displaying the version info...
-***
-${nc}
-EOF
+            _print_message "Displaying the version info..."
             _sleep
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh version
