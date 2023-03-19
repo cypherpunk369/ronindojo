@@ -65,19 +65,6 @@ if _disable_ipv6; then
 fi
 
 
-#######################
-# FIXING DEPENDENCIES #
-#######################
-
-#_apt_update
-
-#_print_message "Checking package dependencies. Please wait..."
-
-#for pkg in "${package_dependencies[@]}"; do
-#    _install_pkg_if_missing "${pkg}"
-#done
-
-
 ###############################
 # SETTING UP SECURITY PROFILE #
 ###############################
