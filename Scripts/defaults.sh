@@ -112,10 +112,10 @@ backup_format=false
 #
 # Repositories
 #
-ronin_dojo_branch="origin/develop" # defaults to origin/master
+ronin_dojo_branch="origin/release/v2.0.x" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="origin/develop" # Tag release
+samourai_commitish="v1.15.1" # Tag release
 boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
