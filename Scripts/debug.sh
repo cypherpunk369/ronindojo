@@ -321,7 +321,10 @@ create_output_logs() {
 
 	ronindebug  > "${ronin_debug_dir}/health.txt"
 	dmesg > "${ronin_debug_dir}/dmesg.txt"
-	sudo journalctl -u ronin-setup | sudo tee "${ronin_debug_dir}/journal.txt"
+
+	# shellcheck disable=SC2024 # this is explicit use of sudo only for accessing journalctl
+	sudo journalctl -u ronin-setup > "${ronin_debug_dir}/journal.txt"
+	
 	# Include new setup.logs. This mainly replaces the journalctl output, however, there are some good outputs still in journalctl so give both.
 	cp -Rv /home/ronindojo/.logs/setup.logs "${ronin_debug_dir}/setup.logs"
 
