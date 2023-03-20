@@ -1310,7 +1310,7 @@ _ronindojo_update() {
 #
 # Check if Docker is installed
 #
-_check_docker() {
+_install_docker_if_not_present() {
     if ! command -v docker &> /dev/null; then
         _install_docker
     else
@@ -1337,7 +1337,7 @@ _install_docker() {
 #
 # Check if Docker is installed
 #
-_check_docker_compose() {
+_install_docker_compose_if_not_present() {
     if ! command -v docker-compose &> /dev/null; then
         _install_docker_compose
     else
@@ -1360,8 +1360,8 @@ _install_docker_compose() {
 _docker_datadir_setup() {
     _load_user_conf
 
-    _check_docker
-    _check_docker_compose
+    _install_docker_if_not_present
+    _install_docker_compose_if_not_present
     _print_message "Now configuring docker to use the external SSD..."
     test -d "${install_dir_docker}" || sudo mkdir "${install_dir_docker}"
     # makes directory to store docker/dojo data
