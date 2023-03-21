@@ -287,7 +287,15 @@ _update_40() {
 
     _ronindojo_update
 
+    #update .bashrc with the warning
+    sed -i '/^\/home\/ronindojo\/RoninDojo\/Scripts\/.logo$/a echo -e "\\nNOTICE\\n\\nYOUR CURRENT VERSION IS 1.15.1\\nRONINDOJO WILL NO LONGER UPDATE\\nTO MIGRATE TO RONINDOJO V2\\nPLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE\\n\\nEND OF NOTICE"\necho Press any key to continue\nread -n 1 -r -s' /home/ronindojo/.bashrc
+
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/40-"$(date +%m-%d-%Y)"
 
+    _print_message "YOUR CURRENT VERSION IS 1.15.1"
+    _print_message "RONINDOJO WILL NO LONGER UPDATE."
+    _print_message "TO MIGRATE TO RONINDOJO V2"
+    _print_message "PLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE"
+    _pause "return"
 }
