@@ -61,7 +61,7 @@ fi
 
 
 _print_message "Installing dependencies..."
-_install_pkg_if_missing --update-mirrors "gptfdisk" 
+_install_pkg_if_missing "gdisk" 
 
 
 #####################
