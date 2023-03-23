@@ -143,6 +143,7 @@ sudo wipefs -a --force "${_device}" 1>/dev/null
 sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
 sudo mount "${backup_storage_partition}" "${backup_mount}"
+sudo tune2fs -m 0 "${backup_storage_partition}"
 
 _print_message "Mounted ${backup_storage_partition} to ${backup_mount}"
 _print_message "Filesystem creation success!"
