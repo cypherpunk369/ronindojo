@@ -29,8 +29,5 @@ case $CHOICE in
         ;;
     3)
         bash -c "${ronin_system_menu2}"
-        # returns to menu
         ;;
 esac
-
-exit

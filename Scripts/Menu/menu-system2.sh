@@ -27,102 +27,49 @@ clear
 case $CHOICE in
     1)
         bash -c "${ronin_networking_menu}"
+        exit
         ;;
     2)
-        cat <<EOF
-${red}
-***
-Prepare to type new password for ${ronindojo_user} user...
-***
-${nc}
-EOF
+        _print_message "Prepare to type new password for ${ronindojo_user} user..."
         _sleep
         sudo passwd "${ronindojo_user}"
-
-        _pause return
-        bash -c "${ronin_system_menu2}"
-        # user change password, returns to menu
         ;;
     3)
-        cat <<EOF
-${red}
-***
-Prepare to type new password for root user...
-***
-${nc}
-EOF
+        _print_message "Prepare to type new password for root user..."
         _sleep
         sudo passwd
-
-        _pause return
-        bash -c "${ronin_system_menu2}"
-        # root change password, returns to menu
         ;;
     4)
-        cat <<EOF
-${red}
-***
-Locking Root User...
-***
-${nc}
-EOF
+        _print_message "Locking Root User..."
         _sleep
         sudo passwd -l root
-        bash -c "${ronin_system_menu2}"
-        # uses passwd to lock root user, returns to menu
         ;;
     5)
-        cat <<EOF
-${red}
-***
-Unlocking Root User...
-***
-${nc}
-EOF
+        _print_message "Unlocking Root User..."
         _sleep
         sudo passwd -u root
-        bash -c "${ronin_system_menu2}"
-        # uses passwd to unlock root user, returns to menu
         ;;
     6)
         if [ ! -d "${dojo_path}" ]; then
             _is_dojo "${ronin_system_menu2}"
             exit
         fi
-            # is dojo installed?
 
-        cat <<EOF
-${red}
-***
-Uninstalling RoninDojo, press Ctrl+C to exit if needed!
-***
-${nc}
-EOF
+        _print_message "Uninstalling RoninDojo, press Ctrl+C to exit if needed!"
         _sleep 10 --msg "Uninstalling in"
 
         _stop_dojo
-        # stop dojo
 
-        # Backup Bitcoin Blockchain Data
         "${dojo_data_bitcoind_backup}" && _dojo_data_bitcoind_backup
 
-        # Backup Indexer Data
         "${dojo_data_indexer_backup}" && _dojo_data_indexer_backup
 
-        cat <<EOF
-${red}
-***
-Uninstalling RoninDojo...
-***
-${nc}
-EOF
-        "${tor_backup}" && _tor_backup
-        # tor backup must happen prior to dojo uninstall
+        _print_message "Uninstalling RoninDojo..."
 
-        # uninstall mempool.space
+        "${tor_backup}" && _tor_backup
+
         _is_mempool && _mempool_uninstall
 
-        # uninstall bisq support
         _is_bisq && _bisq_uninstall
 
         _uninstall_network_check_service
@@ -131,9 +78,7 @@ EOF
 
         cd "$dojo_path_my_dojo" || exit
 
-        # uninstall samourai dojo
         if ./dojo.sh uninstall --auto; then
-            # Check if applications need to be uninstalled
             _is_ronin_ui && _ronin_ui_uninstall
 
             _is_fan_control_installed && _fan_control_uninstall
@@ -158,28 +103,25 @@ EOF
                 rm -rf "${HOME}"/boltzmann
             fi
 
-            # Backup samourai dojo credentials
             "${is_active_dojo_conf_backup}" && _backup_dojo_confs
 
             rm -rf "${dojo_path}"
 
-            # Returns HOME since $dojo_path deleted
             cd "${HOME}" || exit
 
             sudo systemctl restart --quiet docker
-            # restart docker daemon
 
             _print_message "All RoninDojo features has been Uninstalled..."
             _sleep
         fi
 
-        _pause return
 
-        bash -c "${ronin_system_menu2}"
-        # return to menu
         ;;
     7)
         bash -c "${ronin_system_menu}"
-        # returns to menu
+        exit
         ;;
 esac
+
+_pause return
+bash -c "${ronin_system_menu2}"
