@@ -4,7 +4,7 @@ RoninDojo v2.0.0 Change log
 
 - Switched expected OS from Manjaro to Debian
 - Added update script that warns v1.x users to migrate to v2 via flashing
-- Credits: BTCxZelko, OrangedMike, dammkewl, s2l1, BrotherRabbit, Witty Bull
+- Credits: BTCxZelko, OrangedMike, dammkewl, s2l1, BrotherRabbit, Witty Bull, Numbers
 
 RoninDojo v1.15.1 Change Log
 - Bug fix: non existent _update_15 is no longer called during an upgrade
