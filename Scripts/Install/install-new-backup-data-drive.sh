@@ -96,7 +96,7 @@ _print_message "Preparing to format ${backup_storage_partition} partition and mo
 
 if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}" 2> /dev/null)" ]; then
     _print_message "Assigned backup partition ${backup_storage_partition} has a filesystem already"
-    _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINTS $backup_storage_partition | tail -1)"
+    _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINT $backup_storage_partition | tail -1)"
 fi
 
 _print_message "WARNING: Any existing data on this backup drive will be lost!"
