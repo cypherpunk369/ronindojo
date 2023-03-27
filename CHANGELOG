@@ -5,7 +5,7 @@ RoninDojo v2.0.0 Change log
 - Switched expected OS from Manjaro to Debian
 - Added update script that warns v1.x users to migrate to v2 via flashing
 - Added use of tune2fs on the backup drive when installing it, to maximize usage of the backup drive's storage space
-- Credits: BTCxZelko, OrangedMike, dammkewl, s2l1, BrotherRabbit, Witty Bull, Numbers
+- Credits: BTCxZelko, OrangedMike, dammkewl, s2l1, BrotherRabbit, Witty Bull, Numbers, KYC3
 
 RoninDojo v1.15.1 Change Log
 - Bug fix: non existent _update_15 is no longer called during an upgrade
