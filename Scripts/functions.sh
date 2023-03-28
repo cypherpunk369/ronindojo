@@ -1701,7 +1701,7 @@ _dojo_data_indexer_backup() {
         sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"/
     elif sudo test -d "${docker_volume_fulcrum}"; then
         test ! -d "${dojo_backup_fulcrum}" && sudo mkdir "${dojo_backup_fulcrum}"
-        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"/
+        sudo mv "${docker_volume_fulcrum}"/_data "${dojo_backup_fulcrum}"/
     fi
 }
 
