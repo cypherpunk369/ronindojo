@@ -68,6 +68,8 @@ case $CHOICE in
 
         "${tor_backup}" && _tor_backup
 
+        sudo rm -rf "${install_dir}/docker" &>/dev/null
+
         _is_mempool && _mempool_uninstall
 
         _is_bisq && _bisq_uninstall
