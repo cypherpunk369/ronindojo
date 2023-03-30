@@ -293,10 +293,8 @@ _update_40() {
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/40-"$(date +%m-%d-%Y)"
 
-    _print_message "YOUR CURRENT VERSION IS 1.15.1"
-    _print_message "RONINDOJO WILL NO LONGER UPDATE."
-    _print_message "TO MIGRATE TO RONINDOJO V2"
-    _print_message "PLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE"
-    _print_message "AND RE-PAIR YOUR WALLET WITH DOJO"
+    _print_message "YOUR CURRENT VERSION IS 1.15.1 AND RONINDOJO WILL NO LONGER UPDATE."
+    _print_message "TO MIGRATE TO RONINDOJO V2 PLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE."
+    _print_message "RE-PAIR YOUR WALLET WITH DOJO, OTHERWISE YOU WILL NOT SEE TRANSACTIONS."
     _pause "return"
 }
