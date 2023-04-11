@@ -2,6 +2,9 @@ Changelog
 
 RoninDojo v2.0.0 Change log
 
+- Updated the pgp key file 
+  - Added the RoninDojo support PGP public key
+  - Updated BTCxZelko's pgp public key entry
 - Switched expected OS from Manjaro to Debian
 - Added update script that warns v1.x users to migrate to v2 via flashing
 - Added use of tune2fs on the backup drive when installing it, to maximize usage of the backup drive's storage space
