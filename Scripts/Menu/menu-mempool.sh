@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Start"
@@ -21,24 +23,13 @@ clear
 case $CHOICE in
     1)
         if ! _is_mempool ; then
-            cat <<EOF
-${red}
-***
-Mempool Space Visualizer is not installed...
-***
-${nc}
-EOF
+            _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
             bash -c "${ronin_mempool_menu}"
         else
-            cat <<EOF
-${red}
-***
-Starting Mempool Space Visualizer...
-***
-${nc}
-EOF
+            _print_message "Starting Mempool Space Visualizer..."
+
             docker start mempool_api mempool_db mempool_web 1>/dev/null
             _sleep 5
             _pause return
@@ -49,24 +40,13 @@ EOF
         ;;
     2)
         if ! _is_mempool ; then
-            cat <<EOF
-${red}
-***
-Mempool Space Visualizer is not installed...
-***
-${nc}
-EOF
+            _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
             bash -c "${ronin_mempool_menu}"
         else
-            cat <<EOF
-${red}
-***
-Stopping Mempool Space Visualizer...
-***
-${nc}
-EOF
+            _print_message "Stopping Mempool Space Visualizer..."
+
             docker stop mempool_api mempool_db mempool_web 1>/dev/null
             _pause return
             bash -c "${ronin_mempool_menu}"
@@ -76,24 +56,13 @@ EOF
         ;;
     3)
         if ! _is_mempool ; then
-            cat <<EOF
-${red}
-***
-Mempool Space Visualizer is not installed...
-***
-${nc}
-EOF
+            _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
             bash -c "${ronin_mempool_menu}"
         else
-            cat <<EOF
-${red}
-***
-Restarting Mempool Space Visualizer...
-***
-${nc}
-EOF
+            _print_message "Restarting Mempool Space Visualizer..."
+
             docker stop mempool_api mempool_db mempool_web 1>/dev/null
             _sleep 5
 
@@ -108,33 +77,15 @@ EOF
         ;;
     4)
         if ! _is_mempool ; then
-            cat <<EOF
-${red}
-***
-Mempool Space Visualizer is not installed...
-***
-${nc}
-EOF
+            _print_message "Mempool Space Visualizer is not installed..."
             _sleep
             _pause return
             bash -c "${ronin_mempool_menu}"
         else
-            cat <<EOF
-${red}
-***
-Viewing Mempool Space Visualizer Logs...
-***
-${nc}
-EOF
+            _print_message "Viewing Mempool Space Visualizer Logs..."
             _sleep
+            _print_message "Press Ctrl+C to exit at anytime..."
 
-            cat <<EOF
-${red}
-***
-Press Ctrl+C to exit at anytime...
-***
-${nc}
-EOF
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh logs mempool_api
             bash -c "${ronin_mempool_menu}"

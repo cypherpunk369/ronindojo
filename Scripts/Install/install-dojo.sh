@@ -1,12 +1,16 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/generated-credentials.sh
 . "$HOME"/RoninDojo/Scripts/generated-credentials.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -16,7 +20,7 @@ _load_user_conf
 # ASSERTIONS #
 ##############
 
-if ! findmnt "${install_dir}" 1>/dev/null; then
+if ! findmnt "${install_dir}"; then
     _print_message "Missing drive mount at ${install_dir}! Please contact support for assistance..."
     _print_message "Exiting RoninDojo..."
     [ $# -eq 0 ] && _pause return
@@ -43,7 +47,11 @@ _sleep 3 --msg "Installing in"
 #######################
 
 _print_message "Installing RoninUI..."
-_ronin_ui_install
+if [ ! -d "${ronin_ui_path}" ]; then
+    _ronin_ui_install
+else
+    _ronin_debian_ui
+fi
 _install_gpio
 
 ########################
@@ -53,7 +61,7 @@ _install_gpio
 _print_message "Downloading latest RoninDojo release..."
 
 cd "$HOME" || exit
-git clone -q "${samourai_repo}" dojo 2>/dev/null
+git clone -q "${samourai_repo}" dojo 
 cd "${dojo_path}" || exit
 git checkout -q -f "${samourai_commitish}"
 
@@ -101,6 +109,8 @@ _print_message "Installing Samourai Wallet's Dojo..."
 
 sudo systemctl restart --quiet docker
 
+wait
+
 cd "$dojo_path_my_dojo" || exit
 if ! ./dojo.sh install --nolog --auto; then
     _print_error_message "Install failed! Please contact support..."
@@ -134,9 +144,9 @@ fi
 # CLEANING UP BACKUP #
 ######################
 
-if findmnt "${backup_mount}" 1>/dev/null; then
+if findmnt "${backup_mount}" ; then
     sudo umount "${backup_mount}"
-    sudo rm -rf "${backup_mount}" &>/dev/null
+    sudo rm -rf "${backup_mount}" 
 fi
 
 

@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Clean Dojo"
@@ -25,13 +27,7 @@ case $CHOICE in
                 exit
             fi
 
-            cat <<EOF
-${red}
-***
-Deleting docker dangling images and images of previous versions...
-***
-${nc}
-EOF
+            _print_message "Deleting docker dangling images and images of previous versions..."
             _sleep
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh clean
@@ -45,14 +41,7 @@ EOF
                 _is_dojo "${ronin_dojo_menu2}"
                 exit
             fi
-
-            cat <<EOF
-${red}
-***
-Displaying the version info...
-***
-${nc}
-EOF
+            _print_message "Displaying the version info..."
             _sleep
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh version

@@ -1,11 +1,13 @@
 #!/bin/bash
-# shellcheck disable=SC2154 source=/dev/null
 
 ##############################
 # LOADING VARS AND FUNCTIONS #
 ##############################
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -60,29 +62,6 @@ fi
 
 if _disable_ipv6; then
     _print_message "Disabling Ipv6..."
-fi
-
-
-#######################
-# FIXING DEPENDENCIES #
-#######################
-
-if ! grep -w "${pkg_ignore[1]}" /etc/pacman.conf 1>/dev/null; then
-    sudo sed -i "s:^#IgnorePkg   =.*$:IgnorePkg   = ${pkg_ignore[*]}:" /etc/pacman.conf
-fi
-
-_pacman_update_mirrors
-
-_print_message "Checking package dependencies. Please wait..."
-
-for pkg in "${!package_dependencies[@]}"; do
-    _check_pkg "${pkg}" "${package_dependencies[$pkg]}"
-done
-
-# TODO: replace this with use of _install_pkg_if_missing
-if ! pacman -Q libusb 1>/dev/null; then
-    _print_message "Installing libusb..."
-    sudo pacman --quiet -S --noconfirm libusb
 fi
 
 
@@ -168,58 +147,11 @@ test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
 sudo mount "${blockdata_storage_partition}" "${backup_mount}"
 
-if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then #bitcoind
+_dojo_data_bitcoind_backup
 
-    _print_message "Found Blockchain data for salvage!"
-    _print_message "Moving to data backup"
-    test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
+_dojo_data_indexer_backup
 
-    sudo mv -v "${backup_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/
-
-    _print_message "Blockchain data prepared for salvage!"
-fi
-
-if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # Addrindexrs
-
-    _print_message "Found Addrindexrs data for salvage!"
-    _print_message "Moving to data backup"
-
-    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
-    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
-
-    _print_message "Addrindexrs data prepared for salvage!"
-
-elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
-
-    _print_message "Found Electrs data for salvage!"
-    _print_message "Moving to data backup"
-
-    test -d "${electrs_backup_dir}" || sudo mkdir -p "${electrs_backup_dir}"
-    sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
-
-    _print_message "Electrs data prepared for salvage!"
-
-elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
-
-    _print_message "Found Fulcrum data for salvage!"
-    _print_message "Moving to data backup"
-    
-    test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
-    sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
-
-    _print_message "Fulcrum data prepared for salvage!"
-fi
-
-if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor
-
-    _print_message "Found Tor data for salvage!"
-    _print_message "Moving to data backup"
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
-
-    sudo bash -c "mv -v ${backup_mount}/${tor_data_dir}/_data/hsv3* ${tor_backup_dir}/"
-
-    _print_message "Tor data prepared for salvage!"
-fi
+_tor_backup
 
 
 ##########################################
@@ -314,7 +246,7 @@ df -h "${blockdata_storage_partition}"
 #########################################
 
 _swap_size
-create_swap --file "${install_dir_swap}" --count "${_size}"
+create_swap --file "${install_dir_swap}" --count "${_size}" &
 
 _setup_tor
 _docker_datadir_setup
@@ -326,4 +258,6 @@ _docker_datadir_setup
 _create_dir "${ronin_data_dir}"
 touch "${ronin_data_dir}"/system-install
 _print_message "Dojo is ready to be installed!"
-[ $# -eq 0 ] && _pause continue
+if [ $# -eq 0 ]; then
+  _pause continue
+fi

@@ -1,5 +1,12 @@
 #!/bin/bash
-# shellcheck disable=SC2034,SC2154 source=/dev/null
+# shellcheck disable=SC2034
+
+#
+# Loading vars and functions
+#
+
+# shellcheck source=./Scripts/defaults.sh
+. "$HOME"/RoninDojo/Scripts/defaults.sh
 
 #
 # Dojo Configuration Values

@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -21,14 +23,8 @@ clear
 
 case $CHOICE in
     1)
-        cat <<EOF
-${red}
-***
-Showing Disk Space Info...
-***
-${nc}
-EOF
-_sleep
+        _print_message "Showing Disk Space Info..."
+        _sleep
 
         sd_free_ratio=$(printf "%s" "$(df | grep "/$" | awk '{ print $4/$2*100 }')") 2>/dev/null
         sd=$(printf "%s (%s%%)" "$(df -h | grep '/$' | awk '{ print $4 }')" "${sd_free_ratio}")

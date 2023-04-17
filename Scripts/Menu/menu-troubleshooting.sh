@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -27,8 +29,9 @@ case $CHOICE in
         _stop_dojo
         
         _print_message "Perfoming a full system update..."
-        sudo pacman -Syyu --noconfirm
-
+        _apt_update
+        sudo apt-get -y upgrade
+        
         _pause reboot
         sudo systemctl reboot
         ;;

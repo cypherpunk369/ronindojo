@@ -1,8 +1,12 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/dojo-defaults.sh
 . "$HOME"/RoninDojo/Scripts/dojo-defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 _load_user_conf
@@ -63,6 +67,7 @@ display_creds_roninui() {
 }
 
 display_creds_bitcoin() {
+    # shellcheck disable=SC2154
     _print_message "Bitcoin Credentials" \
         "Bitcoin Daemon:" \
         "" \

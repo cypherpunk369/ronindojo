@@ -1,7 +1,9 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
+# shellcheck source=./Scripts/defaults.sh
 . "$HOME"/RoninDojo/Scripts/defaults.sh
+
+# shellcheck source=./Scripts/functions.sh
 . "$HOME"/RoninDojo/Scripts/functions.sh
 
 OPTIONS=(1 "Start"
@@ -22,23 +24,11 @@ clear
 case $CHOICE in
         1)
             _is_dojo "${ronin_whirlpool_menu}"
-            cat <<EOF
-${red}
-***
-Starting Whirlpool...
-***
-${nc}
-EOF
+            _print_message "Starting Whirlpool..."
             _sleep
             docker start whirlpool 1>/dev/null
 
-            cat <<EOF
-${red}
-***
-Don't forget to login to GUI to unlock mixing!
-***
-${nc}
-EOF
+            _print_message "Don't forget to login to GUI to unlock mixing!"
             _sleep
 
             _pause return
@@ -49,13 +39,7 @@ EOF
             ;;
         2)
             _is_dojo "${ronin_whirlpool_menu}"
-            cat <<EOF
-${red}
-***
-Stopping Whirlpool...
-***
-${nc}
-EOF
+            _print_message "Stopping Whirlpool..."
             _sleep
             docker stop whirlpool 1>/dev/null
 
@@ -67,13 +51,7 @@ EOF
             ;;
         3)
             _is_dojo "${ronin_whirlpool_menu}"
-            cat <<EOF
-${red}
-***
-Restarting Whirlpool...
-***
-${nc}
-EOF
+            _print_message "Restarting Whirlpool..."
             _sleep
             docker stop whirlpool 1>/dev/null
 
@@ -88,22 +66,9 @@ EOF
 	        ;;
         4)
             _is_dojo "${ronin_whirlpool_menu}"
-            cat <<EOF
-${red}
-***
-Viewing Whirlpool Logs...
-***
-${nc}
-EOF
+            _print_message "Viewing Whirlpool Logs..."
             _sleep
-
-            cat <<EOF
-${red}
-***
-Press Ctrl+C to exit at anytime...
-***
-${nc}
-EOF
+            _print_message "Press Ctrl+C to exit at anytime..."
             cd "$dojo_path_my_dojo" || exit
             ./dojo.sh logs whirlpool
 
@@ -113,44 +78,21 @@ EOF
             ;;
         5)
             _is_dojo "${ronin_whirlpool_menu}"
-            cat <<EOF
-${red}
-***
-Re-initiating Whirlpool will reset your mix count and generate new API key...
-***
-${nc}
-EOF
+            _print_message "Re-initiating Whirlpool will reset your mix count and generate new API key..."
             _sleep
-            cat <<EOF
-${red}
-***
-Are you sure you want to re-initiate Whirlpool?
-***
-${nc}
-EOF
+            _print_message "Are you sure you want to re-initiate Whirlpool?"
+
             while true; do
                 read -rp "[${green}Yes${nc}/${red}No${nc}]: " answer
                 case $answer in
                     [yY][eE][sS]|[yY])
-                        cat <<EOF
-${red}
-***
-Re-initiating Whirlpool...
-***
-${nc}
-EOF
+                        _print_message "Re-initiating Whirlpool..."
                         cd "$dojo_path_my_dojo" || exit
 
                         ./dojo.sh whirlpool reset
                         _sleep
 
-                        cat <<EOF
-${red}
-***
-Re-initation complete, leave APIkey blank when pairing to GUI!
-***
-${nc}
-EOF
+                        _print_message "Re-initation complete, leave APIkey blank when pairing to GUI!"
                         _sleep 5
                         break
                         ;;
@@ -159,13 +101,7 @@ EOF
                         break
                         ;;
                     *)
-                        cat <<EOF
-${red}
-***
-Invalid answer! Enter Y or N
-***
-${nc}
-EOF
+                        _print_message "Invalid answer! Enter Y or N"
                         ;;
                 esac
             done

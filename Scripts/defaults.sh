@@ -11,10 +11,9 @@ fi
 # Package dependencies associative array
 #
 declare -A package_dependencies=(
-    [avahi-daemon]=avahi
-    [pm2]=pm2
+    [avahi-daemon]=avahi-daemon
     [nginx]=nginx
-    [java]=jdk11-openjdk
+    [java]=openjdk-11-jdk
     [tor]=tor
     [python3]=python3
     [fail2ban-python]=fail2ban
@@ -22,17 +21,11 @@ declare -A package_dependencies=(
     [htop]=htop
     [vim]=vim
     [unzip]=unzip
-    [which]=which
     [wget]=wget
-    [docker]=docker
-    [docker-compose]=docker-compose
     [ufw]=ufw
     [rsync]=rsync
-    [node]=nodejs-lts-fermium
-    [npm]=npm
     [jq]=jq
-    [pipenv]=python-pipenv
-    [sgdisk]=gptfdisk
+    [pipenv]=pipenv
     [gcc]=gcc
 )
 
@@ -122,8 +115,8 @@ backup_format=false
 ronin_dojo_branch="origin/master" # defaults to origin/master
 ronin_dojo_repo="https://code.samourai.io/ronindojo/RoninDojo.git"
 samourai_repo='https://code.samourai.io/ronindojo/samourai-dojo.git'
-samourai_commitish="v1.15.1" # Tag release
-boltzmann_repo='https://code.samourai.io/oxt/boltzmann.git'
+samourai_commitish="v2.0.0" # Tag release
+boltzmann_repo='https://code.samourai.io/ronindojo/boltzmann.git'
 whirlpool_stats_repo='https://code.samourai.io/whirlpool/whirlpool_stats.git'
 ronin_ui_repo="https://code.samourai.io/ronindojo/ronin-ui.git"
 

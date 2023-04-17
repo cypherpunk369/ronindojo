@@ -1,5 +1,4 @@
 #!/bin/bash
-# shellcheck source=/dev/null disable=SC2154
 
 ##############
 # ASSERTIONS #
@@ -45,6 +44,7 @@ fi
 
 . "${ronin_data_dir}"/ip.txt
 
+# shellcheck disable=SC2154
 if [ "${network}" = "${network_current}" ]; then
     exit
 elif ufw status | head -n 1 | grep "Status: active" >/dev/null; then
