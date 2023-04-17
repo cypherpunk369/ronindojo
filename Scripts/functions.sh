@@ -1296,7 +1296,7 @@ _ronindojo_update() {
 #
 # Check if Docker is installed
 #
-_check_docker() {
+_install_docker_if_not_present() {
     if ! command -v docker &> /dev/null; then
         _install_docker
     else
@@ -1323,7 +1323,7 @@ _install_docker() {
 #
 # Check if Docker is installed
 #
-_check_docker_compose() {
+_install_docker_compose_if_not_present() {
     if ! command -v docker-compose &> /dev/null; then
         _install_docker_compose
     else
@@ -1346,8 +1346,8 @@ _install_docker_compose() {
 _docker_datadir_setup() {
     _load_user_conf
 
-    _check_docker
-    _check_docker_compose
+    _install_docker_if_not_present
+    _install_docker_compose_if_not_present
     _print_message "Now configuring docker to use the external SSD..."
     test -d "${install_dir_docker}" || sudo mkdir "${install_dir_docker}"
     # makes directory to store docker/dojo data
@@ -1677,17 +1677,36 @@ _dojo_data_indexer_restore() {
 #
 _dojo_data_indexer_backup() {
     _load_user_conf
+    
+    if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # Addrindexrs
 
-    # determine which indexer is in use and backup accordingly
-    if sudo test -d "${docker_volume_electrs}"; then
-        test ! -d "${dojo_backup_electrs}" && sudo mkdir "${dojo_backup_electrs}"
-        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_electrs}"/
-    elif sudo test -d "${docker_volume_indexer}"; then
-        test ! -d "${dojo_backup_indexer}" && sudo mkdir "${dojo_backup_indexer}"
-        sudo mv "${docker_volume_indexer}"/_data "${dojo_backup_indexer}"/
-    elif sudo test -d "${docker_volume_fulcrum}"; then
-        test ! -d "${dojo_backup_fulcrum}" && sudo mkdir "${dojo_backup_fulcrum}"
-        sudo mv "${docker_volume_electrs}"/_data "${dojo_backup_fulcrum}"/
+        _print_message "Found Addrindexrs data for salvage!"
+        _print_message "Moving to data backup"
+
+        test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
+        sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
+
+        _print_message "Addrindexrs data prepared for salvage!"
+
+    elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
+
+        _print_message "Found Electrs data for salvage!"
+        _print_message "Moving to data backup"
+
+        test -d "${electrs_backup_dir}" || sudo mkdir -p "${electrs_backup_dir}"
+        sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
+
+        _print_message "Electrs data prepared for salvage!"
+
+    elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
+
+        _print_message "Found Fulcrum data for salvage!"
+        _print_message "Moving to data backup"
+        
+        test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
+        sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
+
+        _print_message "Fulcrum data prepared for salvage!"
     fi
 }
 
@@ -1723,23 +1742,32 @@ _dojo_data_bitcoind_restore() {
 _dojo_data_bitcoind_backup() {
     _load_user_conf
 
-    test ! -d "${dojo_backup_bitcoind}" && sudo mkdir "${dojo_backup_bitcoind}"
+    if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then #bitcoind
+        _print_message "Found Blockchain data for salvage!"
+        _print_message "Moving to data backup"
+        test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
 
-    for dir in blocks chainstate indexes; do
-        if sudo test -d "${docker_volume_bitcoind}"/_data/"${dir}"; then
-            sudo mv "${docker_volume_bitcoind}"/_data/"${dir}" "${dojo_backup_bitcoind}"/
-        fi
-    done
+        sudo mv -v "${backup_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/
+
+        _print_message "Blockchain data prepared for salvage!"
+    fi
 }
 
 #
 # Tor credentials backup
 #
 _tor_backup() {
-    test -d "${dojo_backup_tor}" || sudo mkdir -p "${dojo_backup_tor}"
+    _load_user_conf
 
-    if sudo test -d "${install_dir}/${tor_data_dir}"/_data/hsv3dojo; then
-        sudo rsync -ac --delete-before --quiet "${install_dir}/${tor_data_dir}"/_data/ "${dojo_backup_tor}"
+    if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor
+
+        _print_message "Found Tor data for salvage!"
+        _print_message "Moving to data backup"
+        test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
+
+        sudo bash -c "mv -v ${backup_mount}/${tor_data_dir}/_data/hsv3* ${tor_backup_dir}/"
+
+        _print_message "Tor data prepared for salvage!"
     fi
 }
 
@@ -1747,6 +1775,8 @@ _tor_backup() {
 # Tor credentials restore
 #
 _tor_restore() {
+    _load_user_conf
+
     if sudo test -d "${dojo_backup_tor}"/hsv3dojo; then
         _print_message "Tor data restore starting..."
 

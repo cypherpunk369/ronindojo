@@ -61,7 +61,7 @@ fi
 
 
 _print_message "Installing dependencies..."
-_install_pkg_if_missing --update-mirrors "gptfdisk" 
+_install_pkg_if_missing "gdisk" 
 
 
 #####################
@@ -96,7 +96,7 @@ _print_message "Preparing to format ${backup_storage_partition} partition and mo
 
 if [ -n "$(lsblk -no FSTYPE "${backup_storage_partition}" 2> /dev/null)" ]; then
     _print_message "Assigned backup partition ${backup_storage_partition} has a filesystem already"
-    _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINTS $backup_storage_partition | tail -1)"
+    _print_message "It is mounted to the following: " "$(lsblk -o MOUNTPOINT $backup_storage_partition | tail -1)"
 fi
 
 _print_message "WARNING: Any existing data on this backup drive will be lost!"
@@ -143,6 +143,7 @@ sudo wipefs -a --force "${_device}" 1>/dev/null
 sudo sgdisk -Zo -n 1 -t 1:8300 "${_device}" 1>/dev/null
 sudo mkfs.ext4 -q -F -L "backup" "${backup_storage_partition}" 1>/dev/null
 sudo mount "${backup_storage_partition}" "${backup_mount}"
+sudo tune2fs -m 0 "${backup_storage_partition}"
 
 _print_message "Mounted ${backup_storage_partition} to ${backup_mount}"
 _print_message "Filesystem creation success!"

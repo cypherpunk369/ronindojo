@@ -283,11 +283,18 @@ _update_40() {
     sed -i 's/^samourai_commitish/#samourai_commitish/' "${HOME}/.config/RoninDojo/user.conf" # let the samoura_commitish be decided by the RD branch
     sed -i 's/#ronin_dojo_branch/ronin_dojo_branch/' "${HOME}/.config/RoninDojo/user.conf" # uncomment the line
 
-    sed -i 's/ronin_dojo_branch=.*/ronin_dojo_branch="origin/utility/E-1"/' "${HOME}/.config/RoninDojo/user.conf"
+    sed -i 's#ronin_dojo_branch=.*#ronin_dojo_branch="origin/utility/E-1"#' "${HOME}/.config/RoninDojo/user.conf"
 
     _ronindojo_update
+
+    #update .bashrc with the warning
+    sed -i '/^\/home\/ronindojo\/RoninDojo\/Scripts\/.logo$/a echo -e "\\nNOTICE\\n\\nYOUR CURRENT VERSION IS 1.15.1\\nRONINDOJO WILL NO LONGER UPDATE\\nTO MIGRATE TO RONINDOJO V2\\nPLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE\\nAND RE-PAIR YOUR WALLET WITH DOJO\\n\\nEND OF NOTICE"\necho Press any key to continue\nread -n 1 -r -s' /home/ronindojo/.bashrc
 
     # Finalize
     touch "$HOME"/.config/RoninDojo/data/updates/40-"$(date +%m-%d-%Y)"
 
+    _print_message "YOUR CURRENT VERSION IS 1.15.1 AND RONINDOJO WILL NO LONGER UPDATE."
+    _print_message "TO MIGRATE TO RONINDOJO V2 PLEASE FLASH THE SYSTEM WITH THE LATEST IMAGE."
+    _print_message "RE-PAIR YOUR WALLET WITH DOJO, OTHERWISE YOU WILL NOT SEE TRANSACTIONS."
+    _pause "return"
 }

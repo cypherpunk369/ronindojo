@@ -133,6 +133,3 @@ cd "${dojo_path_my_dojo}" || exit
 ##########
 
 _pause return
-
-#This next line of code is to be removed when enough users are on 1.14.0 or newer
-ronin

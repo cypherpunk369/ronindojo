@@ -65,19 +65,6 @@ if _disable_ipv6; then
 fi
 
 
-#######################
-# FIXING DEPENDENCIES #
-#######################
-
-#_apt_update
-
-#_print_message "Checking package dependencies. Please wait..."
-
-#for pkg in "${package_dependencies[@]}"; do
-#    _install_pkg_if_missing "${pkg}"
-#done
-
-
 ###############################
 # SETTING UP SECURITY PROFILE #
 ###############################
@@ -160,58 +147,11 @@ test ! -d "${backup_mount}" && sudo mkdir "${backup_mount}"
 _print_message "Attempting to mount drive for Blockchain data salvage..."
 sudo mount "${blockdata_storage_partition}" "${backup_mount}"
 
-if sudo test -d "${backup_mount}/${bitcoind_data_dir}/_data/blocks"; then #bitcoind
+_dojo_data_bitcoind_backup
 
-    _print_message "Found Blockchain data for salvage!"
-    _print_message "Moving to data backup"
-    test -d "${bitcoin_ibd_backup_dir}" || sudo mkdir -p "${bitcoin_ibd_backup_dir}"
+_dojo_data_indexer_backup
 
-    sudo mv -v "${backup_mount}/${bitcoind_data_dir}/_data/"{blocks,chainstate,indexes} "${bitcoin_ibd_backup_dir}"/
-
-    _print_message "Blockchain data prepared for salvage!"
-fi
-
-if sudo test -d "${backup_mount}/${indexer_data_dir}/_data/addrindexrs"; then # Addrindexrs
-
-    _print_message "Found Addrindexrs data for salvage!"
-    _print_message "Moving to data backup"
-
-    test -d "${indexer_backup_dir}" || sudo mkdir -p "${indexer_backup_dir}"
-    sudo mv -v "${backup_mount}/${indexer_data_dir}/_data" "${indexer_backup_dir}"/
-
-    _print_message "Addrindexrs data prepared for salvage!"
-
-elif sudo test -d "${backup_mount}/${electrs_data_dir}/_data"; then # Electrs
-
-    _print_message "Found Electrs data for salvage!"
-    _print_message "Moving to data backup"
-
-    test -d "${electrs_backup_dir}" || sudo mkdir -p "${electrs_backup_dir}"
-    sudo mv -v "${backup_mount}/${electrs_data_dir}/_data" "${electrs_backup_dir}"/
-
-    _print_message "Electrs data prepared for salvage!"
-
-elif sudo test -d "${backup_mount}/${fulcrum_data_dir}/_data"; then # Fulcrum
-
-    _print_message "Found Fulcrum data for salvage!"
-    _print_message "Moving to data backup"
-    
-    test -d "${fulcrum_backup_dir}" || sudo mkdir -p "${fulcrum_backup_dir}"
-    sudo mv -v "${backup_mount}/${fulcrum_data_dir}/_data" "${fulcrum_backup_dir}"/
-
-    _print_message "Fulcrum data prepared for salvage!"
-fi
-
-if sudo test -d "${backup_mount}/${tor_data_dir}/_data/hsv3dojo"; then # tor
-
-    _print_message "Found Tor data for salvage!"
-    _print_message "Moving to data backup"
-    test -d "${tor_backup_dir}" || sudo mkdir -p "${tor_backup_dir}"
-
-    sudo bash -c "mv -v ${backup_mount}/${tor_data_dir}/_data/hsv3* ${tor_backup_dir}/"
-
-    _print_message "Tor data prepared for salvage!"
-fi
+_tor_backup
 
 
 ##########################################
