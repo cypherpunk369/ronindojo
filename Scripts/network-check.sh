@@ -68,10 +68,6 @@ fi
 #done
 _set_uwf_rules
 
-# keeping dojo's administration in order
-sudo sed -i 's/INDEXER_EXTERNAL_IP=.*$/INDEXER_EXTERNAL_IP='"${ip_current}"'/' "/home/ronindojo/dojo/docker/my-dojo/conf/docker-indexer.conf"
-# TODO: figure out if this happens before docker starts
-
 # Saving the state is the last step on purpose, in case the procedure gets killed for whatever reason before every alteration is completed.
 _backup_network_info
 
