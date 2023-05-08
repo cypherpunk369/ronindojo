@@ -112,6 +112,7 @@ _call_update_scripts() {
     test -f "$HOME"/.config/RoninDojo/data/updates/38-* || _update_38 # Fix system udpates breaking kernel module loading
     test -f "$HOME"/.config/RoninDojo/data/updates/39-* || _update_39 # Update GPIO scripts
     test -f "$HOME"/.config/RoninDojo/data/updates/40-* || _update_40 # The last 1.x update ever
+    test -f "$HOME"/.config/RoninDojo/data/updates/41-* || _update_41 # v2.0.1: Fulcrum expose
 }
 
 _skip_update_scripts() {
@@ -119,7 +120,7 @@ _skip_update_scripts() {
         for i in $(seq 1 9); do
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/0${i}-"$(date +%m-%d-%Y)"
         done
-        for i in $(seq 10 40); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
+        for i in $(seq 10 41); do # make sure the upper bound of this for loop here, stays up-to-date with the update numbering
             echo "skipped" > "$HOME"/.config/RoninDojo/data/updates/${i}-"$(date +%m-%d-%Y)"
         done
     fi
@@ -948,6 +949,7 @@ _set_addrindexrs() {
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=addrindexrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
     sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_EXTERNAL=.*$/INDEXER_EXTERNAL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -957,6 +959,7 @@ _set_fulcrum() {
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=fulcrum/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
     sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=active/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_EXTERNAL=.*$/INDEXER_EXTERNAL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -966,6 +969,7 @@ _set_electrs() {
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_indexer/' "${dojo_path_my_dojo}"/conf/docker-node.conf
     sudo sed -i 's/INDEXER_BATCH_SUPPORT=.*$/INDEXER_BATCH_SUPPORT=inactive/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    sudo sed -i 's/INDEXER_EXTERNAL=.*$/INDEXER_EXTERNAL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }
@@ -974,6 +978,7 @@ _set_no_indexer() {
     sudo sed -i 's/INDEXER_INSTALL=.*$/INDEXER_INSTALL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/INDEXER_TYPE=.*$/INDEXER_TYPE=electrs/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
     sudo sed -i 's/NODE_ACTIVE_INDEXER=.*$/NODE_ACTIVE_INDEXER=local_bitcoind/' "${dojo_path_my_dojo}"/conf/docker-node.conf
+    sudo sed -i 's/INDEXER_EXTERNAL=.*$/INDEXER_EXTERNAL=off/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
 
     return 0
 }

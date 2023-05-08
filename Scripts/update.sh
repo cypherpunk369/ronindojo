@@ -298,3 +298,18 @@ _update_40() {
     _print_message "RE-PAIR YOUR WALLET WITH DOJO, OTHERWISE YOU WILL NOT SEE TRANSACTIONS."
     _pause "return"
 }
+
+# Fulcrum SSL expose migration
+_update_41(){
+
+    if _is_fulcrum; then
+        sudo sed -i 's/INDEXER_EXTERNAL=.*$/INDEXER_EXTERNAL=on/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+        sudo sed -i 's/INDEXER_EXTERNAL_IP=.*$/INDEXER_EXTERNAL_IP=0.0.0.0/' "${dojo_path_my_dojo}"/conf/docker-indexer.conf
+    fi;
+
+    sudo ufw allow from "${network_current}" to any port "50002" >/dev/null
+    sudo ufw reload
+
+    # Finalize
+    touch "$HOME"/.config/RoninDojo/data/updates/41-"$(date +%m-%d-%Y)"
+}

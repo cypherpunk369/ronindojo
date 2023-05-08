@@ -2,7 +2,8 @@ Changelog
 
 RoninDojo v2.0.1 Change Log
 - Bug fix: removed an obsolete permissions check that unnecessarily caused a redundant dojo stop during a RoninDojo update
-- Credits: dammkewl, PavelTheCoder
+- Feature: Added exposing Fulcrum indexer to the LAN by default
+- Credits: dammkewl, PavelTheCoder, BTCxZelko, s2l1
 
 RoninDojo v2.0.0 Change log
 
